@@ -4,6 +4,7 @@
 
 #define JD_PLATFORM_WIN32   1       //Windows Platform
 #define JD_PLATFORM_LINUX   2       //Linux Platform
+#define JD_PLATFORM_OSX     3       //Linux Platform
 
 #define JD_COMPILER_MSVC    1       //Visual Studio Compiler
 #define JD_COMPILER_GNUC    2       //GCC Compiler
@@ -96,6 +97,8 @@ Big indian, el mayor bit se manda primero
 /*****************************************************************************/
 #if defined(__WIN32__) ||  defined(_WIN32)
 # define JD_PLATFORM JD_PLATFORM_WIN32
+#elif defined(__APPLE_CC__)
+# define JD_PLATFORM JD_PLATFORM_WIN32
 #else
 # define JD_PLATFORM JD_PLATFORM_LINUX
 #endif
@@ -150,7 +153,7 @@ Big indian, el mayor bit se manda primero
 */
 /*****************************************************************************/
 #if JD_PLATFORM == JD_PLATFORM_WIN32
-# if JD_COMPILER == JDCOMPILER_MSVC
+# if JD_COMPILER == JD_COMPILER_MSVC
 #   if defined ( JD_STATIC_LIB )
 #     define JD_UTILITY_EXPORT
 #   else
