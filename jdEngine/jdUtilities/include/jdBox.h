@@ -1,0 +1,251 @@
+/*****************************************************************************/
+/**
+	* @file    jdBox.h
+	* @author  Sergio Diaz (idv17c.sdiaz@uartesdigitales.edu.mx)
+	* @date    12/JUN/2020
+	* @brief   A basic box
+	*
+	* The box had base, height, long, position, rotation, scale
+	*
+	*
+	* @bug	    No known bugs.
+	*/
+/*****************************************************************************/
+#pragma once
+
+#include "jdPrerequisitesUtil.h"
+#include "jdVector3.h"
+#include "jdRadian.h"
+
+namespace jdEngineSDK {
+
+		class JD_UTILITY_EXPORT Box
+		{
+		 public:
+///////////////////////////////////////////////////////////////////////////////
+// Constructors
+///////////////////////////////////////////////////////////////////////////////
+				/**
+					* @brief Default constructor Box.
+					*/
+				Box() = default;
+
+				/**
+					* @brief Constructor box given a base and height.
+					* @param base is for base component
+					* @param height is for heigh component
+					* @note initialice position on 0, 0, 0 cordinates
+					*/
+				Box(const float& base, const float& height, const float& _long);
+				/**
+					* @brief Constructor box with other box
+					* @param box is the box to copy data
+					*/
+				Box(const Box& box);
+
+///////////////////////////////////////////////////////////////////////////////
+// Operators
+///////////////////////////////////////////////////////////////////////////////
+		public:
+				/**
+					* @brief Equal this box to another
+					* @param box is the other box to equalize.
+					* @return the values of the another box in this box
+					*/
+				Box&
+				operator=(const Box& box);
+
+				/**
+					* @brief Gets the result of comparation of this box with another.
+					* @param box is the other box to compare this by.
+					* @return true if the area, the base and the height are equal.
+					*/
+				FORCEINLINE bool
+				operator==(const Box& box) const;
+
+				/**
+					* @brief Gets the result of comparation of this box with another.
+					* @param box is the other box to compare this by.
+					* @return true if the area, the base and the height are diferent.
+					*/
+				FORCEINLINE bool
+				operator!=(const Box& box) const;
+
+///////////////////////////////////////////////////////////////////////////////
+// Functions
+///////////////////////////////////////////////////////////////////////////////
+				/**
+					* @brief set box's position
+					* @param pos vector with the cordinates x, y, z
+					*/
+				FORCEINLINE void
+				setPosition(const JDVector3& pos) {
+						m_position = pos;
+				}
+
+				/**
+					* @brief set box's position
+					* @param posX for x cordinate
+					* @param posY for y cordinate
+					* @param posZ for z cordinate
+					*/
+				FORCEINLINE void
+				setPosition(const float& posX, const float& posY, const float& posZ) {
+						m_position = { posX,posY,posZ };
+				}
+
+				/**
+					* @brief Get box's position
+					* @return a vector with the position
+					*/
+				FORCEINLINE JDVector3
+				getPosition() const {
+						return m_position;
+				}
+
+				FORCEINLINE void
+				setBase(const float& base) {
+						m_width  = base;
+				}
+
+				/**
+					* @brief Get box's base
+					* @return a float with the base multiply by scale
+					*/
+				FORCEINLINE float
+				getBase() const {
+						return m_width  * m_scale;
+				}
+
+				/**
+					* @brief Get box's base
+					* @return a float with the base unmodified
+					*/
+				FORCEINLINE float
+				getRealBase() const {
+						return m_width ;
+				}
+
+				FORCEINLINE void
+				setHeight(const float& height) {
+						m_height = height;
+				}
+
+				/**
+					* @brief Get box's Heigh
+					* @return a float with the heigh multiply by scale
+					*/
+				FORCEINLINE float
+				getHeight() const {
+						return m_height * m_scale;
+				}
+
+				/**
+					* @brief Get box's Heigh
+					* @return a float with the heigh unmodified
+					*/
+				FORCEINLINE float
+				getRealHeight() const {
+						return m_height;
+				}
+
+				FORCEINLINE void
+				setLong(const float& _long) {
+						m_length = _long;
+				}
+
+				FORCEINLINE float
+				getLong() const {
+						return m_length * m_scale;
+				}
+
+				/**
+					* @brief Get box's Heigh
+					* @return a float with the heigh unmodified
+					*/
+				FORCEINLINE float
+				getRealLong() const {
+						return m_length;
+				}
+
+				FORCEINLINE float
+				getvolume() const {
+						return m_height * m_width  *m_length * m_scale;
+				}
+
+				FORCEINLINE float
+				getPerimeter() const {
+						return (m_height * 2 * m_scale) + (m_width  * 2 * m_scale);
+				}
+
+				/**
+					* @brief Set box's Scale
+					* @param scale is the value to scale
+					*/
+				FORCEINLINE void
+				setScale(const float& scale) {
+						m_scale = scale;
+				}
+
+
+				FORCEINLINE float
+				getScale() const {
+						return m_scale;
+				}
+
+				/**
+					* @brief Set box's Rotation
+					* @param angleRadian is the angle on radians
+					*/
+				FORCEINLINE void
+				setRotation(const Radian& angleRadian) {
+						m_rotation = angleRadian;
+				}
+
+				/**
+					* @brief get box's rotation angle as a radians
+					* @return a flaoat with the box's rotation angle as a radians
+					*/
+				FORCEINLINE float
+				getRotationRadians() const {
+						return m_rotation.valueRadians();
+				}
+
+				/**
+					* @brief get box's rotation angle as a degrees
+					* @return a flaoat with the box's rotation angle as a degrees
+					*/
+				FORCEINLINE float
+				getRotationDegrees() const {
+						return m_rotation.valueDegrees();
+				}
+
+///////////////////////////////////////////////////////////////////////////////
+// Members
+///////////////////////////////////////////////////////////////////////////////
+		private:
+				float m_scale;
+
+				Radian m_rotation;
+
+				/**
+					* @brief The box's center point.
+					*/
+				JDVector3 m_position;
+
+				/**
+					* @brief The box's base .
+					*/
+				float m_width ;
+
+				/**
+					* @brief The box's height .
+					*/
+				float m_height;
+
+				/**
+					* @brief The box's height .
+					*/
+				float m_length;
+		};
+}

@@ -602,7 +602,7 @@ namespace jdEngineSDK {
 		}
 
 		JDMatrix4 
-		matrix4Translate(float x, float y, float z) {
+		matrix4Translate(const float& x, const float& y, const float& z) {
 				JDMatrix4 tras = matrix4Translate(JDVector3(x, y, z));
 				return tras;
 		}
@@ -634,7 +634,7 @@ namespace jdEngineSDK {
 		}
 
 		JDMatrix4 
-		matrix4Rotate(const Radian& angleRadian, float x, float y, float z)	{
+		matrix4Rotate(const Radian& angleRadian, const float& x, const float& y, const float& z)	{
 				JDMatrix4 result = matrix4Rotate(angleRadian, JDVector3(x, y, z));
 				return result;
 		}
@@ -673,17 +673,97 @@ namespace jdEngineSDK {
 		}
 
 		JDMatrix4
-		matrix4Scale(float scale)	{
+		matrix4Scale(const float& scale)	{
 				JDMatrix4 sca = matrix4Scale(scale, scale, scale);
 				return sca;
 		}
 
 		JDMatrix4 
-		matrix4Scale(float sx, float sy, float sz)	{
+		matrix4Scale(const float& sx, const float& sy, const float& sz)	{
 				JDMatrix4 sca = {sx, 0.0f, 0.0f, 0.0f,
 																					0.0f, sy, 0.0f, 0.0f,
 																					0.0f, 0.0f, sz, 0.0f,
 																					0.0f, 0.0f, 0.0f, 1.0f};
 				return sca;
+		}
+
+		JD_UTILITY_EXPORT JDMatrix4 
+		createProyectionPerspectiveMatrix(const float& width, const float& height, 
+																																				const float& _near, const float& _far)	{
+				return createProyectionPerspectiveMatrix((width / height), _near, _far);
+		}
+
+		JD_UTILITY_EXPORT JDMatrix4 
+		createProyectionPerspectiveMatrix(const float& aspectRatio, const float& _near, 
+				                                const float& _far)	{
+				JDMatrix4 Perpective;
+				// set the basic projection matrix
+				float scale = 1 / tan(aspectRatio * 0.5f * Math::PI / 180);
+				Perpective.M[0][0] = scale; // scale the x coordinates of the projected point 
+				Perpective.M[1][1] = scale; // scale the y coordinates of the projected point 
+				Perpective.M[2][2] = -_far / (_far - _near); // used to remap z to [0,1] 
+				Perpective.M[3][2] = -_far * _near / (_far - _near); // used to remap z [0,1] 
+				Perpective.M[2][3] = -1; // set w = -z 
+				Perpective.M[3][3] = 0;
+
+				return Perpective;
+		}
+
+		JD_UTILITY_EXPORT JDMatrix4 
+		createProyectionOrthographicMatrix(const float& botton, const float& top, const float& left, 
+																																		const float& right, const float& _near, const float& _far)	{
+				JDMatrix4 Orthographic;
+				Orthographic.M[0][0] = 2 / (right - left);
+				Orthographic.M[0][1] = 0;
+				Orthographic.M[0][2] = 0;
+				Orthographic.M[0][3] = 0;
+
+				Orthographic.M[1][0] = 0;
+				Orthographic.M[1][1] = 2 / (top - botton);
+				Orthographic.M[1][2] = 0;
+				Orthographic.M[1][3] = 0;
+
+				Orthographic.M[2][0] = 0;
+				Orthographic.M[2][1] = 0;
+				Orthographic.M[2][2] = -2 / (_far - _near);
+				Orthographic.M[2][3] = 0;
+
+				Orthographic.M[3][0] = -(right + left) / (right - left);
+				Orthographic.M[3][1] = -(top + botton) / (top - botton);
+				Orthographic.M[3][2] = -(_far + _near) / (_far - _near);
+				Orthographic.M[3][3] = 1;
+
+				return Orthographic;
+		}
+
+		JD_UTILITY_EXPORT JDMatrix4 
+		createViewMatrix(const JDVector4& _eye, const JDVector4& _at, const JDVector4& _up)	{
+				//to left hand
+				JDMatrix4 view;
+				JDVector4 cameraFront = _at - _eye;
+				cameraFront.normalize();
+
+				JDVector4 cameraRight = _up.cross(cameraFront);
+				cameraRight.normalize();
+
+				JDVector4 realUp = cameraFront.cross(cameraRight);
+				//realUp.normalize();
+				JDVector4 up = realUp;
+				view = {
+					cameraRight.x,cameraRight.y,cameraRight.z,0.f,
+					up.x,up.y,up.z,0.f,
+					cameraFront.x,cameraFront.y,cameraFront.z,0.f,
+					0.f,0.f,0.f,1.f
+				};
+
+				JDMatrix4 POS = {
+					1.f,0.f,0.f,-_eye.x,
+					0.f,1.f,0.f,-_eye.y,
+					0.f,0.f,1.f,-_eye.z,
+					0.f,0.f,0.f,1.f
+				};
+				view *= POS;
+				view.transpose();
+				return view;
 		}
 }

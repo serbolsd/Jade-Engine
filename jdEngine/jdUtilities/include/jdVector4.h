@@ -22,10 +22,6 @@ namespace jdEngineSDK {
 ///////////////////////////////////////////////////////////////////////////////
 
 		 public:
-				/**
-					* @brief Default constructor (equal x and y 0).
-					*/
-				JDVector4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {};
 				
 				/**
 					* @brief constructor with float params with default 0.

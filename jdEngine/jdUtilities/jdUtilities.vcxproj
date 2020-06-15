@@ -19,33 +19,43 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\jdBox.h" />
     <ClInclude Include="include\jdDegree.h" />
+    <ClInclude Include="include\jdFrustum.h" />
     <ClInclude Include="include\jdMath.h" />
     <ClInclude Include="include\jdMatrix3.h" />
     <ClInclude Include="include\jdMatrix4.h" />
     <ClInclude Include="include\jdModulo.h" />
+    <ClInclude Include="include\jdPlane.h" />
     <ClInclude Include="include\jdPlatformDefines.h" />
     <ClInclude Include="include\jdPlatformMath.h" />
     <ClInclude Include="include\jdPlatformTypes.h" />
     <ClInclude Include="include\jdPoint.h" />
     <ClInclude Include="include\jdPrerequisitesUtil.h" />
+    <ClInclude Include="include\jdQuaternion.h" />
     <ClInclude Include="include\jdRadian.h" />
+    <ClInclude Include="include\jdRay.h" />
     <ClInclude Include="include\jdRectangle.h" />
+    <ClInclude Include="include\jdSphere.h" />
     <ClInclude Include="include\jdStdHeaders.h" />
     <ClInclude Include="include\JdString.h" />
     <ClInclude Include="include\jdVector2.h" />
     <ClInclude Include="include\jdVector3.h" />
     <ClInclude Include="include\jdVector4.h" />
     <ClInclude Include="include\jdWindowsMath.h" />
-    <ClInclude Include="jdPlane.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\jdRectangle.cpp" />
+    <ClCompile Include="include\jdFrustum.cpp" />
+    <ClCompile Include="src\jdBox.cpp" />
     <ClCompile Include="src\jdDegree.cpp" />
     <ClCompile Include="src\jdPlatformMath.cpp" />
     <ClCompile Include="src\jdMatrix3.cpp" />
     <ClCompile Include="src\jdMatrix4.cpp" />
+    <ClCompile Include="src\jdQuaternion.cpp" />
     <ClCompile Include="src\jdRadian.cpp" />
+    <ClCompile Include="src\jdRay.cpp" />
+    <ClCompile Include="src\jdRectangle.cpp" />
+    <ClCompile Include="src\jdSphere.cpp" />
     <ClCompile Include="src\jdVector2.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>

@@ -18,7 +18,8 @@
 
 #include <iomanip>
 
-namespace jdEngineSDK {
+namespace jdEngineSDK 
+{
 	 class JD_UTILITY_EXPORT JDMatrix4
 	 {
 	  public:
@@ -372,7 +373,7 @@ namespace jdEngineSDK {
 			* @return a matrix traslalate
 			*/
 		JD_UTILITY_EXPORT extern JDMatrix4
-		matrix4Translate(float x, float y, float z);	
+		matrix4Translate(const float& x, const float& y, const float& z);
 	 
 		/**
 			* @brief get translate matrix
@@ -400,7 +401,7 @@ namespace jdEngineSDK {
 			* @return a rotation matrix
 			*/
 		JD_UTILITY_EXPORT extern JDMatrix4
-		matrix4Rotate(const Radian& angleRadian, float x, float y, float z);
+		matrix4Rotate(const Radian& angleRadian, const float& x, const float& y, const float& z);
 	 
 		/**
 			* @brief get a rotation matrix on x axis
@@ -432,7 +433,7 @@ namespace jdEngineSDK {
 			* @return a scale matrix
 			*/
 		JD_UTILITY_EXPORT extern JDMatrix4
-		matrix4Scale(float scale);				
+		matrix4Scale(const float& scale);
 	 
 		/**
 			* @brief scale a matrix
@@ -442,5 +443,27 @@ namespace jdEngineSDK {
 			* @return a scale a matrix
 			*/
 		JD_UTILITY_EXPORT extern  JDMatrix4
-		matrix4Scale(float sx, float sy, float sz);
+		matrix4Scale(const float& sx, const float& sy, const float& sz);
+
+		JD_UTILITY_EXPORT extern  JDMatrix4
+		createProyectionPerspectiveMatrix(const float& width, const float& height, 
+																																				const float& _near, const float& far);
+
+		JD_UTILITY_EXPORT extern  JDMatrix4
+		createProyectionPerspectiveMatrix(const float& aspectRatio, const float& _near, 
+																																				const float& far);
+
+		JD_UTILITY_EXPORT extern  JDMatrix4
+		createProyectionOrthographicMatrix(const float& botton, const float& top, const float& left,
+				                                 const float& right,const float& _near, const float& far);
+
+		/**
+			* @brief create view matrix on Left Hand
+			* @param _eye is the position of view matrix
+			* @param _at is the matrix look at 
+			* @param _up is the relative Up of view
+			* @return a view matrix on Left Hand
+			*/
+		JD_UTILITY_EXPORT extern  JDMatrix4
+		createViewMatrix(const JDVector4& _eye, const JDVector4& _at, const JDVector4& _up);
 }

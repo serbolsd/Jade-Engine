@@ -485,20 +485,7 @@ namespace jdEngineSDK {
 	 
 	 FORCEINLINE JDVector3& 
 		JDVector3::normalize() {
-	 	 float mod = squareMagnitude();
-	 	 if (mod == 0)
-	 	 {
-	 	 	 x = 0;
-	 	 	 y = 0;
-	 	 	 z = 0;
-	 	 }
-	 	 else
-	 	 {
-	 	 	 float invLength = 1.0f / sqrtf(mod);
-	 	 	 x *= invLength;
-	 	 	 y *= invLength;
-	 	 	 z *= invLength;
-	 	 }
+				*this = getnormalize();
 	 	 return *this;
 	 }
 	 

@@ -5,12 +5,12 @@
 	* @date    11/JUN/2020
 	* @brief   A basic Rectangle
 	*
-	* The rectangle had base, height, position, rotatio, scale
+	* The rectangle had base, height, position, rotation, scale
 	* 
 	*
 	* @bug	    No known bugs.
 	*/
-	/*****************************************************************************/
+/*****************************************************************************/
 #pragma once
 
 #include "jdPrerequisitesUtil.h"
@@ -39,9 +39,10 @@ namespace jdEngineSDK {
 					*/
 				Rectangle(const float& base, const float& height) : 
 																										m_base(base), m_height(height), m_position(0.0f),
-						                    m_scale(0.0f),m_rotation(0.0f) {};
+						                    m_scale(1.0f),m_rotation(0.0f) {};
 
 				Rectangle(const Rectangle& rectangle);
+
 ///////////////////////////////////////////////////////////////////////////////
 // Operators
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,42 +50,58 @@ namespace jdEngineSDK {
 				/**
 					* @brief Equal this rectangle to another
 					* @param rectangle is the other rectangle to equalize.
-					* @return the values of the another rectangle in this vector
+					* @return the values of the another rectangle in this rectangle
 					*/
 				Rectangle&
 				operator=(const Rectangle& rectangle);
 
 				/**
-	    * @brief Gets the result of comparation of this vector with another.
-	    * @param vec is the other vector to compare this by.
-	    * @return true if are equal, else return false.
+	    * @brief Gets the result of comparation of this rectangle with another.
+	    * @param rectangle is the other rectangle to compare this by.
+	    * @return true if the area, the base and the height are equal.
 	    */
 				FORCEINLINE bool
 				operator==(const Rectangle& rectangle) const;
 
 				/**
-					* @brief Gets the result of comparation of this vector with another.
-					* @param vec is the other vector to compare this by.
-					* @return true if are diferent, else return false.
+					* @brief Gets the result of comparation of this rectangle with another.
+					* @param rectangle is the other rectangle to compare this by.
+					* @return true if the area, the base and the height are diferent.
 					*/
 				FORCEINLINE bool
-				operator!=(const Rectangle& vec) const;
+				operator!=(const Rectangle& rectangle) const;
 
 				/**
-					* @brief Gets the result of comparation of this vector with another.
-					* @param vec is the other vector to compare this by.
-					* @return true if a component in this vector is less than the other vector, else return false.
+					* @brief Gets the result of comparation of this rectangle with another.
+					* @param rectangle is the other rectangle to compare this by.
+					* @return true if the area, the base and the height are less than the other rectangle.
 					*/
 				FORCEINLINE bool
-				operator<(const Rectangle& vec) const;
+				operator<(const Rectangle& rectangle) const;
 
 				/**
-					* @brief Gets the result of comparation of this vector with another.
-					* @param vec is the other vector to compare this by.
-					* @return true if a component in this vector is greater than the other vector, else return false.
+					* @brief Gets the result of comparation of this rectangle with another.
+					* @param rectangle is the other rectangle to compare this by.
+					* @return true if if the area, the base and the height are less or equal than the other.
 					*/
 				FORCEINLINE bool
-				operator>(const Rectangle& vec) const;
+				operator<=(const Rectangle& rectangle) const;
+
+				/**
+					* @brief Gets the result of comparation of this rectangle with another.
+					* @param rectangle is the other rectangle to compare this by.
+					* @return true if the area, the base and the height are greater than the other rectangle.
+					*/
+				FORCEINLINE bool
+				operator>(const Rectangle& rectangle) const;
+
+				/**
+					* @brief Gets the result of comparation of this rectangle with another.
+					* @param rectangle is the other rectangle to compare this by.
+					* @return true if the area, the base and the height are greater or equal than the other.
+					*/
+				FORCEINLINE bool
+				operator>=(const Rectangle& rectangle) const;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -124,8 +141,21 @@ namespace jdEngineSDK {
 						m_base = base;
 				}
 
+				/**
+					* @brief Get rectangle's base
+					* @return a float with the base multiply by scale
+					*/
 				FORCEINLINE float
 				getBase() const {
+						return m_base * m_scale;
+				}
+
+				/**
+					* @brief Get rectangle's base
+					* @return a float with the base unmodified
+					*/
+				FORCEINLINE float
+				getRealBase() const {
 						return m_base;
 				}
 
@@ -134,11 +164,25 @@ namespace jdEngineSDK {
 						m_height = height;
 				}
 
+				/**
+					* @brief Get rectangle's Heigh
+					* @return a float with the heigh multiply by scale
+					*/
 				FORCEINLINE float
 				getHeight() const {
-						return m_height;
+						return m_height * m_scale;
 				}
 				
+				/**
+				 * @brief Get rectangle's Heigh
+				 * @return a float with the heigh unmodified
+				 */
+				FORCEINLINE float
+				getRealHeight() const {
+						return m_height;
+				}
+
+
 				FORCEINLINE float
 				getArea() const {
 						return m_height * m_base * m_scale;
