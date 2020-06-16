@@ -20,9 +20,11 @@ namespace jdEngineSDK
 		class JD_UTILITY_EXPORT Frustum
 		{
 		public:
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Constructors
+ */
+/*****************************************************************************/
 				/**
 					* @brief Default constructor with a identity matrix.
 					*/
@@ -39,8 +41,19 @@ namespace jdEngineSDK
 					* @param Frustum is the other frustum
 					*/
 				Frustum(const Frustum& other);
-				
+/*****************************************************************************/
+/**
+	* Functions
+	*/
+/*****************************************************************************/
 				/**
+					* @brief set planes from a matrix.
+					* @param viewProjMat is a view projection matrix
+					*/
+				void
+				setPlanes(const JDMatrix4& viewProjMat);
+
+    /**
 					* @brief get left plane of frustum.
 					* @return left plane
 					*/
@@ -94,13 +107,40 @@ namespace jdEngineSDK
 						return m_front;
 				};
 
-
+/*****************************************************************************/
+/**
+	* Members
+	*/
+/*****************************************************************************/
 		private:
+				/**
+					* @brief plane left of frustum
+					*/
 				Plane m_left;
+
+				/**
+					* @brief plane right of frustum
+					*/
 				Plane m_right;
+
+				/**
+					* @brief plane botton of frustum
+					*/
 				Plane m_bottom;
+				
+				/**
+					* @brief plane top of frustum
+					*/
 				Plane m_top;
+				
+				/**
+					* @brief plane back of frustum
+					*/
 				Plane m_back;
+				
+				/**
+					* @brief plane front of frustum
+					*/
 				Plane m_front;
 		};
 }

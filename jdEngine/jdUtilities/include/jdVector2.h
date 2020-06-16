@@ -21,9 +21,11 @@ namespace jdEngineSDK {
 
 		class JDVector2{
 
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Constructors
+	*/
+/*****************************************************************************/
 		public:
 				/**
 				 * @brief Default constructor (equal x and y 0).
@@ -49,10 +51,11 @@ namespace jdEngineSDK {
 				 */
 				FORCEINLINE JDVector2(const JDVector2& _vec) : x(_vec.x), y(_vec.y) {};
 
-///////////////////////////////////////////////////////////////////////////////
-// Operators
-///////////////////////////////////////////////////////////////////////////////
-
+/*****************************************************************************/
+/**
+	* Operators
+	*/
+/*****************************************************************************/
 			public:
 				/**
 				 * @brief negqative Vector
@@ -197,10 +200,11 @@ namespace jdEngineSDK {
 				FORCEINLINE JDVector2& 
 				operator=(const JDVector2& vec);
 
-///////////////////////////////////////////////////////////////////////////////
-// Friends
-///////////////////////////////////////////////////////////////////////////////
-
+/*****************************************************************************/
+/**
+	* Friends
+	*/
+/*****************************************************************************/
 				/**
 					* @brief multiplicate the components of the vector for a constant
 					* @param scale multply the components
@@ -216,10 +220,11 @@ namespace jdEngineSDK {
 				FORCEINLINE friend std::ostream& 
 				operator<<(std::ostream& os, const JDVector2& vec);
 
-///////////////////////////////////////////////////////////////////////////////
-// Functions
-///////////////////////////////////////////////////////////////////////////////
-
+/*****************************************************************************/
+/**
+	* Functions
+	*/
+/*****************************************************************************/
 			public:
 				/**
 					* @brief calculate the magnitude of vector
@@ -272,10 +277,11 @@ namespace jdEngineSDK {
 				FORCEINLINE float 
 				cross(const JDVector2& vec) const;
 
-///////////////////////////////////////////////////////////////////////////////
-// Members
-///////////////////////////////////////////////////////////////////////////////
-
+/*****************************************************************************/
+/**
+	* Members
+	*/
+/*****************************************************************************/
 			public:
 					union
 					{
@@ -383,14 +389,20 @@ namespace jdEngineSDK {
 		
 		FORCEINLINE float 
 		JDVector2::operator[](int32 index) const	{
-				if(index < 2)
-						return ((index == 0) ? x : y);
-				return 0.0f;
-		}
+				if (index < 0)
+						return x;
+				else if (index > 1)
+						return y;
+				return ((index == 0) ? x : y);
+ 	}
 		
 		FORCEINLINE float& 
 		JDVector2::operator[](int32 index) {
-				return (&x)[index];
+				if (index < 0)
+						return x;
+				else if (index > 1)
+						return y;
+				return ((index == 0) ? x : y);
 		}
 		
 		FORCEINLINE JDVector2& 

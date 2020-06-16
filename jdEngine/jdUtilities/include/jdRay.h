@@ -19,6 +19,11 @@
 namespace jdEngineSDK {
 		class Ray
 		{
+/*****************************************************************************/
+/**
+	* Constructors
+	*/
+/*****************************************************************************/
 		 public:
 				/**
 		   * @brief Default constructor (no initialization).
@@ -33,6 +38,11 @@ namespace jdEngineSDK {
 					*/
 				Ray(const JDVector3& origin, const JDVector3& direction, const float& distance = 0.f);
 
+/*****************************************************************************/
+/**
+	* Functions
+	*/
+/*****************************************************************************/
 		 public: 
 				/**
 					* @brief Set the origin of the ray
@@ -88,6 +98,11 @@ namespace jdEngineSDK {
 						return m_distance;
 				};
 
+/*****************************************************************************/
+/**
+	* Members
+	*/
+/*****************************************************************************/
 		 private:
 				/**
 				 * @brief The Ray's origin.

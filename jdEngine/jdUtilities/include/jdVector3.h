@@ -18,48 +18,45 @@ namespace jdEngineSDK {
 
 	 class JDVector3
 	 {
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Constructors
+	*/
+/*****************************************************************************/
  		public:
-				/**
-					* @brief Default constructor (equal x and y to 0).
-					*/
-				FORCEINLINE JDVector3() : x(0.0f), y(0.0f), z(0.0f) {};
-
 				/**
 					* @brief constructor with float params with default 0.
 					* @param _x for x cordinate
 					* @param _y for y cordinate
 					* @param _z for z cordinate
 					*/
-				FORCEINLINE JDVector3(const float& _x= 0.0f, const float& _y= 0.0f, 
+				JDVector3(const float& _x= 0.0f, const float& _y= 0.0f, 
 						                    const float& _z=0.0f) : x(_x), y(_y), z(_z) {};
 
 				/**
 					* @brief constructor with a array float 4 params.
 					* @param _xyz for x, y ,z cordinate
 					*/
-				FORCEINLINE JDVector3(const float _xyz[3]) : x(_xyz[0]), y(_xyz[1]), z(_xyz[2]) {};
+				JDVector3(const float _xyz[3]) : x(_xyz[0]), y(_xyz[1]), z(_xyz[2]) {};
 
 				/**
 					* @brief constructor with a JDVector2 and float params.
 					* @param _xy for x, y cordinate
 					* @param _z for z cordinate
 					*/
-				FORCEINLINE JDVector3(const JDVector2& _xy, const float& _z = 0.0f) : 
-						                    x(_xy.x), y(_xy.y), z(_z) {};
+				JDVector3(const JDVector2& _xy, const float& _z = 0.0f) : x(_xy.x), y(_xy.y), z(_z) {};
 				
 				/**
 					* @brief constructor with a JDVector3 and float params.
 					* @param vec for x, y, z cordinate
 					*/
-				FORCEINLINE JDVector3(const JDVector3& vec) : x(vec.x), y(vec.y), z(vec.z) {};
+				JDVector3(const JDVector3& vec) : x(vec.x), y(vec.y), z(vec.z) {};
 
-	///////////////////////////////////////////////////////////////////////////////
-	// Operators
-	///////////////////////////////////////////////////////////////////////////////
-
+/*****************************************************************************/
+/**
+	* Operators
+	*/
+/*****************************************************************************/
 	 	public:
 				/**
 					* @brief Negative operator
@@ -227,9 +224,11 @@ namespace jdEngineSDK {
 				JDVector3&
 				operator=(const JDVector3& Vec);	 	 
 
-///////////////////////////////////////////////////////////////////////////////
-// Friends
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Friends
+	*/
+/*****************************************************************************/
 
 				/**
 					* @brief multiplicate the components of a vector for a constant
@@ -246,9 +245,11 @@ namespace jdEngineSDK {
 				friend std::ostream& 
 				operator<<(std::ostream& os, const JDVector3& vec);
 
-///////////////////////////////////////////////////////////////////////////////
-// Functions
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Functions
+	*/
+/*****************************************************************************/
 			public:
 
 				/**
@@ -303,9 +304,11 @@ namespace jdEngineSDK {
 				JDVector3
 				cross(const JDVector3& vec) const;	
 
-///////////////////////////////////////////////////////////////////////////////
-// Members
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Members
+	*/
+/*****************************************************************************/
 			public:
 				/**
 					* @brief Vector's components.
@@ -469,7 +472,7 @@ namespace jdEngineSDK {
 	 
 	 FORCEINLINE float 
 		JDVector3::magnitude() const {
-	  	return sqrtf(x * x + y * y + z * z);
+	  	return Math::Sqrt(x * x + y * y + z * z);
 	 }
 	 
 	 FORCEINLINE float 
@@ -479,8 +482,8 @@ namespace jdEngineSDK {
 	 
 	 FORCEINLINE float 
 		JDVector3::distance(const JDVector3& vec) const {
-	  	return sqrtf((vec.x - x) * (vec.x - x) + (vec.y - y) * 
-						           (vec.y - y) + (vec.z - z) * (vec.z - z));
+	  	return Math::Sqrt((x-vec.x ) * (x - vec.x) + (y - vec.y) * 
+						           (y - vec.y) + (z-vec.z) * (z-vec.z));
 	 }
 	 
 	 FORCEINLINE JDVector3& 
@@ -501,7 +504,7 @@ namespace jdEngineSDK {
  	 	}
  	 	else
  	 	{
- 	 	 	float invLength = 1.0f / sqrtf(mod);
+ 	 	 	float invLength = 1.0f / Math::Sqrt(mod);
  	 	 	result.x = x * invLength;
  	 	 	result.y = y * invLength;
  	 	 	result.z = z * invLength;
@@ -516,6 +519,6 @@ namespace jdEngineSDK {
 	 
 	 FORCEINLINE JDVector3 
 		JDVector3::cross(const JDVector3& vec) const {
- 	 	return JDVector3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
+ 	 	return JDVector3(y * vec.z - z * vec.y, -(x * vec.z - z * vec.x), x * vec.y - y * vec.x);
 	 }
 }

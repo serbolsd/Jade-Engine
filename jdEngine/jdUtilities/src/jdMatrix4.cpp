@@ -458,20 +458,32 @@ namespace jdEngineSDK {
 
 		float
 		JDMatrix4::operator[](int index) const	{
+				if (index < 0) {
+						return m[0];
+				}
+				else if (index > 15) {
+						return m[15];
+				}
 				return m[index];
 		}
 
 		float&
 		JDMatrix4::operator[](int index) {
+				if (index < 0)	{
+						return m[0];
+				}
+				else if (index > 15)	{
+						return m[15];
+				}
 				return m[index];
 		}
 
 		JDMatrix4 
 		operator-(const JDMatrix4& mat) {
 				return JDMatrix4(-mat[0], -mat[1], -mat[2], -mat[3],
-						-mat[4], -mat[5], -mat[6], -mat[7],
-						-mat[8], -mat[9], -mat[10], -mat[11],
-						-mat[12], -mat[13], -mat[14], -mat[15]);
+						               -mat[4], -mat[5], -mat[6], -mat[7],
+						               -mat[8], -mat[9], -mat[10], -mat[11],
+						               -mat[12], -mat[13], -mat[14], -mat[15]);
 		}
 
 		std::ostream& 
@@ -688,13 +700,13 @@ namespace jdEngineSDK {
 		}
 
 		JD_UTILITY_EXPORT JDMatrix4 
-		createProyectionPerspectiveMatrix(const float& width, const float& height, 
+		createProjectionPerspectiveMatrix(const float& width, const float& height, 
 																																				const float& _near, const float& _far)	{
-				return createProyectionPerspectiveMatrix((width / height), _near, _far);
+				return createProjectionPerspectiveMatrix((width / height), _near, _far);
 		}
 
 		JD_UTILITY_EXPORT JDMatrix4 
-		createProyectionPerspectiveMatrix(const float& aspectRatio, const float& _near, 
+		createProjectionPerspectiveMatrix(const float& aspectRatio, const float& _near, 
 				                                const float& _far)	{
 				JDMatrix4 Perpective;
 				// set the basic projection matrix
@@ -710,7 +722,7 @@ namespace jdEngineSDK {
 		}
 
 		JD_UTILITY_EXPORT JDMatrix4 
-		createProyectionOrthographicMatrix(const float& botton, const float& top, const float& left, 
+		createProjectionOrthographicMatrix(const float& botton, const float& top, const float& left, 
 																																		const float& right, const float& _near, const float& _far)	{
 				JDMatrix4 Orthographic;
 				Orthographic.M[0][0] = 2 / (right - left);

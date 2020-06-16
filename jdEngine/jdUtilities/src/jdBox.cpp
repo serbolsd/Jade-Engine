@@ -23,7 +23,7 @@ namespace jdEngineSDK {
 		bool 
 		Box::operator==(const Box& box) const	{
 				if (Math::abs(getHeight() - box.getHeight()) < Math::EPSILONF &&
-						  Math::abs(getBase() - box.getBase()) < Math::EPSILONF &&
+						  Math::abs(getWidth() - box.getWidth()) < Math::EPSILONF &&
 						  Math::abs(getLong() - box.getLong()) < Math::EPSILONF) {
 						return true;
 				}
@@ -33,8 +33,8 @@ namespace jdEngineSDK {
 		bool 
 		Box::operator!=(const Box& box) const	{
 				if (Math::abs(getHeight() - box.getHeight()) > Math::EPSILONF ||
-						Math::abs(getBase() - box.getBase()) > Math::EPSILONF ||
-						Math::abs(getLong() - box.getLong()) > Math::EPSILONF) {
+						  Math::abs(getWidth() - box.getWidth()) > Math::EPSILONF ||
+						  Math::abs(getLong() - box.getLong()) > Math::EPSILONF) {
 						return true;
 				}
 				return false;

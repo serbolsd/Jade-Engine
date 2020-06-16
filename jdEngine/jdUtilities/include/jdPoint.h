@@ -21,14 +21,15 @@ namespace jdEngineSDK {
 
   class JDPoint {
 
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
-
-   public: // Constructors
-     /**
-      * @brief Default constructor (no initialization).
-      */
+/*****************************************************************************/
+/**
+ * Constructors
+ */
+/*****************************************************************************/
+   public:
+    /**
+     * @brief Default constructor (no initialization).
+     */
     JDPoint() = default;
 
     /**
@@ -38,26 +39,43 @@ namespace jdEngineSDK {
      */
     JDPoint(int32 _x, int32 _y) : x(_x), y(_y) {};
 
-///////////////////////////////////////////////////////////////////////////////
-// Operators
-///////////////////////////////////////////////////////////////////////////////
-
+/*****************************************************************************/
+/**
+ * Operators
+ */
+/*****************************************************************************/
    public:
     /**
-     * @brief Compare two vectors for equality.
+     * @brief Compare two points for equality.
      * @param point The other point being compared.
-     * @return true if the vectors are equal, false otherwise.
+     * @return true if the points are equal, false otherwise.
      */
     bool
     operator==(const JDPoint& point) const;
 
     /**
-     * @brief Compare two vectors for inequality.
+     * @brief Compare two points for inequality.
      * @param point The other point being compared.
-     * @return true if the vectors are not equal, false otherwise.
+     * @return true if the point are not equal, false otherwise.
      */
     bool
     operator!=(const JDPoint& point) const;
+
+    /**
+     * @brief Compare two points for inequality.
+     * @param point The other point being compared.
+     * @return true if the point are not equal, false otherwise.
+     */
+    bool
+    operator<(const JDPoint& point) const;
+
+    /**
+     * @brief Compare two point for inequality.
+     * @param point The other point being compared.
+     * @return true if the point are not equal, false otherwise.
+     */
+    bool
+    operator>(const JDPoint& point) const;
 
     /**
      * @brief Add another point component-wise to this point.
@@ -168,26 +186,49 @@ namespace jdEngineSDK {
     FORCEINLINE JDPoint& 
     operator=(const JDPoint& point);
     
-    /**
-     * @brief Get specific component of the point.
-     * @param Index the index of point component
-     * @return reference to component.
-     */
-    //int32&
-    //operator[](uint32 Index);
 
     /**
-     * @brief Get specific component of the point.
-     * @param Index the index of point component
-     * @return copy of component value.
+     * @brief Gets specific component of the vector.
+     * @param Index the index of vector component
+     * @return a const to component in index.
      */
-    //int32
-    //operator[](uint32 Index) const;
+    FORCEINLINE int32
+    operator[](int32 index) const;
 
-///////////////////////////////////////////////////////////////////////////////
-// Functions
-///////////////////////////////////////////////////////////////////////////////
+    /**
+     * @brief Gets specific component of the vector.
+     * @param Index the index of vector component
+     * @return a reference of component in index.
+     */
+    FORCEINLINE int32&
+    operator[](int32 index);
 
+/*****************************************************************************/
+/**
+ * Friends
+ */
+/*****************************************************************************/
+
+    /**
+     * @brief multiplicate the components of the point for a constant
+     * @param scale multply the components
+     * @return the result of multiplication.
+     */
+    FORCEINLINE friend JDPoint
+    operator*(const float& a, const JDPoint vec);
+
+    /**
+     * @brief out stream the vector
+     * @return the values of the vector.
+     */
+    FORCEINLINE friend std::ostream&
+    operator<<(std::ostream& os, const JDPoint& vec);
+
+/*****************************************************************************/
+/**
+ * Functions
+ */
+/*****************************************************************************/
     /**
      * @brief Calculate the dot product
      * @param point is the other point.
@@ -204,6 +245,11 @@ namespace jdEngineSDK {
     FORCEINLINE int32
     cross(const JDPoint& point);
 
+/*****************************************************************************/
+/**
+ * Members
+ */
+/*****************************************************************************/
    public:
     /**
      * @brief Holds the point's x-coordinate.
@@ -225,6 +271,16 @@ namespace jdEngineSDK {
   FORCEINLINE bool 
   JDPoint::operator!=(const JDPoint& point) const {
     return (x != point.x && y != point.y);
+  }
+
+  FORCEINLINE bool
+  JDPoint::operator<(const JDPoint& point) const {
+    return (x < point.x || y < point.y);
+  }
+
+  FORCEINLINE bool
+  JDPoint::operator>(const JDPoint& point) const {
+    return (x > point.x || y > point.y);
   }
 
   FORCEINLINE JDPoint& 
@@ -326,6 +382,24 @@ namespace jdEngineSDK {
     return *this;
   }
 
+  inline int32 JDPoint::operator[](int32 index) const
+  {
+    if (index < 0)
+      return x;
+    else if (index > 1)
+      return y;
+    return ((index == 0) ? x : y);
+  }
+
+  inline int32& JDPoint::operator[](int32 index)
+  {
+    if (index < 0)
+      return x;
+    else if (index > 1)
+      return y;
+    return ((index == 0) ? x : y);
+  }
+
   FORCEINLINE int32
   JDPoint::dot(const JDPoint& point) {
     return (x * point.x + y * point.y);
@@ -334,6 +408,17 @@ namespace jdEngineSDK {
   FORCEINLINE int32 
   JDPoint::cross(const JDPoint& point) {
     return (x * point.y - y * point.x);
+  }
+
+  FORCEINLINE JDPoint
+  operator*(const float& a, const JDPoint vec) {
+    return JDPoint(a * vec.x, a * vec.y);
+  }
+
+  FORCEINLINE std::ostream&
+  operator<<(std::ostream& os, const JDPoint& vec) {
+    os << "(" << vec.x << ", " << vec.y << ")";
+    return os;
   }
 
 }

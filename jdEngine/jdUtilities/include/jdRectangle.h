@@ -22,10 +22,12 @@ namespace jdEngineSDK {
 
 		class JD_UTILITY_EXPORT Rectangle
 		{
+/*****************************************************************************/
+/**
+ * Constructors
+ */
+/*****************************************************************************/
 	 	public:
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
 				/**
 					* @brief Default constructor rectangle.
 					*/
@@ -43,9 +45,11 @@ namespace jdEngineSDK {
 
 				Rectangle(const Rectangle& rectangle);
 
-///////////////////////////////////////////////////////////////////////////////
-// Operators
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Operators
+ */
+/*****************************************************************************/
 			public:
 				/**
 					* @brief Equal this rectangle to another
@@ -103,10 +107,12 @@ namespace jdEngineSDK {
 				FORCEINLINE bool
 				operator>=(const Rectangle& rectangle) const;
 
-
-///////////////////////////////////////////////////////////////////////////////
-// Functions
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Functions
+ */
+/*****************************************************************************/
+			public:
 				/**
 					* @brief set rectangle's position
 					* @param pos vector with the cordinates x, y, z
@@ -136,6 +142,10 @@ namespace jdEngineSDK {
 						return m_position;
 				}
 
+				/**
+					* @brief Set rectangle's base
+					* @param base is base value
+					*/
 				FORCEINLINE void
 				setBase(const float& base) {
 						m_base = base;
@@ -159,6 +169,10 @@ namespace jdEngineSDK {
 						return m_base;
 				}
 
+				/**
+					* @brief Set rectangle's height
+					* @param height is height value
+					*/
 				FORCEINLINE void
 				setHeight(const float& height) {
 						m_height = height;
@@ -182,12 +196,19 @@ namespace jdEngineSDK {
 						return m_height;
 				}
 
-
+				/**
+					* @brief Get rectangle's Area
+					* @return the Area of rectangle
+					*/
 				FORCEINLINE float
 				getArea() const {
 						return m_height * m_base * m_scale;
 				}
 
+				/**
+					* @brief Get rectangle's perimeter
+					* @return the perimeter of rectangle
+					*/
 				FORCEINLINE float
 				getPerimeter() const {
 						return (m_height * 2 * m_scale) + (m_base * 2 * m_scale);
@@ -202,7 +223,10 @@ namespace jdEngineSDK {
 						m_scale = scale;
 				}
 
-
+				/**
+					* @brief Get rectangle's Scale
+					* @return the scale of rectangle
+					*/
 				FORCEINLINE float
 				getScale() const {
 						return m_scale;
@@ -235,17 +259,35 @@ namespace jdEngineSDK {
 						return m_rotation.valueDegrees();
 				}
 
-///////////////////////////////////////////////////////////////////////////////
-// Members
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Members
+ */
+/*****************************************************************************/
 		 private:
+				/**
+				 * @brief The Rectangles's scale.
+				 */
 				float m_scale;
 
+				/**
+					* @brief The Rectangles's rotation.
+					*/
 				Radian m_rotation;
 
+				/**
+					* @brief The Rectangles's position.
+					*/
 				JDVector3 m_position;
 		
+				/**
+					* @brief The Rectangles's base.
+					*/
 				float m_base;		
+
+				/**
+					* @brief The Rectangles's height.
+					*/
 				float m_height;
 
 		};

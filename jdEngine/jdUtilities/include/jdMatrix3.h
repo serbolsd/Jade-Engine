@@ -23,9 +23,11 @@ namespace jdEngineSDK
 		class JD_UTILITY_EXPORT JDMatrix3
 		{
 		 public:
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Constructors
+	*/
+/*****************************************************************************/
 				/**
 					* @brief Default constructor with a identity matrix.
 					*/
@@ -51,9 +53,11 @@ namespace jdEngineSDK
 														const JDVector3& m345, 
 														const JDVector3& m678);
 
-///////////////////////////////////////////////////////////////////////////////
-// Operators
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Operators
+	*/
+/*****************************************************************************/
 				/**
 					* @brief Negative operator
 					* @return A new matrix negative of this matrix
@@ -131,7 +135,6 @@ namespace jdEngineSDK
 					*/
 				bool 
 				operator==(const JDMatrix3& mat) const; 
-
 				/**
 					* @brief compare this matrix with an other matrix.
 					* @param mat is matrix what to compare matrix by.
@@ -140,21 +143,49 @@ namespace jdEngineSDK
 				bool    
 				operator!=(const JDMatrix3& mat) const; 
 
+				/**
+					* @brief get matrix value on index
+					* @param index index of value.
+					* @return a const of the value on index
+					* @note if index less 0 return value on index 0, if index greater 8
+					*       return value on index 8
+					*/
 				float 
 				operator[](int index) const; 
-
+				
+				/**
+					* @brief get matrix value on index
+					* @param index index of value.
+					* @return the value on index
+					* @note if index less 0 return value on index 0, if index greater 8
+					*       return value on index 8
+					*/
 				float&
 				operator[](int index);                       
 
+
+/*****************************************************************************/
+/**
+	* Friends
+	*/
+/*****************************************************************************/
+
+				/**
+					* @brief subtrac two matrix
+					* @param mat is the matrix with which to subtract
+					* @return the subtraction
+					*/
 				friend 
 				JDMatrix3 operator-(const JDMatrix3& mat);
 
 				friend std::ostream& 
 				operator<<(std::ostream& os, const JDMatrix3& mat);
 
-///////////////////////////////////////////////////////////////////////////////
-// Functions
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Functions
+	*/
+/*****************************************************************************/
 
 				/**
 	    * @brief get the matrix´s data
@@ -247,24 +278,47 @@ namespace jdEngineSDK
 				JDMatrix3&
 				scale(float sx, float sy);
 
-		public:
+/*****************************************************************************/
+/**
+	* Members
+	*/
+/*****************************************************************************/
+		 public:
+				/**
+		   * @brief union of diferents estructs
+		   */
 				union
 				{
 						struct
 						{
+								/**
+									* @brief array of 9 floats
+									*/
 								float m[9];
 						};
 						struct
 						{
+								/**
+									* @brief 9 floats
+									*/
 								float m_00, m_01, m_02,
 										m_10, m_11, m_12,
 										m_20, m_21, m_22;
 						};
+						/**
+							* @brief 3 arrays with 3 arrays of floats
+							*/
 						float M[3][3];
 				};
 		};
 
-		/**
+/*****************************************************************************/
+/**
+	* Extern Functions
+	*/
+/*****************************************************************************/
+
+  /**
 			* @brief Transpose a matrix
 			* @param mat is the matrix to traspose
 			* @return a new matrix with the data of the param matrix transpose

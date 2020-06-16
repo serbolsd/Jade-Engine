@@ -23,9 +23,11 @@ namespace jdEngineSDK
 	 class JD_UTILITY_EXPORT JDMatrix4
 	 {
 	  public:
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Constructor
+	*/
+/*****************************************************************************/
 				/**
 					* @brief Default constructor with a identity matrix.
 					*/
@@ -55,9 +57,11 @@ namespace jdEngineSDK
 	 				        const JDVector4& m891011,
 	 				        const JDVector4& m12131415);
 
-///////////////////////////////////////////////////////////////////////////////
-// Operatos
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Operators
+	*/
+/*****************************************************************************/
 
 				/**
 					* @brief Positive operator
@@ -152,26 +156,49 @@ namespace jdEngineSDK
 					*/
 				bool 
 				operator!=(const JDMatrix4& mat) const; 
-				
+			
+				/**
+					* @brief get matrix value on index
+					* @param index index of value.
+					* @return a const of the value on index
+					* @note if index less 0 return value on index 0, if index greater 15 
+					*       return value on index 15
+					*/
 				float
 				operator[](int index) const;            
 				
+				/**
+					* @brief get matrix value on index
+					* @param index index of value.
+					* @return the value on index
+					* @note if index less 0 return value on index 0, if index greater 15
+					*       return value on index 15
+					*/
 				float& 
 				operator[](int index);                  
 
-///////////////////////////////////////////////////////////////////////////////
-// Friend
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Friends
+	*/
+/*****************************************************************************/
 
+				/**
+					* @brief subtrac two matrix
+					* @param mat is the matrix with which to subtract
+					* @return the subtraction
+					*/
 				friend JDMatrix4 
 				operator-(const JDMatrix4& mat);        
 				
 				friend std::ostream& 
 				operator<<(std::ostream& os, const JDMatrix4& m);
 
-///////////////////////////////////////////////////////////////////////////////
-// Function
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Functions
+	*/
+/*****************************************************************************/
 
 				/**
 					* @brief get the matrix´s data
@@ -324,24 +351,42 @@ namespace jdEngineSDK
 					*/
 				JDMatrix4&
 				scale(float sx, float sy, float sz);
-///////////////////////////////////////////////////////////////////////////////
-// Members
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+	* Members
+	*/
+/*****************************************************************************/
    public:
+					/**
+							* @brief union of diferents estructs
+							*/
 	 		union	{
 	 				struct	{
+								/**
+	        * @brief array of 16 floats
+	        */
 	 						float m[16];
 	 				};
 	 				struct		{
+								/**
+									* @brief 16 floats
+									*/
 	 						float m_00, m_01, m_02, m_03,
 	 								    m_10, m_11, m_12, m_13,
 	 								    m_20, m_21, m_22, m_23,
 	 								    m_30, m_31, m_32, m_33;
 	 				};
+						/**
+							* @brief 4 arrays with 4 arrays of floats
+							*/
 	 				float M[4][4];
 	 		};                                   
 	 };
-
+/*****************************************************************************/
+/**
+	* Extern Funtions
+	*/
+/*****************************************************************************/
 		/**
 			* @brief Transpose a matrix
 			* @param mat is the matrix to traspose
@@ -445,17 +490,43 @@ namespace jdEngineSDK
 		JD_UTILITY_EXPORT extern  JDMatrix4
 		matrix4Scale(const float& sx, const float& sy, const float& sz);
 
+		/**
+			* @brief generate a projection perspective matrix
+			* @param width is the width of the view
+			* @param height is the height of the view
+			* @param _near is how close you can see
+			* @param _far is how far can you see
+			* @return a projection perspective matrix
+			*/
 		JD_UTILITY_EXPORT extern  JDMatrix4
-		createProyectionPerspectiveMatrix(const float& width, const float& height, 
-																																				const float& _near, const float& far);
+		createProjectionPerspectiveMatrix(const float& width, const float& height, 
+																																				const float& _near, const float& _far);
 
+		/**
+			* @brief generate a projection perspective matrix
+			* @param aspectRatio  is the ratio of its width to its height.
+			* @param _near is how close you can see
+			* @param _far is how far can you see
+			* @return a projection perspective matrix
+			* @note aspecRatio = width / height
+			*/
 		JD_UTILITY_EXPORT extern  JDMatrix4
-		createProyectionPerspectiveMatrix(const float& aspectRatio, const float& _near, 
+		createProjectionPerspectiveMatrix(const float& aspectRatio, const float& _near, 
 																																				const float& far);
 
+		/**
+	  * @brief create projection orthographic matrix 
+	  * @param botton is max distance detected on botton
+	  * @param top is max distance detected on top
+	  * @param left is max distance detected on left
+	  * @param right is max distance detected on right
+	  * @param _near is max distance detected on back
+	  * @param _far is max distance detected on front
+	  * @return a projection orthographic matrix 
+	  */
 		JD_UTILITY_EXPORT extern  JDMatrix4
-		createProyectionOrthographicMatrix(const float& botton, const float& top, const float& left,
-				                                 const float& right,const float& _near, const float& far);
+		createProjectionOrthographicMatrix(const float& botton, const float& top, const float& left,
+				                                 const float& right,const float& _near, const float& _far);
 
 		/**
 			* @brief create view matrix on Left Hand

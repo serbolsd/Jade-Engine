@@ -5,7 +5,7 @@
 	* @date    12/JUN/2020
 	* @brief   A basic box
 	*
-	* The box had base, height, long, position, rotation, scale
+	* The box had width, height, long, position, rotation, scale
 	*
 	*
 	* @bug	    No known bugs.
@@ -22,9 +22,11 @@ namespace jdEngineSDK {
 		class JD_UTILITY_EXPORT Box
 		{
 		 public:
-///////////////////////////////////////////////////////////////////////////////
-// Constructors
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Constructors
+ */
+/*****************************************************************************/
 				/**
 					* @brief Default constructor Box.
 					*/
@@ -32,20 +34,23 @@ namespace jdEngineSDK {
 
 				/**
 					* @brief Constructor box given a base and height.
-					* @param base is for base component
+					* @param width is for width component
 					* @param height is for heigh component
+					* @param _long is for heigh component
 					* @note initialice position on 0, 0, 0 cordinates
 					*/
-				Box(const float& base, const float& height, const float& _long);
+				Box(const float& width, const float& height, const float& _long);
 				/**
 					* @brief Constructor box with other box
 					* @param box is the box to copy data
 					*/
 				Box(const Box& box);
 
-///////////////////////////////////////////////////////////////////////////////
-// Operators
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Operators
+ */
+/*****************************************************************************/
 		public:
 				/**
 					* @brief Equal this box to another
@@ -71,9 +76,11 @@ namespace jdEngineSDK {
 				FORCEINLINE bool
 				operator!=(const Box& box) const;
 
-///////////////////////////////////////////////////////////////////////////////
-// Functions
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Functions
+ */
+/*****************************************************************************/
 				/**
 					* @brief set box's position
 					* @param pos vector with the cordinates x, y, z
@@ -103,29 +110,37 @@ namespace jdEngineSDK {
 						return m_position;
 				}
 
+				/**
+					* @brief Set box's width
+					* @param width is width value
+					*/
 				FORCEINLINE void
-				setBase(const float& base) {
-						m_width  = base;
+				setWidth(const float& width) {
+						m_width  = width;
 				}
 
 				/**
-					* @brief Get box's base
-					* @return a float with the base multiply by scale
+					* @brief Get box's width
+					* @return a float with the width multiply by scale
 					*/
 				FORCEINLINE float
-				getBase() const {
+				getWidth() const {
 						return m_width  * m_scale;
 				}
 
 				/**
-					* @brief Get box's base
-					* @return a float with the base unmodified
+					* @brief Get box's width
+					* @return a float with the width unmodified
 					*/
 				FORCEINLINE float
-				getRealBase() const {
+				getRealWidth() const {
 						return m_width ;
 				}
 
+				/**
+					* @brief Set box's height
+					* @param height is height value
+					*/
 				FORCEINLINE void
 				setHeight(const float& height) {
 						m_height = height;
@@ -149,11 +164,19 @@ namespace jdEngineSDK {
 						return m_height;
 				}
 
+			 /**
+					* @brief Set box's long
+					* @param long is long value
+					*/
 				FORCEINLINE void
 				setLong(const float& _long) {
 						m_length = _long;
 				}
 
+				/**
+					* @brief Get box's long
+					* @return a float with the long
+					*/
 				FORCEINLINE float
 				getLong() const {
 						return m_length * m_scale;
@@ -161,21 +184,20 @@ namespace jdEngineSDK {
 
 				/**
 					* @brief Get box's Heigh
-					* @return a float with the heigh unmodified
+					* @return a float with the long unmodified
 					*/
 				FORCEINLINE float
 				getRealLong() const {
 						return m_length;
 				}
 
+				/**
+					* @brief Get box's volume
+					* @return the volume of box
+					*/
 				FORCEINLINE float
 				getvolume() const {
 						return m_height * m_width  *m_length * m_scale;
-				}
-
-				FORCEINLINE float
-				getPerimeter() const {
-						return (m_height * 2 * m_scale) + (m_width  * 2 * m_scale);
 				}
 
 				/**
@@ -187,7 +209,10 @@ namespace jdEngineSDK {
 						m_scale = scale;
 				}
 
-
+				/**
+					* @brief Get rectangle's Scale
+					* @return the scale of box
+					*/
 				FORCEINLINE float
 				getScale() const {
 						return m_scale;
@@ -220,12 +245,20 @@ namespace jdEngineSDK {
 						return m_rotation.valueDegrees();
 				}
 
-///////////////////////////////////////////////////////////////////////////////
-// Members
-///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/**
+ * Members
+ */
+/*****************************************************************************/
 		private:
+				/**
+					* @brief The box's scale.
+					*/
 				float m_scale;
 
+				/**
+					* @brief The box's rotation.
+					*/
 				Radian m_rotation;
 
 				/**

@@ -18,6 +18,11 @@
 
 namespace jdEngineSDK {
 		class JD_UTILITY_EXPORT Sphere	{
+/*****************************************************************************/
+/**
+	* Constructors
+	*/
+/*****************************************************************************/
 		public:
 				/**
 				 * @brief Default constructor (no initialization).
@@ -30,6 +35,12 @@ namespace jdEngineSDK {
 					* @param radius is the Radius of sphere.
 					*/
 				Sphere(const JDVector3& center, float radius) : m_center(center), m_radius(radius) {}
+
+/*****************************************************************************/
+/**
+	* Operators
+	*/
+/*****************************************************************************/
 		 public:
 				/**
 					* @brief compare this sphere with other.
@@ -47,6 +58,11 @@ namespace jdEngineSDK {
 				bool
 				operator!=(const Sphere& other) const;
 
+/*****************************************************************************/
+/**
+	* Functions
+	*/
+/*****************************************************************************/
 		 public:
 				/**
 	    * @brief Get volume of the current sphere
@@ -86,6 +102,12 @@ namespace jdEngineSDK {
 				getRadius() const {
 						return m_radius;
 				};
+
+/*****************************************************************************/
+/**
+	* Members
+	*/
+/*****************************************************************************/
 		private:
 				/**
 	    * @brief The sphere's center point.

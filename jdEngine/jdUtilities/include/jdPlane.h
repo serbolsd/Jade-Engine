@@ -23,6 +23,11 @@ namespace jdEngineSDK {
   class Plane
   {
   public:
+/*****************************************************************************/
+/**
+ * Constructors
+ */
+/*****************************************************************************/
     /**
      * @brief Default constructor (no initialization).
      */
@@ -30,40 +35,149 @@ namespace jdEngineSDK {
   
     /**
      * @brief Constructor.
-     * @param plane 4D vector to set up plane.
+     * @param plane vector4 to set up plane.
      */
     FORCEINLINE Plane(const JDVector4& plane);
   
     /**
      * @brief Constructor.
-     * @param InX X-coefficient.
-     * @param InY Y-coefficient.
-     * @param InZ Z-coefficient.
-     * @param InW W-coefficient.
+     * @param x x-coefficient.
+     * @param y y-coefficient.
+     * @param z z-coefficient.
+     * @param w w-coefficient.
      */
     FORCEINLINE Plane(const float& x, const float& y, const float& z, const float& w);
   
     /**
      * @brief Constructor.
-     * @param InNormal Plane Normal Vector.
-     * @param InW Plane W-coefficient.
+     * @param normal Plane normal vector.
+     * @param w Plane w-coefficient.
      */
-    FORCEINLINE Plane(const JDVector3& InNormal, float InW);
+    FORCEINLINE Plane(const JDVector3& normal, float w);
   
     /**
      * @brief Constructor.
-     * @param InBase Base point in plane.
-     * @param InNormal Plane Normal Vector.
+     * @param base is the base point in plane.
+     * @param normal is the Plane normal vector.
      */
-    FORCEINLINE Plane(const JDVector3& InBase, const JDVector3& InNormal);
+    FORCEINLINE Plane(const JDVector3& base, const JDVector3& normal);
+
+/*****************************************************************************/
+/**
+ * Operators
+ */
+/*****************************************************************************/
+   public:
+    /**
+     * @brief Check if two planes are identical.
+     * @param plane is the other plane.
+     * @return true if planes are identical, otherwise false.
+     */
+    bool
+    operator==(const Plane& plane) const;
   
     /**
+     * @brief Check if two planes are different.
+     * @param plane is the other plane.
+     * @return true if planes are different, otherwise false.
+     */
+    bool
+    operator!=(const Plane& plane) const;
+  
+    
+    /**
+     * @brief Gets result of adding a plane to this.
+     * @param plane is the other plane.
+     * @return The result of adding a plane to this.
+     */
+    Plane
+    operator+(const Plane& plane) const;
+  
+    /**
+     * @brief Gets result of subtracting a plane from this.
+     * @param plane is the other plane.
+     * @return The result of subtracting a plane from this.
+     */
+    Plane
+    operator-(const Plane& plane) const;
+  
+    /**
+     * @brief Gets result of dividing a plane.
+     * @param Scale is the value what to divide by.
+     * @return The result of division.
+     */
+    Plane
+    operator/(float scale) const;
+  
+    /**
+     * @brief Gets result of scaling a plane.
+     * @param Scale is the value scaling factor.
+     * @return The result of scaling.
+     */
+    Plane
+    operator*(float scale) const;
+  
+    /**
+     * @brief Gets result of multiplying a plane with this.
+     * @param plane is the other plane.
+     * @return The result of multiplying a plane with this.
+     */
+    Plane
+    operator*(const Plane& plane);
+  
+    /**
+     * @brief Add another plane to this.
+     * @param plane is the other plane.
+     * @return Copy of plane after addition.
+     */
+    Plane&
+    operator+=(const Plane& plane);
+  
+    /**
+     * @brief Subtract another plane from this.
+     * @param plane is the other plane.
+     * @return Copy of plane after subtraction.
+     */
+    Plane&
+    operator-=(const Plane& plane);
+  
+    /**
+     * @brief Scale this plane.
+     * @param Scale is the value scaling factor.
+     * @return Copy of plane after scaling.
+     */
+    Plane&
+    operator*=(float scale);
+  
+    /**
+     * @brief Multiply another plane with this.
+     * @param plane is the other plane.
+     * @return Copy of plane after multiplication.
+     */
+    Plane&
+    operator*=(const Plane& plane);
+  
+    /**
+     * @brief Divide this plane.
+     * @param scale is the value what to divide by.
+     * @return Copy of plane after division.
+     */
+    Plane&
+    operator/=(float scale);
+
+/*****************************************************************************/
+/**
+ * Functions
+ */
+/*****************************************************************************/
+   public:
+    /**
      * @brief Calculates distance between plane and a point.
-     * @param P The other point.
+     * @param vec is the other point.
      * @return >0: point is in front of the plane, <0: behind, =0: on the plane.
      */
     FORCEINLINE float
-    planeDot(const JDVector3& P) const;
+    planeDot(const JDVector3& vec) const;
   
     /**
      * @brief Get a flipped version of the plane.
@@ -74,110 +188,17 @@ namespace jdEngineSDK {
 
     /**
      * @brief Calculates dot product of two planes.
-     * @param plane The other plane.
+     * @param plane is the other plane.
      * @return The dot product.
      */
     FORCEINLINE float
     dot(const Plane& plane) const;
 
-  
-    /**
-     * @brief Check if two planes are identical.
-     * @param plane The other plane.
-     * @return true if planes are identical, otherwise false.
-     */
-    bool
-    operator==(const Plane& plane) const;
-  
-    /**
-     * @brief Check if two planes are different.
-     * @param plane The other plane.
-     * @return true if planes are different, otherwise false.
-     */
-    bool
-    operator!=(const Plane& plane) const;
-  
-    
-    /**
-     * @brief Gets result of adding a plane to this.
-     * @param plane The other plane.
-     * @return The result of adding a plane to this.
-     */
-    Plane
-    operator+(const Plane& plane) const;
-  
-    /**
-     * @brief Gets result of subtracting a plane from this.
-     * @param plane The other plane.
-     * @return The result of subtracting a plane from this.
-     */
-    Plane
-    operator-(const Plane& plane) const;
-  
-    /**
-     * @brief Gets result of dividing a plane.
-     * @param Scale What to divide by.
-     * @return The result of division.
-     */
-    Plane
-    operator/(float scale) const;
-  
-    /**
-     * @brief Gets result of scaling a plane.
-     * @param Scale The scaling factor.
-     * @return The result of scaling.
-     */
-    Plane
-    operator*(float scale) const;
-  
-    /**
-     * @brief Gets result of multiplying a plane with this.
-     * @param plane The other plane.
-     * @return The result of multiplying a plane with this.
-     */
-    Plane
-    operator*(const Plane& plane);
-  
-    /**
-     * @brief Add another plane to this.
-     * @param plane The other plane.
-     * @return Copy of plane after addition.
-     */
-    Plane&
-    operator+=(const Plane& plane);
-  
-    /**
-     * @brief Subtract another plane from this.
-     * @param plane The other plane.
-     * @return Copy of plane after subtraction.
-     */
-    Plane&
-    operator-=(const Plane& plane);
-  
-    /**
-     * @brief Scale this plane.
-     * @param Scale The scaling factor.
-     * @return Copy of plane after scaling.
-     */
-    Plane&
-    operator*=(float scale);
-  
-    /**
-     * @brief Multiply another plane with this.
-     * @param plane The other plane.
-     * @return Copy of plane after multiplication.
-     */
-    Plane&
-    operator*=(const Plane& plane);
-  
-    /**
-     * @brief Divide this plane.
-     * @param plane What to divide by.
-     * @return Copy of plane after division.
-     */
-    Plane&
-    operator/=(float scale);
-  
+/*****************************************************************************/
+/**
+ * Members
+ */
+/*****************************************************************************/
   public:
     /**
      * @brief The x,y,z-components.
