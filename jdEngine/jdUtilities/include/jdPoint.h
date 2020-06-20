@@ -193,7 +193,7 @@ namespace jdEngineSDK {
      * @return a const to component in index.
      */
     FORCEINLINE int32
-    operator[](int32 index) const;
+    operator[](uint32 index) const;
 
     /**
      * @brief Gets specific component of the vector.
@@ -201,7 +201,7 @@ namespace jdEngineSDK {
      * @return a reference of component in index.
      */
     FORCEINLINE int32&
-    operator[](int32 index);
+    operator[](uint32 index);
 
 /*****************************************************************************/
 /**
@@ -215,7 +215,7 @@ namespace jdEngineSDK {
      * @return the result of multiplication.
      */
     FORCEINLINE friend JDPoint
-    operator*(const float& a, const JDPoint vec);
+    operator*(const int32& a, const JDPoint vec);
 
     /**
      * @brief out stream the vector
@@ -382,22 +382,16 @@ namespace jdEngineSDK {
     return *this;
   }
 
-  inline int32 JDPoint::operator[](int32 index) const
-  {
-    if (index < 0)
-      return x;
-    else if (index > 1)
-      return y;
-    return ((index == 0) ? x : y);
+  FORCEINLINE int32 
+  JDPoint::operator[](uint32 index) const {
+    JD_ASSERT(index < 16);
+    return (&x)[index];
   }
 
-  inline int32& JDPoint::operator[](int32 index)
-  {
-    if (index < 0)
-      return x;
-    else if (index > 1)
-      return y;
-    return ((index == 0) ? x : y);
+  FORCEINLINE int32& 
+  JDPoint::operator[](uint32 index) {
+    JD_ASSERT(index < 16);
+    return (&x)[index];
   }
 
   FORCEINLINE int32
@@ -411,7 +405,7 @@ namespace jdEngineSDK {
   }
 
   FORCEINLINE JDPoint
-  operator*(const float& a, const JDPoint vec) {
+  operator*(const int32& a, const JDPoint vec) {
     return JDPoint(a * vec.x, a * vec.y);
   }
 

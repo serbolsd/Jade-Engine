@@ -28,9 +28,9 @@ namespace jdEngineSDK
 /*****************************************************************************/
    public:
     /**
-					* @brief Default constructor radian.
-					*/
-    constexpr Radian() = default;
+     * @brief Default constructor radian.
+     */
+    Radian() = default;
 
     /**
      * @brief constructor with other radian.

@@ -27,9 +27,9 @@ namespace jdEngineSDK
 /*****************************************************************************/
    public:
     /**
-					* @brief Default constructor degree.
-					*/
-    constexpr Degree() = default;
+				 * @brief Default constructor degree.
+				 */
+    Degree() = default;
 
     /**
      * @brief constructor with other degree.

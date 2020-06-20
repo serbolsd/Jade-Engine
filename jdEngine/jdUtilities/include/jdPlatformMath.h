@@ -20,51 +20,56 @@ namespace jdEngineSDK {
 
     template<typename T>
     static T invSqrt(T val) {
-      return 1.0 / std::sqrt(val);
+      return 1.0f / std::sqrt(val);
+    }
+
+    template<>
+    static float invSqrt(float val) {
+      return 1.0f / std::sqrt(val);
     }
 
     template<typename T>
-    static T Sqrt(T val) {
+    static T sqrt(T val) {
       return std::sqrt(val);
     }
 
     template<>
-    static float Sqrt(float val) {
+    static float sqrt(float val) {
       return std::sqrtf(val);
     }
 
     template<typename T>
-    static T Pow(T val, T pot = 2) {
-      return std::pow(val, pot);
+    static T pow(T val, uint32 pot) {
+      return static_cast<T>(std::pow(val, pot));
     }
 
     template<typename T>
-    static T Cos(T val) {
+    static T cos(T val) {
       return std::cos(val);
     }
 
     template<>
-    static float Cos(float val) {
+    static float cos(float val) {
       return std::cosf(val);
     }
 
     template<typename T>
-    static T Sin(T val) {
+    static T sin(T val) {
       return std::sin(val);
     }
 
     template<>
-    static float Sin(float val) {
+    static float sin(float val) {
       return std::sinf(val);
     }
 
     template<typename T>
-    static T Tan(T val) {
+    static T tan(T val) {
       return std::tan(val);
     }
 
     template<>
-    static float Tan(float val) {
+    static float tan(float val) {
       return std::tanf(val);
     }
 
@@ -129,6 +134,31 @@ namespace jdEngineSDK {
      */
     static float
     eulerSerie(const int32& amount);
+
+    /**
+     * @brief Function to get the Sin more fast used taylor series
+     * @param x is the values in redians
+     * @return Aproximation of Sin
+     */
+    static float
+    taylorSin(const float& x);
+
+    /**
+     * @brief Function to get the Cos more fast used taylor series
+     * @param x is the values in redians
+     * @return Aproximation of Cos
+     */
+    static float
+    taylorCos(const float& x);
+
+    /**
+     * @brief Function to get the Tan more fast used taylor series
+     * @param x is the values in redians
+     * @return Aproximation of Tan
+     */
+    static float
+    taylorTan(const float& x);
+
 
     static const float DEG2RAD;
     static const float RAD2DEG;

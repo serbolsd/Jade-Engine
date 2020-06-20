@@ -26,9 +26,11 @@ Little endian el menor bit se manda primero
 Big indian, el mayor bit se manda primero
 */
 
+/*****************************************************************************/
 /**
-*Compiler type and version
-*/
+ *Compiler type and version
+ */
+/*****************************************************************************/
 #if defined(__clang__)
 #   define JD_COMPILER JD_COMPILER_CLANG
 #   define JD_COMP_VER __clang_version__
@@ -66,8 +68,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* See if we can use __forceinline or if we need to use _inline instead
-*/
+ * See if we can use __forceinline or if we need to use _inline instead
+ */
 /*****************************************************************************/
 #if JD_COMPILER==JD_COMPILER_MSVC             //If we are compiling on Visual Studio
 # if JD_COMP_VER >= 1600                      //If we are on Visual Studio 9 or higher
@@ -92,8 +94,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* Finds the current plataform
-*/
+ * Finds the current plataform
+ */
 /*****************************************************************************/
 #if defined(__WIN32__) ||  defined(_WIN32)
 # define JD_PLATFORM JD_PLATFORM_WIN32
@@ -105,8 +107,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* Find the architecture type
-*/
+ * Find the architecture type
+ */
 /*****************************************************************************/
 #if defined (__x86_64__) || defined(_M_X64)
 # define JD_ARCH_TYPE JD_ARCHITECTURE_x86_64
@@ -116,8 +118,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* Memory Aligment macros
-*/
+ * Memory Aligment macros
+ */
 /*****************************************************************************/
 #if JD_COMPILER == JD_COMPILER_MSVC  // If we are compiling on visual studio
 # define MS_ALIGN(n) __declspec(align(n))
@@ -136,8 +138,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* For throw override (deprecated on c++11 but Visual Studio does not have handle noexcept
-*/
+ * For throw override (deprecated on c++11 but Visual Studio does not have handle noexcept
+ */
 /*****************************************************************************/
 #if JD_COMPILER == JD_COMPILER_MSVC
 # define _NOEXCEPT noexcept
@@ -149,8 +151,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* Library export specifics
-*/
+ * Library export specifics
+ */
 /*****************************************************************************/
 #if JD_PLATFORM == JD_PLATFORM_WIN32
 # if JD_COMPILER == JD_COMPILER_MSVC
@@ -182,8 +184,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* DLL export for plug ins
-*/
+ * DLL export for plug ins
+ */
 /*****************************************************************************/
 #if JD_PLATFORM == JD_PLATFORM_WIN32
 # if JD_COMPILER == JD_COMPILER_MSVC
@@ -197,8 +199,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* Windows specific Settings
-*/
+ * Windows specific Settings
+ */
 /*****************************************************************************/
 // Win32 compilers use _DEBUG for specifying debug builds. For MinGW, we set DEBUG
 #if JD_PLATFORM ==JD_PLATFORM_WIN32
@@ -211,8 +213,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* Linux specific settings
-*/
+ * Linux specific settings
+ */
 /*****************************************************************************/
 #if JD_PLATFORM == JD_PLATFORM_LINUX
 # define stricmp strcasecmp                    //If we are on a DEBUG build
@@ -225,8 +227,8 @@ Big indian, el mayor bit se manda primero
 
 /*****************************************************************************/
 /**
-* Definition of Debug macros
-*/
+ * Definition of Debug macros
+ */
 /*****************************************************************************/
 #if JD_DEBUG_MODE
 # define JD_DEBUG_MODE_ONLY(x) x
@@ -234,4 +236,11 @@ Big indian, el mayor bit se manda primero
 #else
 # define JD_DEBUG_ONLY(x)
 # define JD_ASSERT(x)
+#endif
+
+#if JD_COMPILER == JD_COMPILER_MSVC
+# define _CRT_SECURE_NO_WARNINGS
+# pragma warning (disable : 4201)//Structuras sin nombre
+# pragma warning (disable : 4251)//Para la interface de DLL
+# pragma warning (disable : 4503)//Para nombres extremadamente largos
 #endif

@@ -28,25 +28,23 @@ namespace jdEngineSDK {
  * Constructors
  */
 /*****************************************************************************/
+
     /**
-     * @brief Default constructor (no initialization).
+     * @brief Default Constructor.
+     * @param x x-coefficient.
+     * @param y y-coefficient.
+     * @param z z-coefficient.
+     * @param w w-coefficient.
      */
-    FORCEINLINE Plane() = default;
+    FORCEINLINE Plane(const float& x = 0.0f, const float& y = 0.0f,
+    const float& z = 0.0f, const float& w = 0.0f);
   
     /**
      * @brief Constructor.
      * @param plane vector4 to set up plane.
      */
     FORCEINLINE Plane(const JDVector4& plane);
-  
-    /**
-     * @brief Constructor.
-     * @param x x-coefficient.
-     * @param y y-coefficient.
-     * @param z z-coefficient.
-     * @param w w-coefficient.
-     */
-    FORCEINLINE Plane(const float& x, const float& y, const float& z, const float& w);
+
   
     /**
      * @brief Constructor.
@@ -210,7 +208,8 @@ namespace jdEngineSDK {
     float w;
   };
   
-  FORCEINLINE Plane::Plane(const JDVector4& plane) : m_xyz(JDVector3(plane.x, plane.y, plane.z)), w(plane.w) {}
+  FORCEINLINE Plane::Plane(const JDVector4& plane) : 
+    m_xyz(JDVector3(plane.x, plane.y, plane.z)), w(plane.w) {}
 
   FORCEINLINE Plane::Plane(const float& x, const float& y, const float& z, const float& w) :
                            m_xyz(JDVector3(x, y, z)), w(w) {}

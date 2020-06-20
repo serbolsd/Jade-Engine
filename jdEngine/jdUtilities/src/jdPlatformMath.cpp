@@ -24,7 +24,7 @@ namespace jdEngineSDK {
   float
   PlatformMath::factorial(const int32& n) {
     float result = 1;
-    for (int32 i = 2; i <= n; i++)  {
+    for (int32 i = 2; i <= n; ++i)  {
       result *= i;
     }
     return result;
@@ -33,8 +33,8 @@ namespace jdEngineSDK {
   float
   PlatformMath::taylorSerie(const int32& n, const int32& x) {
     float t, s = 0;
-    for (int32 i = 0; i < n; i++) {
-      t = Pow(x, i) / factorial(i);
+    for (int32 i = 0; i < n; ++i) {
+      t = pow(x, i) / factorial(i);
       s += t;
     }
     return s;
@@ -42,20 +42,85 @@ namespace jdEngineSDK {
 
   float 
   PlatformMath::eulerSerie(const int32& amount) {
-    int32 i, increase, fact_num;
-    float operate_serie, sum_serie, increase_serie;
+    int32 increase = 1, fact_num;
+    float operate_serie = 0.0f;
+    float sum_serie = 0.0f; 
+    float increase_serie = 0.0f;
 
-    increase = 1;
-    increase_serie = 0.0;
-
-    for (i = 1; i <= amount; i++) {
+    for (int32 i = 1; i <= amount; ++i) {
       fact_num = increase * i;
       increase = fact_num;
-      operate_serie = (1.0 / fact_num) + increase_serie;
+      operate_serie = (1.0f / fact_num) + increase_serie;
       increase_serie = operate_serie;
+      sum_serie += increase_serie;
     }
 
      return operate_serie;
+  }
+
+  float PlatformMath::taylorSin(const float& x) {
+    static uint32 fac3 = 6;
+    static uint32 fac5 = 120;
+    static uint32 fac7 = 5040;
+    static uint32 fac9 = 362880;
+    static uint32 fac11 = 39916800;
+
+    float sum = x;
+    sum -= pow(x, 3) / fac3;
+    sum += pow(x, 5) / fac5;
+    sum -= pow(x, 7) / fac7;
+    sum += pow(x, 9) / fac9;
+    sum -= pow(x, 11) / fac11;
+    return sum;
+  }
+  
+  float 
+  PlatformMath::taylorCos(const float& x) {
+    float sum = 1;
+    static uint32 fac2 = 2;
+    static uint32 fac4 = 24;
+    static uint32 fac6 = 720;
+    static uint32 fac8 = 40320;
+    static uint32 fac10 = 3628800;
+    static uint32 fac12 = 479001600;
+
+    sum -= pow(x, 2) / fac2;
+    sum += pow(x, 4) / fac4;
+    sum -= pow(x, 6) / fac6;
+    sum += pow(x, 8) / fac8;
+    sum -= pow(x, 10) / fac10;
+    sum -= pow(x, 12) / fac12;
+    return sum;
+  }
+
+  float 
+  PlatformMath::taylorTan(const float& x) {
+
+    static uint32 nominator[7] = { 1,
+                                    2, 
+                                    17, 
+                                    62, 
+                                    1382, 
+                                    21844, 
+                                    929569  };
+
+    static uint32 denominator[7] = { 3,
+                                      15,
+                                      315,
+                                      2835,
+                                      155925,
+                                      6081075,
+                                      638512875 };
+    float sum = x;
+    sum += pow(x,3)* nominator[0] / denominator[0];
+    sum += pow(x,5)* nominator[1] / denominator[1];
+    sum += pow(x,7)* nominator[2] / denominator[2];
+    sum += pow(x,9)* nominator[3] / denominator[3];
+    sum += pow(x,11)* nominator[4] / denominator[4];
+    sum += pow(x,13)* nominator[5] / denominator[5];
+    sum += pow(x,15)* nominator[6] / denominator[6];
+
+    return sum;
   }
 }
 

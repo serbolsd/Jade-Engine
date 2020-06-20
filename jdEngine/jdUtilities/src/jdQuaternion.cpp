@@ -135,7 +135,12 @@ namespace jdEngineSDK {
 
   float 
   Quaternion::magnitude() const {
-    return Math::Sqrt(x * x + y * y + z * z + w * w);
+    return Math::sqrt(squareMagnitude());
+  }
+
+  float Quaternion::squareMagnitude() const
+  {
+    return x * x + y * y + z * z + w * w;
   }
 
   Quaternion& 
@@ -146,7 +151,10 @@ namespace jdEngineSDK {
 
   Quaternion 
   Quaternion::getNormalize() const {
-    float inverMag = 1 / magnitude();
+    float inverMag = squareMagnitude();
+    JD_ASSERT(0.0f <= inverMag);
+   
+    inverMag = Math::invSqrt(inverMag);
     Quaternion tmpQuaternion;
     tmpQuaternion.x = x * inverMag;
     tmpQuaternion.y = y * inverMag;
@@ -186,7 +194,7 @@ namespace jdEngineSDK {
     float scalar = tmpConjugate.w * invSMagnitude;
     JDVector3 tmpAxis = { tmpConjugate.x, tmpConjugate.y, tmpConjugate.z };
     tmpAxis *= invSMagnitude;
-    return Quaternion(invSMagnitude, w);
+    return Quaternion(invSMagnitude, scalar);
   }
 
 }

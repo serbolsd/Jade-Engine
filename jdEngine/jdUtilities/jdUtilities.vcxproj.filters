@@ -107,9 +107,6 @@
     <ClCompile Include="src\jdRadian.cpp">
       <Filter>Archivos de origen\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\jdVector2.cpp">
-      <Filter>Archivos de origen\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\jdBox.cpp">
       <Filter>Archivos de origen\Math</Filter>
     </ClCompile>

@@ -3,22 +3,22 @@
 
 /*****************************************************************************/
 /**
-* Most Basic includes (required for everything else)
-*/
+ * Most Basic includes (required for everything else)
+ */
 /*****************************************************************************/
 #include <cassert>
 
 /*****************************************************************************/
 /**
-* Platform  specific stuff
-*/
+ * Platform  specific stuff
+ */
 /*****************************************************************************/
 #include "jdPlatformDefines.h"
 
 /*****************************************************************************/
 /**
-* Include of short-hand names for various built-in types
-*/
+ * Include of short-hand names for various built-in types
+ */
 /*****************************************************************************/
 #include "jdPlatformTypes.h"            //Platfomr Types
 #include "jdStdHeaders.h"

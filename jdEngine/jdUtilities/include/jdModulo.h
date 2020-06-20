@@ -3,21 +3,21 @@
 #include "jdPrerequisitesUtil.h"
 
 namespace jdEngineSDK {
-		/**
-		 * @brief	Represents one engine module. Essentially it is a specialized type
-		 *        of singleton. Module must be manually started up and shut down
-		 *        before and after use.
-		 */
+  /**
+   * @brief	Represents one engine module. Essentially it is a specialized type
+   *        of singleton. Module must be manually started up and shut down
+   *        before and after use.
+   */
   template<class T>
-		class Module
-		{
-		 public:
-				/**
-					* @brief Returns a reference to the module instance. Module has to have
-					*        been started up first otherwise an exception will be thrown.
-					*/
-				static T&
-				instance() {
+  class Module
+  {
+   public:
+    /**
+     * @brief Returns a reference to the module instance. Module has to have
+     *        been started up first otherwise an exception will be thrown.
+     */
+    static T&
+    instance() {
       if (!isStartedUp()) {
         //GE_EXCEPT(InternalErrorException,
         //  "Trying to access a module but it hasn't been started.");
@@ -27,15 +27,15 @@ namespace jdEngineSDK {
         //GE_EXCEPT(InternalErrorException,
         //  "Trying to access a destroyed module.");
       }
-						return *_instance();
-				}
+      return *_instance();
+    }
 
-				/**
-					* @brief	Returns a pointer to the module instance. Module has to have been
-					*        started up first otherwise an exception will be thrown.
-					*/
-				static T*
-				instancePtr() {
+      /**
+       * @brief	Returns a pointer to the module instance. Module has to have been
+       *        started up first otherwise an exception will be thrown.
+       */
+      static T*
+      instancePtr() {
       if (!isStartedUp()) {
         //JD_EXCEPT(InternalErrorException,
         //  "Trying to access a module but it hasn't been started.");
@@ -45,11 +45,12 @@ namespace jdEngineSDK {
         //GE_EXCEPT(InternalErrorException,
         //  "Trying to access a destroyed module.");
       }
-						return _instance();
-				}
+      return _instance();
+    }
+    
     /**
-    * @brief Constructs and starts the module using the specified parameters.
-    */
+     * @brief Constructs and starts the module using the specified parameters.
+     */
     template<class... Args>
     static void
       startUp(Args&& ...args) {

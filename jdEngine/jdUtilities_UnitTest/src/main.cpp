@@ -332,7 +332,7 @@ TEST(jdUtilities, JDVector4_Test) {
   EXPECT_FLOAT_EQ(SMagnitude, 51.f);
 
   // ACT - Vector normalized
-  JDVector4 normalized = vector1.getnormalize();
+  JDVector4 normalized = vector1.getNormalize();
   // ASSERT - Vector
   EXPECT_FLOAT_EQ(normalized.x, vector1.x / Magnitude);
   EXPECT_FLOAT_EQ(normalized.y, vector1.y / Magnitude);
@@ -608,4 +608,16 @@ TEST(jdUtilities, JDMatrix4_Test) {
   //EXPECT_FLOAT_EQ(mat.m[6], 0.f);
   //EXPECT_FLOAT_EQ(mat.m[7], 0.f);
   //EXPECT_FLOAT_EQ(mat.m[8], 1.f);
+}
+
+TEST(jdUtilities, JDTrigonometry_Test) {
+  float normalSin = Math::sin(2.0f);
+  float normalCos = Math::cos(2.0f);
+  float normalTan = Math::tan(2.0f);
+  float taySin = Math::taylorSin(2.0f);
+  float tayCos = Math::taylorCos(2.0f);
+  float tayTan = Math::taylorTan(2.0f);
+  EXPECT_FLOAT_EQ(taySin, normalSin);
+  EXPECT_FLOAT_EQ(tayCos, normalCos);
+  EXPECT_FLOAT_EQ(tayTan, normalTan);
 }
