@@ -694,28 +694,57 @@ namespace jdEngineSDK {
   }
   
   JD_UTILITY_EXPORT JDMatrix4 
-  createProjectionPerspectiveMatrix(const float& width, 
+  createProjectionPerspectiveMatrix(const float& fovAngle,
+                                    const float& width, 
                                     const float& height,
                                     const float& _near, 
                                     const float& _far)	{
-    return createProjectionPerspectiveMatrix((width / height), _near, _far);
+    return createProjectionPerspectiveMatrix(fovAngle,(width / height), _near, _far);
   }
   
+  bool scalarNearEqual(const float& S1, const float& S2, const float& Epsilon) {
+    float Delta = S1 - S2;
+    uint32  AbsDelta = *(uint32*)&Delta & 0x7FFFFFFF;
+    return (*(float*)&AbsDelta <= Epsilon);
+  }
+
   JD_UTILITY_EXPORT JDMatrix4 
-  createProjectionPerspectiveMatrix(const float& aspectRatio, 
+  createProjectionPerspectiveMatrix(const float& fovAngle,
+                                    const float& aspectRatio, 
                                     const float& _near, 
                                     const float& _far)	{
-    JDMatrix4 Perpective;
-    // set the basic projection matrix
-    float scale = 1 / tan(aspectRatio * 0.5f * Math::PI / 180);
-    Perpective.M[0][0] = scale; // scale the x coordinates of the projected point 
-    Perpective.M[1][1] = scale; // scale the y coordinates of the projected point 
-    Perpective.M[2][2] = -_far / (_far - _near); // used to remap z to [0,1] 
-    Perpective.M[3][2] = -_far * _near / (_far - _near); // used to remap z [0,1] 
-    Perpective.M[2][3] = -1; // set w = -z 
-    Perpective.M[3][3] = 0;
+    //JDMatrix4 Perpective;
+    //// set the basic projection matrix
+    //float scale = 1 / tan(aspectRatio * 0.5f * Math::PI / 180);
+    //Perpective.M[0][0] = scale; // scale the x coordinates of the projected point 
+    //Perpective.M[1][1] = scale; // scale the y coordinates of the projected point 
+    //Perpective.M[2][2] = -_far / (_far - _near); // used to remap z to [0,1] 
+    //Perpective.M[3][2] = -_far * _near / (_far - _near); // used to remap z [0,1] 
+    //Perpective.M[2][3] = -1; // set w = -z 
+    //Perpective.M[3][3] = 0;
     
-    return Perpective;
+    float SinFov;
+    float CosFov;
+    float Height;
+    float Width;
+    JDMatrix4 M;
+
+    JD_ASSERT(!scalarNearEqual(fovAngle, 0.0f, 0.00001f * 2.0f));
+    JD_ASSERT(!scalarNearEqual(aspectRatio, 0.0f, 0.00001f));
+    JD_ASSERT(!scalarNearEqual(_far, _near, 0.00001f));
+
+    SinFov = Math::sin(0.5f * fovAngle);
+    CosFov = Math::cos(0.5f * fovAngle);
+
+    Height = CosFov / SinFov;
+    Width = Height / aspectRatio;
+
+    M[0] = Width; M[1] = 0.0f; M[2] = 0.0f; M[3] = 0.0f;
+    M[4] = 0.0f; M[5] = Height; M[6] = 0.0f; M[7] = 0.0f;
+    M[8] = 0.0f; M[9] = 0.0f; M[10] = _far / (_far - _near); M[11] = 1.0f;
+    M[12] = 0.0f; M[13] = 0.0f; M[14] = -M[10] * _near; M[15] = 0.0f;
+
+    return M;
   }
   
   JD_UTILITY_EXPORT JDMatrix4 

@@ -159,6 +159,26 @@ namespace jdEngineSDK {
     static float
     taylorTan(const float& x);
 
+    /**
+     * @brief Function to get the Tan more fast used taylor series
+     * @param number to get the inverse
+     * @return the inverse
+     */
+    static float
+    Q_rsqrt(float number) {
+      long i;
+      float x2, y;
+      const float threehalfs = 1.5f;
+
+      x2 = number * 0.5f;
+      y = number;
+      i = *(long*)&y;                       //evil floatin point bit level hacking
+      i = 0x5f3759df - (i >> 1);            //what the fuck?
+      y = *(float*)&i;
+      y = y * (threehalfs - (x2 * y * y));  //1st iteration
+
+      return y;
+    }
 
     static const float DEG2RAD;
     static const float RAD2DEG;

@@ -620,4 +620,17 @@ TEST(jdUtilities, JDTrigonometry_Test) {
   EXPECT_FLOAT_EQ(taySin, normalSin);
   EXPECT_FLOAT_EQ(tayCos, normalCos);
   EXPECT_FLOAT_EQ(tayTan, normalTan);
+  Math::PI;
+}
+
+
+TEST(gen_math, rdc) {
+  float isq = Math::Q_rsqrt(50.0f);
+  float isqw = Math::WinInvSqrt(50.0f);
+
+  float dif = isqw - isq;
+}
+
+TEST(gen_math, wis) {
+
 }

@@ -494,6 +494,7 @@ namespace jdEngineSDK
   
   /**
    * @brief generate a projection perspective matrix
+   * @param fovAngle is the angle of view
    * @param width is the width of the view
    * @param height is the height of the view
    * @param _near is how close you can see
@@ -501,13 +502,15 @@ namespace jdEngineSDK
    * @return a projection perspective matrix
    */
   JD_UTILITY_EXPORT extern  JDMatrix4
-  createProjectionPerspectiveMatrix(const float& width, 
+  createProjectionPerspectiveMatrix(const float& fovAngle,
+                                    const float& width, 
                                     const float& height,
                                     const float& _near, 
                                     const float& _far);
   
   /**
    * @brief generate a projection perspective matrix
+   * @param fovAngle is the angle of view
    * @param aspectRatio  is the ratio of its width to its height.
    * @param _near is how close you can see
    * @param _far is how far can you see
@@ -515,9 +518,10 @@ namespace jdEngineSDK
    * @note aspecRatio = width / height
    */
   JD_UTILITY_EXPORT extern  JDMatrix4
-  createProjectionPerspectiveMatrix(const float& aspectRatio, 
+  createProjectionPerspectiveMatrix(const float& fovAngle,
+                                    const float& aspectRatio, 
                                     const float& _near, 
-                                    const float& far);
+                                    const float& _far);
   
   /**
    * @brief create projection orthographic matrix 

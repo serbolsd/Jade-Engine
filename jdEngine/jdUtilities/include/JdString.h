@@ -34,7 +34,7 @@ namespace jdEngineSDK {
    * Cualquier funcion que necesite un string es const String&
    * Tambien con cualquier cosa con mayor a 4 bytes
    */
-  using String = BasicStringStream<ANSICHAR>;
+  using String = BasicString<ANSICHAR>;
 
   using WStringStream = BasicStringStream<UNICHAR>;
 

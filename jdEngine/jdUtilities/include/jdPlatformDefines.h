@@ -241,6 +241,8 @@ Big indian, el mayor bit se manda primero
 #if JD_COMPILER == JD_COMPILER_MSVC
 # define _CRT_SECURE_NO_WARNINGS
 # pragma warning (disable : 4201)//Structuras sin nombre
+# pragma warning (disable : 4275)//Para la interface de DLL
 # pragma warning (disable : 4251)//Para la interface de DLL
+# pragma warning (disable : 4191)
 # pragma warning (disable : 4503)//Para nombres extremadamente largos
 #endif

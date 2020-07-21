@@ -89,7 +89,7 @@ namespace jdEngineSDK {
      * @brief Shuts down this module and frees any resources it is using.
      */
     static void
-      shutDown() {
+    shutDown() {
       if (isDestroyed()) {
         //JD_EXCEPT(InternalErrorException,
         //  "Trying to shut down an already shut down module.");
@@ -110,7 +110,7 @@ namespace jdEngineSDK {
      * @brief Query if the module has been started.
      */
     static bool
-      isStarted() {
+    isStarted() {
       return isStartedUp() && !isDestroyed();
     }
 
