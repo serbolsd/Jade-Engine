@@ -115,9 +115,20 @@ namespace jdEngineSDK {
      * @return false if couldn´t create
      */
     virtual bool
-    createSwapChain(void*, const FORMAT::E&, uint32, uint32) {
+    createSwapChain(void* /*hwind*/, 
+                    const FORMAT::E& /*format*/, 
+                    uint32 /*width*/, 
+                    uint32 /*height*/) {
       return false; 
     };
+
+    /**
+     * @brief resize swap chain
+     * @param width is the width of the swap Chain
+     * @param height is the height of the swap Chain
+     */
+    virtual void
+    resizeSwapChain(uint32 /*width*/, uint32 /*height*/) {};
 
     /**
      * @brief create swap chain
@@ -242,7 +253,7 @@ namespace jdEngineSDK {
      * @return a shared pointer with the Texture
      */
     virtual SPtr<Texture2D>
-    LoadShaderResourceFromFile(char* filePath) {return nullptr;};
+    LoadShaderResourceFromFile(char* filePath) { return nullptr; };
 
     /**
      * @brief function to clear the render target

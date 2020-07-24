@@ -39,7 +39,7 @@ namespace jdEngineSDK {
     /**
      * @brief Default destructor
      */
-    ~DirectX11Api() {};
+    ~DirectX11Api() override{};
 
     /**
      * @brief get ptr to device
@@ -90,6 +90,14 @@ namespace jdEngineSDK {
                     const FORMAT::E& format, 
                     uint32 width, 
                     uint32 height) override;
+
+    /**
+     * @brief resize swap chain
+     * @param width is the width of the swap Chain
+     * @param height is the height of the swap Chain
+     */
+    void
+    resizeSwapChain(uint32 width, uint32 height) override;
 
     /**
      * @brief create swap chain
@@ -210,6 +218,14 @@ namespace jdEngineSDK {
     reflectInputLayout(WeakSptr<VertexShader> vs) override;
 
     /**
+     * @brief virtual function to reflect input layout
+     * @param filePath is the path with the file
+     * @return a shared pointer with the Texture
+     */
+    SPtr<Texture2D>
+    LoadShaderResourceFromFile(char* filePath) { return nullptr; };
+
+    /**
      * @brief function to clear the render target
      * @param rt is the render target to set 
      */
@@ -231,7 +247,7 @@ namespace jdEngineSDK {
           const float& a = 1) override;
 
     /**
-     * @brief function to clear the render target
+     * @brief function to clear the depth stencil of the render target
      * @param rt is the render target with the depth stencil to clear 
      */
     void
@@ -467,6 +483,9 @@ namespace jdEngineSDK {
     SPtr<D3D11RenderTargetView> m_RTV = nullptr;
 
     sf::WindowBase m_Wind;
+
+    FORMAT::E m_swapChainFormat;
+    ViewPort m_viewPort;
   };
 
   extern "C" JD_PLUGIN_EXPORT GraphicApi *

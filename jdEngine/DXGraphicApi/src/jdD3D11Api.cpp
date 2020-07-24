@@ -85,7 +85,7 @@ namespace jdEngineSDK {
     sd.SampleDesc.Count = 1;
     sd.SampleDesc.Quality = 0;
     sd.Windowed = true;
-
+    m_swapChainFormat = format;
 
     hr = dxgiFactory->CreateSwapChain(m_device.m_pd3dDevice,
                                       &sd, 
@@ -96,6 +96,80 @@ namespace jdEngineSDK {
     };
 
     return true;
+  }
+
+  void 
+  DirectX11Api::resizeSwapChain(uint32 width, uint32 height) {
+    m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(0, 0, 0);
+
+    // Release all outstanding references to the swap chain's buffers.
+    SAFE_RELEASE(m_RTV.get()->m_pRT.m_pRenderTarget);
+    SAFE_RELEASE(m_RTV.get()->m_pRT.m_texture);
+    SAFE_RELEASE(m_RTV.get()->m_pDepthStencil);
+
+    HRESULT hr;
+    // Preserve the existing buffer count and format.
+    // Automatically choose the width and height to match the client rect for HWNDs.
+    hr = m_swapChain.m_pdxgSwapChain->ResizeBuffers(0, 
+                                                    width,
+                                                    height,
+                                                    (DXGI_FORMAT)m_swapChainFormat, 
+                                                    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+
+    ID3D11Texture2D* pBackBuffer = NULL;
+    hr = m_swapChain.m_pdxgSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+    if (FAILED(hr))
+      return;
+
+    hr = m_device.m_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_RTV->m_pRT.m_pRenderTarget);
+    pBackBuffer->Release();
+    if (FAILED(hr))
+      return;
+
+    // Create depth stencil texture
+    D3D11_TEXTURE2D_DESC descDepth;
+    ZeroMemory(&descDepth, sizeof(descDepth));
+    descDepth.Width = width;
+    descDepth.Height = height;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+
+    hr = m_device.m_pd3dDevice->CreateTexture2D(&descDepth,
+                                                NULL, 
+                                                &m_RTV->m_pRT.m_texture);
+    if (FAILED(hr))
+      return;
+
+    // Create the depth stencil view
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+    ZeroMemory(&descDSV, sizeof(descDSV));
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+
+    hr = m_device.m_pd3dDevice->CreateDepthStencilView(m_RTV->m_pRT.m_texture,
+                                                       &descDSV, 
+                                                       &m_RTV->m_pDepthStencil);
+    if (FAILED(hr))
+      return;
+
+
+    // Set up the viewport.
+    D3D11_VIEWPORT vp;
+    vp.Width = m_viewPort.Width = width;
+    vp.Height = m_viewPort.Height = height;
+    vp.MinDepth = m_viewPort.MinDepth;
+    vp.MaxDepth = m_viewPort.MaxDepth;
+    vp.TopLeftX = m_viewPort.m_topLeftX;
+    vp.TopLeftY = m_viewPort.m_topLeftY;
+    m_deviceContext.m_pd3dDeviceContext->RSSetViewports(1, &vp);
   }
 
   bool 
@@ -178,159 +252,6 @@ namespace jdEngineSDK {
       return nullptr;
     SPtr<ProgramShader> np(newProg);
     return np;
-    //bool canReadBoth = true;
-    //ID3D10Blob* pErroMsg = nullptr;//for messages errors
-    //ID3D10Blob* BlobS;
-    //D3D11ProgramShader* tmpProgram = reinterpret_cast<D3D11ProgramShader*>(programS.lock().get());
-    ////Read VertexShader
-    //
-    //// Create the shaders
-    //// Read the Vertex Shader code from the file
-    //std::string VertexShaderCode;
-    //std::ifstream VertexShaderStream(vertexFilePath, std::ios::in);
-    //if (VertexShaderStream.is_open()) 
-    //{
-    //  std::stringstream ss;
-    //  ss << VertexShaderStream.rdbuf();
-    //  VertexShaderCode = ss.str();
-    //  //cout << VertexShaderCode << "\n";
-    //  VertexShaderStream.close();
-    //  std::string toConsole = "The vertex shader in the directory: ";
-    //  toConsole += vertexFilePath;;
-    //  toConsole += " was read";
-    //  std::cout << toConsole << std::endl;
-    //}
-    //else {
-    //  std::string toBox = "Couldn't find the Vertex shader in the directory: ";
-    //  toBox += vertexFilePath;
-    //  MessageBox(NULL, toBox.c_str(), "Error to find shader", MB_ICONERROR | MB_OK);
-    //  std::cout<<("Impossible to open %s. Are you in the right directory ?");
-    //  std::cout<<("Don't forget to read the FAQ !\n", vertexFilePath);
-    //  return false;
-    //}
-    //auto vertexShader = VertexShaderCode;
-    //
-    //HRESULT hr = D3DCompile(vertexShader.c_str(),
-    //                        vertexShader.length(),
-    //                        nullptr,
-    //                        nullptr,
-    //                        nullptr,
-    //                        vertexMainFuntion, 
-    //                        shaderVersion,
-    //                        D3DCOMPILE_ENABLE_STRICTNESS, 
-    //                        0,
-    //                        &BlobS,
-    //                        &pErroMsg);
-    //
-    //if (pErroMsg)
-    //{
-    //  SIZE_T msgSize = pErroMsg->GetBufferSize();
-    //  std::string msg;
-    //  msg.resize(msgSize);
-    //  memcpy(&msg[0], pErroMsg->GetBufferPointer(), msgSize);
-    //  std::string toBox = "Couldn't read the vertex shader for: \n" + msg;
-    //  MessageBox(NULL, toBox.c_str(), "Error to read shader", MB_ICONERROR | MB_OK);
-    //  std::cout << toBox.c_str() << std::endl;
-    //  SAFE_RELEASE(pErroMsg);
-    //  OutputDebugStringA(msg.c_str());
-    //  canReadBoth = false;
-    //  std::cout << "can't compile vertex shader\n" << std::endl;
-    //}
-    //else
-    //{
-    //  m_device.m_pd3dDevice->CreateVertexShader(BlobS->GetBufferPointer(), 
-    //                                            BlobS->GetBufferSize(), 
-    //                                            NULL, 
-    //                                            &tmpProgram->m_VS.m_pdxVS);
-    //  /// Define the input layout
-    //  /// Create input layout from compiled VS
-    //  hr = CreateInputLayoutDescFromVertexShaderSignature(BlobS, 
-    //                                                      m_device.m_pd3dDevice, 
-    //                                                      &tmpProgram->m_VS.m_pdxInputLayout);
-    //  if (FAILED(hr))
-    //  {
-    //    std::cout << "can't create InputLayout\n" << std::endl;
-    //    return false;
-    //  }
-    //}
-    //
-    //
-    //VertexShaderStream.close();
-    //SAFE_RELEASE(pErroMsg);
-    //SAFE_RELEASE(BlobS);
-    //
-    ////Read PixelShader
-    //// Read the Fragment Shader code from the file
-    //std::string FragmentShaderCode;
-    //std::ifstream FragmentShaderStream(pixelFilePath, std::ios::in);
-    //if (FragmentShaderStream.is_open()) 
-    //{
-    //  std::stringstream sstr;
-    //  sstr << FragmentShaderStream.rdbuf();
-    //  FragmentShaderCode = sstr.str();
-    //  //cout << FragmentShaderCode << "\n";
-    //  FragmentShaderStream.close();
-    //  std::string toConsole = "The Pixel shader in the directory: ";
-    //  toConsole += pixelFilePath;
-    //  toConsole += " was read";
-    //  std::cout << toConsole << std::endl;
-    //}
-    //else
-    //{
-    //  std::string toBox = "Couldn't find the Pixel shader in the directory ";
-    //  toBox += pixelFilePath;
-    //  MessageBox(NULL, toBox.c_str(), "Error to find shader", MB_ICONERROR | MB_OK);
-    //  std::cout<<("Impossible to open %s. Are you in the right directory ? " );
-    //  std::cout<<("Don't forget to read the FAQ !\n", pixelFilePath);
-    //  return false;
-    //}
-    //auto FrameShader = FragmentShaderCode;
-    ////Microsoft::WRL::ComPtr<ID3DBlob> blob;
-    //hr = D3DCompile(FragmentShaderCode.c_str(),
-    //                FragmentShaderCode.length(),
-    //                nullptr,
-    //                nullptr,
-    //                nullptr,
-    //                pixelMainFuntion, 
-    //                shaderVersion,
-    //                D3DCOMPILE_ENABLE_STRICTNESS, 
-    //                0,
-    //                &BlobS,
-    //                &pErroMsg);
-    //if (pErroMsg)
-    //{
-    //  SIZE_T msgSize = pErroMsg->GetBufferSize();
-    //  std::string msg;
-    //  msg.resize(msgSize);
-    //  memcpy(&msg[0], pErroMsg->GetBufferPointer(), msgSize);
-    //  std::string toBox = "Couldn't read the pixel shader for: \n";
-    //  toBox += msg;
-    //  MessageBox(NULL, toBox.c_str(), "Error to read shader", MB_ICONERROR | MB_OK);
-    //  std::cout << toBox.c_str() << std::endl;
-    //  SAFE_RELEASE(pErroMsg);
-    //  OutputDebugStringA(msg.c_str());
-    //  canReadBoth = false;
-    //  std::cout << "can't compile pixel shader\n" << std::endl;
-    //}
-    //else
-    //{
-    //  m_device.m_pd3dDevice->CreatePixelShader(BlobS->GetBufferPointer(), 
-    //                                           BlobS->GetBufferSize(), 
-    //                                           NULL, 
-    //                                           &tmpProgram->m_PS.m_pdxPS);
-    //}
-    //
-    //FragmentShaderStream.close();
-    //SAFE_RELEASE(pErroMsg);
-    //SAFE_RELEASE(BlobS);
-    //
-    //if (!canReadBoth)
-    //{
-    //  tmpProgram->m_PS.release();
-    //  tmpProgram->m_VS.release();
-    //  return false;
-    //}
-    //return true;
   }
 
   bool 
@@ -513,6 +434,7 @@ namespace jdEngineSDK {
   DirectX11Api::setViewPort(const ViewPort& vp) {
     // Setup the viewport
     D3D11_VIEWPORT vpData;
+    m_viewPort = vp;
     vpData.Width = (FLOAT)vp.Width;
     vpData.Height = (FLOAT)vp.Height;
     vpData.MinDepth = vp.MinDepth;

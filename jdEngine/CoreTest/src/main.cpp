@@ -5,30 +5,31 @@
 #include <jdVector4.h>
 #include <jdMatrix4.h>
 #include <jdPoint.h>
+#include "jdTestApp.h"
 using namespace jdEngineSDK;
-using graphApi = GraphicApi * (*)();
-
-struct SimpleVertex
-{
-		JDVector4 pos;
-		JDVector2 textcoord;
-};
-
-struct CBNeverChanges
-{
-		JDMatrix4 mView;
-};
-
-struct CBChangeOnResize
-{
-		JDMatrix4 mProjection;
-};
-
-struct CBChangesEveryFrame
-{
-		JDMatrix4 mWorld;
-		JDVector4 vMeshColor;
-};
+//using graphApi = GraphicApi * (*)();
+//
+//struct SimpleVertex
+//{
+//		JDVector4 pos;
+//		JDVector2 textcoord;
+//};
+//
+//struct CBNeverChanges
+//{
+//		JDMatrix4 mView;
+//};
+//
+//struct CBChangeOnResize
+//{
+//		JDMatrix4 mProjection;
+//};
+//
+//struct CBChangesEveryFrame
+//{
+//		JDMatrix4 mWorld;
+//		JDVector4 vMeshColor;
+//};
 
 CBNeverChanges g_neverChanges;
 CBChangeOnResize g_changeOnResize;
@@ -37,8 +38,21 @@ CBChangesEveryFrame g_changeEveryFrame;
 //graphApi g_apiMan;
 int main()
 {
+		testApp app;
+		app.run();
+		return 0;
+}
+
+int oldmain()
+{
 		JDPoint windSize = {640,480};
-  HINSTANCE hin = LoadLibraryExA("jdDXGraphicApid.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+		HINSTANCE hin;
+#ifdef _DEBUG
+  hin = LoadLibraryExA("jdDXGraphicApid.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+#else
+  hin = LoadLibraryExA("jdDXGraphicApi.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+#endif
+
 
 		if (!hin)
 		{
@@ -58,13 +72,13 @@ int main()
 		void* windHan(g_graphicsApi().createWindow(windSize.y, windSize.x, winName, false));
 
 		g_graphicsApi().createDevice();
-		g_graphicsApi().createSwapChain(windHan,FORMAT::E::FORMAT_R8G8B8A8_UNORM, windSize.x, windSize.y);
+		g_graphicsApi().createSwapChain(windHan, FORMAT::E::FORMAT_R8G8B8A8_UNORM, windSize.x, windSize.y);
 		g_graphicsApi().createRenderTargetView(windSize.x, windSize.y);
 		SPtr<RenderTargetView> rtv = g_graphicsApi().getRenderTargetView();
 
 		ViewPort vp;
-		vp.Width = windSize.x;
-		vp.Height = windSize.y;
+		vp.Width = (float)windSize.x;
+		vp.Height = (float)windSize.y;
 		vp.MinDepth = 0.0f;
 		vp.MaxDepth = 1.0f;
 		vp.m_topLeftX = 0;
@@ -171,7 +185,7 @@ int main()
 		g_neverChanges.mView = createViewMatrix(Eye,At,Up);
 		g_neverChanges.mView.transpose();
 		
-		g_changeOnResize.mProjection = createProjectionPerspectiveMatrix(Math::HALF_PI/2, windSize.x, windSize.y, 0.01f, 100.0f);
+		g_changeOnResize.mProjection = createProjectionPerspectiveMatrix(Math::HALF_PI/2, (float)windSize.x, (float)windSize.y, 0.01f, 100.0f);
 		g_changeOnResize.mProjection.transpose();
 		JDMatrix4 world;
 		world.identity();
@@ -198,7 +212,7 @@ int main()
 		g_graphicsApi().setSampler(samplerLineal, 0);
 
 		g_graphicsApi().setPrimitiveTopology(PRIMITIVE_TOPOLOGY_FORMAT::TRIANGLELIST);
-		float rot = 0.0f;
+		//float rot = 0.0f;
 	
 		while (g_graphicsApi().windowIsOpen())
 		{
