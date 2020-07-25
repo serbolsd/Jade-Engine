@@ -19,9 +19,9 @@
 #include "jdVertexShader.h"
 
 namespace jdEngineSDK {
-		class ProgramShader
-		{
- 		public:
+  class ProgramShader
+  {
+   public:
    /**
     * @brief Default constructor
     */
@@ -51,6 +51,6 @@ namespace jdEngineSDK {
     virtual void
     release() {};
 		
-		};
+  };
 
 }

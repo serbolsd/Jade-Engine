@@ -45,20 +45,20 @@ namespace jdEngineSDK {
      * @brief get ptr to device
      * @return share ptr to device
      */
-    //SPtr<Device>
-    //getDevice() const{
-    //  SPtr<Device> tmp(static_cast<Device>(m_ptrDevice));
-    //  return tmp;
-    //};
+    void*
+    getDevice() override {
+
+      return m_device.m_pd3dDevice;
+    };
 
     /**
      * @brief get ptr to device context
      * @return share ptr to device context
      */
-    //SPtr<DeviceContext>
-    //getDeviceContex() const override {
-    //  return nullptr;
-    //};
+    void*
+    getDeviceContex() override {
+      return m_deviceContext.m_pd3dDeviceContext;
+    };
 
     /**
      * @brief get ptr to device Swap Chain
@@ -132,28 +132,24 @@ namespace jdEngineSDK {
      * @param vertexFilePath is the path to the file of Vertex Shader
      * @param vertexMainFuntion is the name of the main function of the vertex Shader
      * @param shaderVersion is the version of Shader
-     * @param vertexS is the vertex shader when save the shader compiled
-     * @return false if couldn´t load shader
+     * @return a shared ptr with the vertex shader created
      */
-    bool
+    SPtr<VertexShader>
     loadVertexShaderFromFile(const char* vertexFilePath, 
                              const char* vertexMainFuntion,
-                             const char* shaderVersion,
-                             WeakSptr<VertexShader> vertexS) override;
+                             const char* shaderVersion) override;
 
     /**
      * @brief function to load and save pixel shade from file
      * @param pixelFilePath is the path to the file of Pixel Shader
      * @param pixelMainFuntion is the name of the main function of the Pixel Shader
      * @param shaderVersion is the version of Shader
-     * @param pixelS is the vertex shader when save the shader compiled
-     * @return false if couldn´t load shader
+     * @return a shared ptr with the pixel shader created
      */
-    bool
-    loadPixelShaderFromFile(const char* pixelFilePath,
+    SPtr<PixelShader>
+    loadPixelShaderFromFile(const char* pixelFilePath, 
                             const char* pixelMainFuntion,
-                            const char* shaderVersion,
-                            WeakSptr<PixelShader> pixelS) override;
+                            const char* shaderVersion) override;
 
     /**
      * @brief set the viewport for the render targets
@@ -223,7 +219,7 @@ namespace jdEngineSDK {
      * @return a shared pointer with the Texture
      */
     SPtr<Texture2D>
-    LoadShaderResourceFromFile(char* filePath) { return nullptr; };
+    LoadShaderResourceFromFile(char* /*filePath*/) { return nullptr; };
 
     /**
      * @brief function to clear the render target
@@ -256,21 +252,21 @@ namespace jdEngineSDK {
 
     /**
      * @brief function to set a vertexBuffer
-     * @param vertex is the buffer with the vertex data 
+     * @param vertexB is the buffer with the vertex data 
      */
     void
-    setVertexBuffer(WeakSptr<VertexBuffer> vertex) override;
+    setVertexBuffer(WeakSptr<VertexBuffer> vertexB) override;
 
     /**
      * @brief function to set a vertexBuffer
-     * @param index is the buffer with the index data 
+     * @param indexB is the buffer with the index data 
      */
     void
-    setIndexBuffer(WeakSptr<IndexBuffer> index) override;
+    setIndexBuffer(WeakSptr<IndexBuffer> indexB) override;
 
     /**
      * @brief function to set a vertexBuffer
-     * @param index is the buffer with the index data 
+     * @param format is is the format of primitive topology to set
      */
     void
     setPrimitiveTopology(const PRIMITIVE_TOPOLOGY_FORMAT::E& format = 
@@ -422,15 +418,10 @@ namespace jdEngineSDK {
     void
     Present() override;
 
-    void* 
-    createWindow(uint32 height = 600,
-                 uint32 width = 600 ,
-                 const String& winName = String("Window"),
-                 bool fullScream = false) override;
-
-    bool
-    windowIsOpen() override;
-
+    /**
+     * @brief get render target view
+     * @return a shared_ptr with the render target view
+     */
     SPtr<RenderTargetView>
     getRenderTargetView() override {
       return SPtr<RenderTargetView>(m_RTV, reinterpret_cast<RenderTargetView*>(m_RTV.get()));
@@ -449,11 +440,18 @@ namespace jdEngineSDK {
     void
     onShutDown() override;
 
+    /**
+     * @brief Gernerate the input layout elemets with the vertex shader signature data
+     * @return fail if couldn't create
+     */
     HRESULT 
     CreateInputLayoutDescFromVertexShaderSignature(ID3DBlob* pShaderBlob, 
                                                    ID3D11Device* pD3DDevice, 
                                                    ID3D11InputLayout** pInputLayout);
 
+    /**
+     * @brief release device, device context, swapchain, render target view
+     */
     void
     release();
 
@@ -482,9 +480,14 @@ namespace jdEngineSDK {
      */
     SPtr<D3D11RenderTargetView> m_RTV = nullptr;
 
-    sf::WindowBase m_Wind;
-
+    /**
+     * @brief to save the swap chain format with it be create
+     */
     FORMAT::E m_swapChainFormat;
+
+    /**
+     * @brief to save the last view port setted
+     */
     ViewPort m_viewPort;
   };
 

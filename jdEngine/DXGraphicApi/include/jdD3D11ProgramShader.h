@@ -7,7 +7,7 @@
  *
  *
  *
- * @bug     No known bugs.
+ * @bug     can't set resources with functions to set vertx and pixel together
  */
  /*****************************************************************************/
 #pragma once

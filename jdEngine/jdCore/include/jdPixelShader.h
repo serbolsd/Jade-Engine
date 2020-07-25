@@ -15,13 +15,13 @@
 #include "jdPrerequisitesCore.h"
 
 namespace jdEngineSDK {
-		class PixelShader
-		{
-		 public:
+  class PixelShader
+  {
+   public:
     /**
      * @brief Default constructor
      */
-				PixelShader() = default;
+    PixelShader() = default;
 
     /**
      * @brief virtual destructor
@@ -33,5 +33,5 @@ namespace jdEngineSDK {
      */
     virtual void
     release() {};
-		};
+  };
 }

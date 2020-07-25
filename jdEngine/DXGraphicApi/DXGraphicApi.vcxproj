@@ -193,7 +193,6 @@
     <ClCompile Include="src\jdD3D11Device.cpp" />
     <ClCompile Include="src\jdD3D11DeviceContext.cpp" />
     <ClCompile Include="src\jdD3D11SwapChain.cpp" />
-    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\jdD3D11Api.h" />

@@ -44,10 +44,11 @@ namespace jdEngineSDK {
     return true;
   }
 
-  bool DirectX11Api::createSwapChain(void* hwind,
-                                     const FORMAT::E& format, 
-                                     uint32 width, 
-                                     uint32 height) {
+  bool 
+  DirectX11Api::createSwapChain(void* hwind,
+                                const FORMAT::E& format, 
+                                uint32 width, 
+                                uint32 height) {
 
     SPtr<IDXGIDevice> dxgiDevice = 0;
     HRESULT hr = m_device.m_pd3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
@@ -163,8 +164,8 @@ namespace jdEngineSDK {
 
     // Set up the viewport.
     D3D11_VIEWPORT vp;
-    vp.Width = m_viewPort.Width = width;
-    vp.Height = m_viewPort.Height = height;
+    vp.Width = m_viewPort.Width = (float)width;
+    vp.Height = m_viewPort.Height = (float)height;
     vp.MinDepth = m_viewPort.MinDepth;
     vp.MaxDepth = m_viewPort.MaxDepth;
     vp.TopLeftX = m_viewPort.m_topLeftX;
@@ -240,26 +241,26 @@ namespace jdEngineSDK {
                                    const char* pixelShaderVersion) {
 
     D3D11ProgramShader* newProg = new D3D11ProgramShader();
-    if (!loadVertexShaderFromFile(vertexFilePath, 
-                                 vertexMainFuntion, 
-                                 vertexShaderVersion, 
-                                 newProg->m_VS))
-      return nullptr;
-    if (!loadPixelShaderFromFile(pixelFilePath, 
-                                 pixelMainFuntion, 
-                                 pixelShaderVersion, 
-                                 newProg->m_PS))
-      return nullptr;
+    SPtr<VertexShader> vs(loadVertexShaderFromFile(vertexFilePath,
+                          vertexMainFuntion, 
+                          vertexShaderVersion));
+    SPtr<D3D11VertexShader> dvs(vs, reinterpret_cast<D3D11VertexShader*>(vs.get()));
+    newProg->m_VS = dvs;
+
+    SPtr<PixelShader> ps(loadPixelShaderFromFile(pixelFilePath,
+                         pixelMainFuntion,
+                         pixelShaderVersion));
+    SPtr<D3D11PixelShader> dps(ps, reinterpret_cast<D3D11PixelShader*>(ps.get()));
+    newProg->m_PS = dps;
     SPtr<ProgramShader> np(newProg);
     return np;
   }
 
-  bool 
-  DirectX11Api::loadVertexShaderFromFile(const char* vertexFilePath, 
-                                         const char* vertexMainFuntion, 
-                                         const char* shaderVersion, 
-                                         WeakSptr<VertexShader> vertexS) {
-    D3D11VertexShader* tmpS = reinterpret_cast<D3D11VertexShader*>(vertexS.lock().get());
+  SPtr<VertexShader> 
+  DirectX11Api::loadVertexShaderFromFile(const char* vertexFilePath,
+                                         const char* vertexMainFuntion,
+                                         const char* shaderVersion) {
+    D3D11VertexShader* tmpS = new D3D11VertexShader();
     ID3D10Blob* pErroMsg = nullptr;//for messages errors
     // Create the shaders
     // Read the Vertex Shader code from the file
@@ -289,7 +290,7 @@ namespace jdEngineSDK {
       MessageBox(NULL, toBox.c_str(), "Error to find shader", MB_ICONERROR | MB_OK);
       std::cout << ("Impossible to open %s. Are you in the right directory ?");
       std::cout << ("Don't forget to read the FAQ !\n", vertexFilePath);
-      return false;
+      return nullptr;
     }
     auto vertexShader = VertexShaderCode;
 
@@ -320,7 +321,7 @@ namespace jdEngineSDK {
 
       OutputDebugStringA(msg.c_str());
       std::cout << "can't compile vertex shader\n" << std::endl;
-      return false;
+      return nullptr;
     }
     else
     {
@@ -328,31 +329,20 @@ namespace jdEngineSDK {
         tmpS->m_pVBlob->GetBufferSize(),
         NULL,
         &tmpS->m_pdxVS);
-
-      /**
-      *reflect
-      */
-      /// Define the input layout
-      /// Create input layout from compiled VS
-      //hr = CreateInputLayoutDescFromVertexShaderSignature(BlobS,
-      //  m_device.m_pd3dDevice,
-      //  &tmpProgram->m_VS.m_pdxInputLayout);
-      //if (FAILED(hr))
-      //{
-      //  std::cout << "can't create InputLayout\n" << std::endl;
-      //  return false;
-      //}
     }
 
 
     VertexShaderStream.close();
     SAFE_RELEASE(pErroMsg);
-    return true;
+    SPtr<VertexShader> ns(tmpS);
+    return ns;
   }
 
-  bool DirectX11Api::loadPixelShaderFromFile(const char* pixelFilePath, const char* pixelMainFuntion, const char* shaderVersion, WeakSptr<PixelShader> pixelS)
-  {
-    D3D11PixelShader* tmpS = reinterpret_cast<D3D11PixelShader*>(pixelS.lock().get());
+  SPtr<PixelShader> 
+  DirectX11Api::loadPixelShaderFromFile(const char* pixelFilePath, 
+                                        const char* pixelMainFuntion, 
+                                        const char* shaderVersion) {
+    D3D11PixelShader* tmpS = new D3D11PixelShader();
     ID3D10Blob* pErroMsg = nullptr;//for messages errors
 
     if (tmpS->m_pPBlob != nullptr)
@@ -427,7 +417,8 @@ namespace jdEngineSDK {
     FragmentShaderStream.close();
     SAFE_RELEASE(pErroMsg);
 
-    return true;
+    SPtr<PixelShader> ns(tmpS);
+    return ns;
   }
 
   void
@@ -519,9 +510,10 @@ namespace jdEngineSDK {
     return SPtr<Sampler>(tmpS);
   }
 
-  SPtr<InputLayout> DirectX11Api::CreateInputLayout(WeakSptr<VertexShader> vs, 
-                                                    INPUT_LAYOUT_DESC* elementsInput, 
-                                                    uint32 numElements)
+  SPtr<InputLayout> 
+  DirectX11Api::CreateInputLayout(WeakSptr<VertexShader> vs, 
+                                  INPUT_LAYOUT_DESC* elementsInput, 
+                                  uint32 numElements)
   {
     D3D11VertexShader* tmpS = reinterpret_cast<D3D11VertexShader*>(vs.lock().get());
     D3D11InputLayout* input = new D3D11InputLayout;
@@ -558,14 +550,7 @@ namespace jdEngineSDK {
     HRESULT hr=CreateInputLayoutDescFromVertexShaderSignature(tmpS->m_pVBlob,
                                                               m_device.m_pd3dDevice,
                                                               &input->m_pdxInputLayout);
-    //D3D11_INPUT_ELEMENT_DESC layout[] =
-    //{
-    //    { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    //    { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    //};
-    //UINT numElements = ARRAYSIZE(layout);
-    //HRESULT hr = m_device.m_pd3dDevice->CreateInputLayout( layout, numElements, tmpS->m_pVBlob->GetBufferPointer(),
-    //  tmpS->m_pVBlob->GetBufferSize(), &input->m_pdxInputLayout);
+
     if(FAILED(hr))
     {
       std::cout << "can't create InputLayout\n" << std::endl;
@@ -616,8 +601,8 @@ namespace jdEngineSDK {
   }
 
   void 
-  DirectX11Api::setVertexBuffer(WeakSptr<VertexBuffer> vertex) {
-    D3D11VertexBuffer* b = reinterpret_cast<D3D11VertexBuffer*>(vertex.lock().get());
+  DirectX11Api::setVertexBuffer(WeakSptr<VertexBuffer> vertexB) {
+    D3D11VertexBuffer* b = reinterpret_cast<D3D11VertexBuffer*>(vertexB.lock().get());
     UINT stride = b->sizeOfStruct;
     UINT offset = 0;
     m_deviceContext.m_pd3dDeviceContext->IASetVertexBuffers(0,
@@ -628,8 +613,8 @@ namespace jdEngineSDK {
   }
 
   void 
-  DirectX11Api::setIndexBuffer(WeakSptr<IndexBuffer> index) {
-    D3D11IndexBuffer* b = reinterpret_cast<D3D11IndexBuffer*>(index.lock().get());
+  DirectX11Api::setIndexBuffer(WeakSptr<IndexBuffer> indexB) {
+    D3D11IndexBuffer* b = reinterpret_cast<D3D11IndexBuffer*>(indexB.lock().get());
     m_deviceContext.m_pd3dDeviceContext->IASetIndexBuffer(b->m_pIBuf,
                                                           DXGI_FORMAT_R32_UINT,
                                                           0);
@@ -792,39 +777,6 @@ namespace jdEngineSDK {
     m_swapChain.m_pdxgSwapChain->Present(0,0);
   }
 
-  void* 
-  DirectX11Api::createWindow(uint32 height, 
-                             uint32 width, 
-                             const String& winName, 
-                             bool fullScream) {
-        //Agregar windowbase
-    if (!m_Wind.isOpen())
-    {
-      m_Wind.create(sf::VideoMode((unsigned int)width, (unsigned int)height), 
-                          winName.c_str(),
-                          fullScream ? sf::Style::Fullscreen : sf::Style::Default);
-    }
-    
-    //std::make_shared<void>(wind.getSystemHandle());
-    //std::shared_ptr<void> sp(m_Wind.getSystemHandle());
-    return m_Wind.getSystemHandle();
-  }
-
-  bool 
-  DirectX11Api::windowIsOpen() {
-    sf::Event event;
-    while (m_Wind.pollEvent(event))
-    {
-      // "close requested" event: we close the window
-      if (event.type == sf::Event::Closed)
-      {
-        m_Wind.close();
-        return false;
-      }
-    }
-    return true;
-  }
-
   void 
   DirectX11Api::onStartUp() {
     createDevice();
@@ -912,7 +864,8 @@ namespace jdEngineSDK {
     return hr;
   }
 
-  void DirectX11Api::release() {
+  void 
+  DirectX11Api::release() {
     SAFE_RELEASE(m_device.m_pd3dDevice);
     SAFE_RELEASE(m_deviceContext.m_pd3dDeviceContext);
     SAFE_RELEASE(m_swapChain.m_pdxgSwapChain);

@@ -63,8 +63,8 @@ namespace jdEngineSDK {
   };
 
 
-		class JD_CORE_EXPORT GraphicApi : public Module<GraphicApi>
-		{
+  class JD_CORE_EXPORT GraphicApi : public Module<GraphicApi>
+  {
    public:
     /**
      * @brief Default constructor
@@ -76,21 +76,21 @@ namespace jdEngineSDK {
     /**
      * @brief Default destructor
      */
-				virtual ~GraphicApi() {};
+    virtual ~GraphicApi() {};
 
     /**
      * @brief get ptr to device
      * @return share ptr to device 
      */
-    //virtual SPtr<Device>
-    //getDevice() const { return nullptr; };
-    //
-    ///**
-    // * @brief get ptr to device context
-    // * @return share ptr to device context
-    // */
-    //virtual SPtr<DeviceContext>
-    //getDeviceContex() const { return nullptr; };
+    virtual void*
+    getDevice() { return nullptr; };
+    
+    /**
+     * @brief get ptr to device context
+     * @return share ptr to device context
+     */
+    virtual void*
+    getDeviceContex() { return nullptr; };
     //
     ///**
     // * @brief get ptr to device Swap Chain
@@ -137,7 +137,7 @@ namespace jdEngineSDK {
      * @return false if couldn´t create
      */
     virtual bool
-    createRenderTargetView(uint32, uint32) { return false; };
+    createRenderTargetView(uint32 /*width*/, uint32 /*height*/) { return false; };
 
     /**
      * @brief virtual function to load and save pixel and vertex shade from file
@@ -147,51 +147,46 @@ namespace jdEngineSDK {
      * @param pixelFilePath is the path to the file of Pixel Shader
      * @param pixelMainFuntion is the name of the main function of the Pixel Shader
      * @param pixelShaderVersion is the version of Shader
-     * @param programS is program shader when save the shader compiled
-     * @return false if couldn´t load shader
+     * @return shared ptr with the program shader created
      */
     virtual SPtr<ProgramShader>
-    loadShaderFromFile(const char*, 
-                       const char*, 
-                       const char*, 
-                       const char*, 
-                       const char*,
-                       const char*) { return nullptr; };
+    loadShaderFromFile(const char* /*vertexFilePath*/ , 
+                       const char* /*vertexMainFuntion*/, 
+                       const char* /*vertexShaderVersio*/, 
+                       const char* /*pixelFilePath*/, 
+                       const char* /*pixelMainFuntion*/,
+                       const char* /*pixelShaderVersion*/) { return nullptr; };
 
     /**
      * @brief virtual function to load and save vertex shade from file
      * @param vertexFilePath is the path to the file of Vertex Shader
      * @param vertexMainFuntion is the name of the main function of the vertex Shader
      * @param shaderVersion is the version of Shader
-     * @param pixelS is the vertex shader when save the shader compiled
-     * @return false if couldn´t load shader
+     * @return a shared ptr with the vertex shader created
      */
-    virtual bool
-    loadVertexShaderFromFile(const char*, 
-                             const char*,
-                             const char*,
-                             WeakSptr<VertexShader>) { return false; };
+    virtual SPtr<VertexShader>
+    loadVertexShaderFromFile(const char* /*vertexFilePath*/, 
+                             const char* /*vertexMainFuntion*/,
+                             const char* /*shaderVersion*/) { return nullptr; };
 
     /**
      * @brief virtual function to load and save pixel shade from file
      * @param pixelFilePath is the path to the file of Pixel Shader
      * @param pixelMainFuntion is the name of the main function of the Pixel Shader
      * @param shaderVersion is the version of Shader
-     * @param vertexS is the vertex shader when save the shader compiled
-     * @return false if couldn´t load shader
+     * @return a shared ptr with the pixel shader created
      */
-    virtual bool
-    loadPixelShaderFromFile(const char*, 
-                            const char*,
-                            const char*,
-                            WeakSptr<PixelShader>) { return false; };
+    virtual SPtr<PixelShader>
+    loadPixelShaderFromFile(const char* /*pixelFilePath*/, 
+                            const char* /*pixelMainFuntion*/,
+                            const char* /*shaderVersion*/) { return nullptr; };
 
     /**
      * @brief set the viewport for the render targets
      * @param vp is a struct with the data
      */
     virtual void
-    setViewPort(const ViewPort&) {};
+    setViewPort(const ViewPort& /*vp*/) {};
 
     /**
      * @brief Create VertexBuffer
@@ -201,9 +196,9 @@ namespace jdEngineSDK {
      * @return a share poninter with the new vertex buffer
      */
     virtual SPtr<VertexBuffer>
-    createVertexBuffer(int32, 
-                       uint32,
-                       void*) { return nullptr ;};
+    createVertexBuffer(int32 /*numvertex*/, 
+                       uint32 /*structSize*/,
+                       void* /*vertex*/) { return nullptr ;};
 
     /**
      * @brief Create VertexBuffer
@@ -212,14 +207,14 @@ namespace jdEngineSDK {
      * @retun a share pointer with the new index buffer
      */
     virtual SPtr<IndexBuffer>
-    createIndexBuffer(int32, uint32*) { return nullptr; };
+    createIndexBuffer(int32 /*numindices*/, uint32* /*index*/) { return nullptr; };
 
     /**
      * @brief Create ConstantBuffer
      * @param sizeOfStruct is the size of the struct of buffer
      */
     virtual SPtr<ConstantBuffer>
-    CreateConstantBuffer(uint32) { return nullptr; };
+    CreateConstantBuffer(uint32 /*sizeOfStruct*/) { return nullptr; };
 
     /**
      * @brief Create Sampler linear
@@ -230,12 +225,14 @@ namespace jdEngineSDK {
 
     /**
      * @brief virtual function to create input layout
-     * @param cs is the vertexShader
+     * @param vs is the vertexShader
      * @param elementsInput is a pointer with the elemnts data
      * @param numElements is the number of elementes of the input layout
      */
     virtual SPtr<InputLayout>
-    CreateInputLayout(WeakSptr<VertexShader> ,INPUT_LAYOUT_DESC* ,uint32) {
+    CreateInputLayout(WeakSptr<VertexShader> /*vs*/,
+                      INPUT_LAYOUT_DESC* /*elementsInput*/,
+                      uint32 /*numElements*/) {
       return nullptr;
     };
 
@@ -245,7 +242,7 @@ namespace jdEngineSDK {
      * @return a shared pointer with the new input layout
      */
     virtual SPtr<InputLayout>
-    reflectInputLayout(WeakSptr<VertexShader> ) {return nullptr;};
+    reflectInputLayout(WeakSptr<VertexShader> /*vs*/) {return nullptr;};
 
     /**
      * @brief virtual function to reflect input layout
@@ -253,14 +250,14 @@ namespace jdEngineSDK {
      * @return a shared pointer with the Texture
      */
     virtual SPtr<Texture2D>
-    LoadShaderResourceFromFile(char* filePath) { return nullptr; };
+    LoadShaderResourceFromFile(char* /*filePath*/) { return nullptr; };
 
     /**
      * @brief function to clear the render target
      * @param rt is the render target to set 
      */
     virtual void
-    setRenderTarget(WeakSptr<RenderTarget>) {};
+    setRenderTarget(WeakSptr<RenderTarget> /*rt*/) {};
 
     /**
      * @brief virtual function to clear the render target
@@ -271,39 +268,39 @@ namespace jdEngineSDK {
      * @param a is the alpha 
      */
     virtual void
-    Clear(WeakSptr<RenderTarget>,
-          const float&, 
-          const float&, 
-          const float&, 
-          const float&) {};
+    Clear(WeakSptr<RenderTarget> /*rt*/,
+          const float& /*r*/, 
+          const float& /*g*/, 
+          const float& /*b*/, 
+          const float& /*a*/) {};
 
     /**
      * @brief virtual function to clear the render target
      * @param rt is the render target with the depth stencil to clear 
      */
     virtual void
-    ClearDepthStencil(WeakSptr<RenderTarget>) {};
+    ClearDepthStencil(WeakSptr<RenderTarget> /*rt*/) {};
 
     /**
      * @brief virtual function to set a vertexBuffer
-     * @param vertex is the buffer with the vertex data 
+     * @param vertexB is the buffer with the vertex data 
      */
     virtual void
-    setVertexBuffer(WeakSptr<VertexBuffer> ) {};
+    setVertexBuffer(WeakSptr<VertexBuffer> /*vertexB*/) {};
 
     /**
      * @brief virtual function to set a vertexBuffer
-     * @param index is the buffer with the index data 
+     * @param indexB is the buffer with the index data 
      */
     virtual void
-    setIndexBuffer(WeakSptr<IndexBuffer> ) {}
+    setIndexBuffer(WeakSptr<IndexBuffer> /*indexB*/) {}
 
     /**
      * @brief virtual function to set a vertexBuffer
-     * @param index is the buffer with the index data 
+     * @param format is the format of primitive topology to set
      */
     virtual void
-    setPrimitiveTopology(const PRIMITIVE_TOPOLOGY_FORMAT::E& ) {};
+    setPrimitiveTopology(const PRIMITIVE_TOPOLOGY_FORMAT::E& /*format*/) {};
 
     /**
      * @brief virtual function to update resources
@@ -311,35 +308,35 @@ namespace jdEngineSDK {
      * @param data is the data to update the buffer 
      */
     virtual void
-    updateSubresource(WeakSptr<ConstantBuffer>, void*)  {};
+    updateSubresource(WeakSptr<ConstantBuffer> /*buffer*/, void* /*data*/)  {};
 
     /**
      * @brief virtual function to update resources
      * @param program is the program with the shaders to set
      */
     virtual void
-    setProgramShader(WeakSptr<ProgramShader> ) {};
+    setProgramShader(WeakSptr<ProgramShader> /*program*/ ) {};
 
     /**
      * @brief virtual function to set VertexShader
      * @param vertexS is the vertex shader to set
      */
     virtual void
-    setVertexShader(WeakSptr<VertexShader> ) {};
+    setVertexShader(WeakSptr<VertexShader> /*vertexS*/) {};
 
     /**
      * @brief virtual function to set the inputLayout
      * @param input is the inputLayput to set 
      */
     virtual void
-    setInputLayout(WeakSptr<InputLayout> ) {};
+    setInputLayout(WeakSptr<InputLayout> /*input*/) {};
 
     /**
      * @brief virtual function to set PixelShader
      * @param pixelS is the pixel shader to set
      */
     virtual void
-    setPixelShader(WeakSptr<PixelShader> ) {};
+    setPixelShader(WeakSptr<PixelShader> /*pixelS*/) {};
 
     /**
      * @brief virtual function to set Constan Buffer in pixel and vertex Shader
@@ -348,7 +345,9 @@ namespace jdEngineSDK {
      * @param numBuffers is the number of buffers to set
      */
     virtual void
-    setConstanBuffer(SPtr<ConstantBuffer> ,int32 , uint32  = 0) {};
+    setConstanBuffer(SPtr<ConstantBuffer> /*buffer*/,
+                     int32 /*bufferSlot*/, 
+                     uint32 /*numBuffers*/ = 0) {};
 
     /**
      * @brief virtual function to set Constan Buffer in vertex Shader
@@ -357,9 +356,9 @@ namespace jdEngineSDK {
      * @param numBuffers is the number of buffers to set
      */
     virtual void
-    VertexShaderSetConstanBuffer(WeakSptr<ConstantBuffer> ,
-                                 int32 , 
-                                 uint32  = 1) {};
+    VertexShaderSetConstanBuffer(WeakSptr<ConstantBuffer> /*buffer*/,
+                                 int32 /*bufferSlot*/, 
+                                 uint32 /*numBuffers*/ = 1) {};
 
     /**
      * @brief virtual function to set Constan Buffer in pixel Shader
@@ -368,9 +367,9 @@ namespace jdEngineSDK {
      * @param numBuffers is the number of buffers to set
      */
     virtual void
-    PixelShaderSetConstanBuffer(WeakSptr<ConstantBuffer>,
-                                 int32 , 
-                                 uint32  = 1) {};
+    PixelShaderSetConstanBuffer(WeakSptr<ConstantBuffer> /*buffer*/,
+                                 int32 /*bufferSlot*/, 
+                                 uint32 /*numBuffers*/ = 1) {};
 
     /**
      * @brief virtual function to set Shader Resource in pixel and vertex Shader
@@ -379,7 +378,9 @@ namespace jdEngineSDK {
      * @param numresources is the number of resources to set
      */
     virtual void
-    setShaderResources(WeakSptr<Texture2D> , int32 , uint32  = 1) {};
+    setShaderResources(WeakSptr<Texture2D> /*resoure*/, 
+                       int32 /*ResourceSlot*/, 
+                       uint32 /*numresources*/ = 1) {};
 
     /**
      * @brief virtual function to set Shader Resource in vertex Shader
@@ -388,9 +389,9 @@ namespace jdEngineSDK {
      * @param numresources is the number of resources to set
      */
     virtual void
-    VertexShaderSetShaderResources(WeakSptr<Texture2D>,
-                                   int32 ,
-                                   uint32  = 1) {};
+    VertexShaderSetShaderResources(WeakSptr<Texture2D> /*resoure*/,
+                                   int32 /*ResourceSlot*/,
+                                   uint32 /*numresources*/ = 1) {};
 
     /**
      * @brief virtual function to set Shader Resource in pixel Shader
@@ -399,9 +400,9 @@ namespace jdEngineSDK {
      * @param numresources is the number of resources to set
      */
     virtual void
-    PixelShaderSetShaderResources(WeakSptr<Texture2D>,
-                                  int32 ,
-                                  uint32  = 1) {};
+    PixelShaderSetShaderResources(WeakSptr<Texture2D> /*resoure*/,
+                                  int32 /*ResourceSlot*/,
+                                  uint32 /*numresources*/ = 1) {};
 
     /**
      * @brief virtual function to set Sampler in pixel and vertex Shader
@@ -410,7 +411,9 @@ namespace jdEngineSDK {
      * @param numSamplers is the number of samplers to set
      */
     virtual void
-    setSampler(WeakSptr<Sampler> , int32 , uint32  = 1) {};
+    setSampler(WeakSptr<Sampler> /*sampler*/, 
+               int32 /*samplerSlot*/, 
+               uint32 /*numSamplers*/ = 1) {};
 
     /**
      * @brief virtual function to set Sampler in vertex Shader
@@ -419,7 +422,9 @@ namespace jdEngineSDK {
      * @param numSamplers is the number of samplers to set
      */
     virtual void
-    VertexShaderSetSampler(WeakSptr<Sampler>, int32 , uint32  = 1) {};
+    VertexShaderSetSampler(WeakSptr<Sampler> /*sampler*/, 
+                           int32 /*samplerSlot*/, 
+                           uint32 /*numSamplers*/ = 1) {};
 
     /**
      * @brief virtual function to set Sampler in pixel Shader
@@ -428,14 +433,16 @@ namespace jdEngineSDK {
      * @param numSamplers is the number of samplers to set
      */
     virtual void
-    PixelShaderSetSampler(WeakSptr<Sampler>, int32 , uint32  = 1) {};
+    PixelShaderSetSampler(WeakSptr<Sampler> /*sampler*/, 
+                          int32 /*samplerSlot*/, 
+                          uint32 /*numSamplers*/ = 1) {};
 
     /**
      * @brief virtual function to draw the vertx buffer setted with the index buffer setted
      * @param numIdex is of index to draw
      */
     virtual void
-    DrawIndex(uint32 ) {};
+    DrawIndex(uint32 /*numIdex*/) {};
 
     /**
      * @brief virtual function to do present to the window
@@ -443,20 +450,18 @@ namespace jdEngineSDK {
     virtual void
     Present() {};
 
+    /**
+     * @brief to set the api objetc selected
+     */
     void
     setObject(GraphicApi* api) {
       GraphicApi::_instance() = api;
     }
 
-    virtual void* 
-    createWindow(uint32  = 600,
-                 uint32  = 600 ,
-                 const String&  = String("Window"),
-                 bool  = false) { return nullptr; };
-
-    virtual bool
-    windowIsOpen() { return false; };
-
+    /**
+     * @brief get render target view
+     * @return a shared_ptr with the render target view
+     */
     virtual SPtr<RenderTargetView>
     getRenderTargetView() { return nullptr; };
 

@@ -98,7 +98,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -110,7 +110,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>jdUtilitiesd.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
@@ -122,7 +122,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -134,7 +134,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>jdUtilitiesd.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -174,7 +174,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -192,10 +192,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_demo.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_draw.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_widgets.cpp" />
     <ClCompile Include="src\jdBaseApp.cpp" />
     <ClCompile Include="src\jdGraphicApi.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imconfig.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_internal.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_rectpack.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_textedit.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h" />
     <ClInclude Include="include\jdBaseApp.h" />
     <ClInclude Include="include\jdConstantBuffer.h" />
     <ClInclude Include="include\jdDevice.h" />

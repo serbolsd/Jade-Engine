@@ -19,10 +19,10 @@ namespace jdEngineSDK {
    * @brief Struct for the info to create Device
    */
   struct sDeviceDescritor;
-
-		class  Device
-		{
-		 public:
+  
+  class  Device
+  {
+   public:
     /**
      * @brief Default constructor
      */
@@ -31,7 +31,7 @@ namespace jdEngineSDK {
     /**
      * @brief Default destructor
      */
-				virtual ~Device() {};
+    virtual ~Device() {};
 
-		};
+  };
 }
