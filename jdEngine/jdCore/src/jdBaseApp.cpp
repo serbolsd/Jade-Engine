@@ -21,7 +21,9 @@ namespace jdEngineSDK {
     float time = 0.0f;
     bool shoudClose = false;
     Event wndEvent;
+    sf::Clock clock;
     while (m_window.isOpen()) {
+      sf::Time elapsed = clock.restart();
       while (m_window.pollEvent(wndEvent)) {
         if (Event::Closed == wndEvent.type) {
           m_window.close();
@@ -34,7 +36,7 @@ namespace jdEngineSDK {
         break;
       }
 
-      update(time);
+      update(elapsed.asSeconds());
 
       render();
     }
@@ -99,11 +101,18 @@ namespace jdEngineSDK {
     g_graphicsApi().createDevice();
     g_graphicsApi().createSwapChain(handle, FORMAT::E::FORMAT_R8G8B8A8_UNORM, m_clientSize.x, m_clientSize.y);
     g_graphicsApi().createRenderTargetView(m_clientSize.x, m_clientSize.y);
+
+    ResourceManager::startUp();
+    SceneGraph::startUp();
     
   }
 
   void 
   BaseApp::destroySystems() {
+    SceneGraph::instance().release();
+    SceneGraph::shutDown();
+    ResourceManager::instance().release();
+    ResourceManager::shutDown();
     g_graphicsApi().shutDown();
   }
   
@@ -118,23 +127,23 @@ namespace jdEngineSDK {
 
     switch (wndEvent.type)     
     {
-    case wndEvent.Resized:
+     case wndEvent.Resized:
       onResize(wndEvent.size.width, wndEvent.size.height);
       break;
-    case wndEvent.LostFocus:
+     case wndEvent.LostFocus:
       m_windowHasFocus = false;
       onLostFocus();
       break;
-    case wndEvent.GainedFocus:
+     case wndEvent.GainedFocus:
       m_windowHasFocus = true;
       onGainedFocus();
       break;
-    case wndEvent.TextEntered:
+     case wndEvent.TextEntered:
       //io.AddInputCharacterUTF16(static_cast<uint16>(wndEvent.text.unicode));
 
       onTextEnterd(static_cast<UNICHAR>(wndEvent.text.unicode));
       break;
-    case wndEvent.KeyPressed:
+     case wndEvent.KeyPressed:
       //if (wndEvent.key.code >=0 )
       //{
       //  io.KeysDown[static_cast<int32>(wndEvent.key.code)] = true;
@@ -146,7 +155,7 @@ namespace jdEngineSDK {
                    wndEvent.key.shift,
                    wndEvent.key.system);
       break;
-    case wndEvent.KeyReleased:
+     case wndEvent.KeyReleased:
       //if (wndEvent.key.code >= 0)
       //{
       //  io.KeysDown[static_cast<int32>(wndEvent.key.code)] = false;
@@ -158,9 +167,9 @@ namespace jdEngineSDK {
                    wndEvent.key.shift,
                    wndEvent.key.system);
       break;
-    case wndEvent.MouseWheelMoved:
+     case wndEvent.MouseWheelMoved:
       break;
-    case wndEvent.MouseWheelScrolled:
+     case wndEvent.MouseWheelScrolled:
       //io.MouseWheel += wndEvent.mouseWheelScroll.delta;
 
       onMouseWheelScrolled(wndEvent.mouseWheelScroll.wheel,
@@ -168,7 +177,7 @@ namespace jdEngineSDK {
                            wndEvent.mouseWheelScroll.x,
                            wndEvent.mouseWheelScroll.y);
       break;
-    case wndEvent.MouseButtonPressed:
+     case wndEvent.MouseButtonPressed:
       //if (!ImGui::IsAnyMouseDown && nullptr == ::GetCapture())
       //{
       //  ::SetCapture(handle);
@@ -179,7 +188,7 @@ namespace jdEngineSDK {
                            wndEvent.mouseButton.x, 
                            wndEvent.mouseButton.y);
       break;
-    case wndEvent.MouseButtonReleased:
+     case wndEvent.MouseButtonReleased:
       //if (!ImGui::IsAnyMouseDown && ::GetCapture() == handle)
       //{
       //  ::ReleaseCapture();
@@ -190,44 +199,44 @@ namespace jdEngineSDK {
                             wndEvent.mouseButton.x, 
                             wndEvent.mouseButton.y);
       break;
-    case wndEvent.MouseMoved:
+     case wndEvent.MouseMoved:
       onMouseMoved(wndEvent.mouseMove.x, wndEvent.mouseMove.y);
       break;
-    case wndEvent.MouseEntered:
+     case wndEvent.MouseEntered:
       onMouseEntered();
       break;
-    case wndEvent.MouseLeft:
+     case wndEvent.MouseLeft:
       onMouseLeft();
       break;
-    case wndEvent.JoystickButtonPressed:
+     case wndEvent.JoystickButtonPressed:
       onJoystickButtonPressed(wndEvent.joystickButton.joystickId,
                               wndEvent.joystickButton.button);
       break;
-    case wndEvent.JoystickButtonReleased:
+     case wndEvent.JoystickButtonReleased:
       onJoystickButtonReleased(wndEvent.joystickButton.joystickId,
                                wndEvent.joystickButton.button);
       break;
-    case wndEvent.JoystickMoved:
+     case wndEvent.JoystickMoved:
       
       onJoystickMoved(wndEvent.joystickMove.joystickId, 
                       wndEvent.joystickMove.axis, 
                       wndEvent.joystickMove.position);
       break;
-    case wndEvent.JoystickConnected:
+     case wndEvent.JoystickConnected:
       onJoystickConnected(wndEvent.joystickConnect.joystickId);
       break;
-    case wndEvent.JoystickDisconnected:
+     case wndEvent.JoystickDisconnected:
       onJoystickDisconnected(wndEvent.joystickConnect.joystickId);
       break;
-    case wndEvent.TouchBegan:
+     case wndEvent.TouchBegan:
       break;
-    case wndEvent.TouchMoved:
+     case wndEvent.TouchMoved:
       break;
-    case wndEvent.TouchEnded:
+     case wndEvent.TouchEnded:
       break;
-    case wndEvent.SensorChanged:
+     case wndEvent.SensorChanged:
       break;
-    default:
+     default:
       break;
     }
     

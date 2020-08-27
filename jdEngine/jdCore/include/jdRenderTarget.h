@@ -34,6 +34,9 @@ namespace jdEngineSDK {
     virtual void
     release() {};
 
+    virtual void*
+    getRenderTexture() { return nullptr; };
+
     /**
      * @brief virtual function to get the render target ID
      * @return int32 with the render target ID
@@ -41,7 +44,8 @@ namespace jdEngineSDK {
     virtual int32
     getID() { return m_id; };
 
-   private:
+   protected:
      int32 m_id = 0;
+     uint32 m_mipLeve=1;
   };
 }

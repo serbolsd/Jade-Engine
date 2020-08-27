@@ -39,7 +39,7 @@ namespace jdEngineSDK {
     /**
      * @brief Default destructor
      */
-    ~DirectX11Api() override{};
+    ~DirectX11Api() override { release(); };
 
     /**
      * @brief get ptr to device
@@ -107,6 +107,18 @@ namespace jdEngineSDK {
      */
     bool
     createRenderTargetView(uint32 width, uint32 height) override;
+
+    /**
+     * @brief create swap chain
+     * @param width is width to depth stencil
+     * @param height is is height to depth stencil
+     * @return a shared pointer with the new render Target
+     */
+     SPtr<RenderTarget>
+     createRenderTarget(uint32 width, 
+                        uint32 height, 
+                        uint32 mipLevels = 1, 
+                        bool Depth = false) override;
 
     /**
      * @brief virtual function to load and save pixel and vertex shade from file
@@ -180,6 +192,12 @@ namespace jdEngineSDK {
     createIndexBuffer(int32 numindices, uint32* index) override;
 
     /**
+     * @brief Create Default Textures
+     */
+    void
+    createDefaultTextures() override;
+
+    /**
      * @brief Create ConstantBuffer
      * @param sizeOfStruct is the size of the struct of buffer
      * @return a share pointer with de new constant buffer
@@ -219,7 +237,7 @@ namespace jdEngineSDK {
      * @return a shared pointer with the Texture
      */
     SPtr<Texture2D>
-    LoadShaderResourceFromFile(char* /*filePath*/) { return nullptr; };
+    LoadShaderResourceFromFile(const char* filePath);
 
     /**
      * @brief function to clear the render target
@@ -341,6 +359,9 @@ namespace jdEngineSDK {
                                  int32 bufferSlot, 
                                  uint32 numBuffers = 1) override;
 
+    void
+    SetBonesConstanBuffer() override;
+
     /**
      * @brief function to set Shader Resource in pixel and vertex Shader
      * @param resoure is a Texture 2d with the resourse
@@ -427,6 +448,16 @@ namespace jdEngineSDK {
       return SPtr<RenderTargetView>(m_RTV, reinterpret_cast<RenderTargetView*>(m_RTV.get()));
     };
 
+    SPtr<ConstantBuffer>
+    createConstantBufferBones() override;
+
+    SPtr<ConstantBuffer>
+    getConstantBufferBones() override {
+      if (nullptr != m_bonesBuffer)
+        return m_bonesBuffer;
+      return nullptr;
+    };
+
    private:
     /**
      * @brief override the modulo´s function onStartUp
@@ -480,6 +511,8 @@ namespace jdEngineSDK {
      */
     SPtr<D3D11RenderTargetView> m_RTV = nullptr;
 
+    Vector<SPtr<RenderTarget>> m_renderTargets;
+
     /**
      * @brief to save the swap chain format with it be create
      */
@@ -489,6 +522,8 @@ namespace jdEngineSDK {
      * @brief to save the last view port setted
      */
     ViewPort m_viewPort;
+
+    SPtr<ConstantBuffer> m_bonesBuffer = nullptr;
   };
 
   extern "C" JD_PLUGIN_EXPORT GraphicApi *

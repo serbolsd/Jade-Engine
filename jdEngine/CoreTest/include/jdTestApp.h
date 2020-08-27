@@ -6,8 +6,9 @@
 #include <jdVector4.h>
 #include <jdMatrix4.h>
 #include <jdPoint.h>
-
+#include <jdResource.h>
 #include <imgui.h>
+#include <imfilebrowser.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 using namespace jdEngineSDK; 
@@ -76,7 +77,7 @@ class testApp : public BaseApp
    */
   void
   onCreate() override;
-  
+
   /**
    * @brief function to call to render
    */
@@ -101,7 +102,42 @@ class testApp : public BaseApp
   onMouseButtonPressed(int32 button,
                        int32 x, 
                        int32 y) override;
-  
+
+  /**
+   * @brief function to call when text entered
+   * @param unicode is the text that entered
+   */
+  void
+  onTextEnterd(UNICHAR unicode) override;
+
+  /**
+   * @brief function to call when a key is pressed
+   * @param code is the key code pressed
+   * @param control is if the key control is pressing
+   * @param shift is if the key shift is pressing
+   * @param system is if the key system is pressing
+   */
+  void
+  onKeyPressed(int32 code, 
+               bool alt, 
+               bool control, 
+               bool shift, 
+               bool system) override;
+
+  /**
+   * @brief function to call when a key is released
+   * @param code is the key code pressed
+   * @param control is if the key control is pressing
+   * @param shift is if the key shift is pressing
+   * @param system is if the key system is pressing
+   */
+  void
+  onKeyReleased(int32 code, 
+                bool alt, 
+                bool control, 
+                bool shift, 
+                bool system) override;
+
   /**
    * @brief function to call when a mouse button released
    * @param button is the button code
@@ -124,6 +160,24 @@ class testApp : public BaseApp
    */
   void
   initImGui();
+
+  void
+  imguiDockScreen();
+
+  void
+  imGuiShowObject(const char* nameObject, WeakSptr<GameObject> child);
+
+  void
+  imGuiInspectorObject();
+
+  void
+  showRenderModelComponent();
+
+  void
+  ImGuiAddComponent();
+
+  void
+  imGuiLoadResourceFile();
 
   /**
    * @brief function to call when the app is being detroyed, after the loop ends
@@ -150,6 +204,7 @@ class testApp : public BaseApp
    * @brief shared pointer to render target view
    */
   SPtr<RenderTargetView> m_rtv = nullptr;
+  SPtr<RenderTarget> m_first = nullptr;
   
   /**
    * @brief shared pointer to a program shader
@@ -192,4 +247,14 @@ class testApp : public BaseApp
   SPtr<ConstantBuffer> m_changeEveryFrameB = nullptr;
   
   float m_scale = 0.5f;
+
+  bool dockMenuOpen = false;
+
+  bool m_showComponentImGui = false;
+
+  bool m_loadingFile = false;
+
+  ImGui::FileBrowser m_fileDialog;
+
+  RESOURCE_TYPE::E m_typeResourceToLoad = RESOURCE_TYPE::UNKNOWTYPE;
 };

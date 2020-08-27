@@ -16,6 +16,15 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{beb6fa39-dc44-4035-9183-5611779b44ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de encabezado\Components">
+      <UniqueIdentifier>{7c4475dd-8007-498e-a9e0-0bc3f27842d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Classes%27 Api">
+      <UniqueIdentifier>{50c3bccc-8c55-42df-9feb-6b71481d821e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Resources">
+      <UniqueIdentifier>{245af2af-7a06-4211-b821-f6d831ed3615}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\jdGraphicApi.cpp">
@@ -39,6 +48,24 @@
     <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="src\jdGameObject.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdResourceManager.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdComponentRenderModel.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdComponentTransform.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="include\jdSceneGraph.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="include\jdMesh.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\jdPrerequisitesCore.h">
@@ -47,49 +74,10 @@
     <ClInclude Include="include\jdGraphicApi.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="include\jdDevice.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdDeviceContext.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdSwapChain.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdRenderTargetView.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdRenderTarget.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
     <ClInclude Include="include\jdTexture2D.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="include\jdViewPort.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdPixelShader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdVertexShader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdProgramShader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdVertexBuffer.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
     <ClInclude Include="include\jdIndexBuffer.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdConstantBuffer.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdSampler.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdInputLayout.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="include\jdBaseApp.h">
@@ -114,6 +102,75 @@
       <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdResource.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdGameObject.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdComponent.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdDevice.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdDeviceContext.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdInputLayout.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPixelShader.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdProgramShader.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRenderTarget.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRenderTargetView.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdSampler.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdSwapChain.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdVertexShader.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdViewPort.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdConstantBuffer.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdVertexBuffer.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdMesh.h">
+      <Filter>Archivos de encabezado\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdModel.h">
+      <Filter>Archivos de encabezado\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdResourceManager.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdSceneGraph.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdComponentTransform.h">
+      <Filter>Archivos de encabezado\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdComponentRenderModel.h">
+      <Filter>Archivos de encabezado\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imfilebrowser.h">
       <Filter>ImGui</Filter>
     </ClInclude>
   </ItemGroup>

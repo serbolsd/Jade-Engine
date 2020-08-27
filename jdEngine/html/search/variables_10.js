@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['rad2deg_5472',['RAD2DEG',['../structjd_engine_s_d_k_1_1_platform_math.html#a26528dd24092a6be4d030b7c02b93964',1,'jdEngineSDK::PlatformMath']]],
+  ['rasterizerflags_5473',['RasterizerFlags',['../struct_im_font_config.html#a80d05eea7733731a3e9ac1d9e905e5b3',1,'ImFontConfig']]],
+  ['rasterizermultiply_5474',['RasterizerMultiply',['../struct_im_font_config.html#a9365265cc52098a8ecf89ff47f6106f2',1,'ImFontConfig']]],
+  ['readinitfn_5475',['ReadInitFn',['../struct_im_gui_settings_handler.html#a27706c3cad4a51af70dc2ebc5d3737d4',1,'ImGuiSettingsHandler']]],
+  ['readlinefn_5476',['ReadLineFn',['../struct_im_gui_settings_handler.html#a0a02bad8569c2d9f22e1a532d1e2de60',1,'ImGuiSettingsHandler']]],
+  ['readopenfn_5477',['ReadOpenFn',['../struct_im_gui_settings_handler.html#accadc3cc1599382b55b58dac53df0b24',1,'ImGuiSettingsHandler']]],
+  ['rectrel_5478',['RectRel',['../struct_im_gui_nav_move_result.html#ae1be85fdcad1fc7c2bfa367862da2ccf',1,'ImGuiNavMoveResult']]],
+  ['rects_5479',['Rects',['../struct_im_font_build_src_data.html#a918baffa45001ec6ba866ad18a338969',1,'ImFontBuildSrcData']]],
+  ['redo_5fchar_5fpoint_5480',['redo_char_point',['../struct_stb_undo_state.html#aab6e5eeb964882e6d9f5d2952b7352e3',1,'StbUndoState']]],
+  ['redo_5fpoint_5481',['redo_point',['../struct_stb_undo_state.html#a719ba014b2db8a8ea55739664b445af0',1,'StbUndoState']]],
+  ['refframe_5482',['RefFrame',['../struct_im_gui_once_upon_a_frame.html#a2d44776b8e7bdeec217f88be9f832e08',1,'ImGuiOnceUponAFrame']]],
+  ['renderdrawlistsfn_5483',['RenderDrawListsFn',['../struct_im_gui_i_o.html#ae16a9f25f36fe9706d8a33fb128e538a',1,'ImGuiIO']]],
+  ['reorderrequestdir_5484',['ReorderRequestDir',['../struct_im_gui_tab_bar.html#adb5c5e4dd8c0331a229dd9e38042677f',1,'ImGuiTabBar']]],
+  ['reorderrequesttabid_5485',['ReorderRequestTabId',['../struct_im_gui_tab_bar.html#a63b10062043a569efbb55462602d7b27',1,'ImGuiTabBar']]],
+  ['resizeborderheld_5486',['ResizeBorderHeld',['../struct_im_gui_window.html#a2f7c042fc7e8359d4736cab69fff8490',1,'ImGuiWindow']]],
+  ['rootwindow_5487',['RootWindow',['../struct_im_gui_window.html#aef9281297b0993c8f1b7c1ff7987cb61',1,'ImGuiWindow']]],
+  ['rootwindowfornav_5488',['RootWindowForNav',['../struct_im_gui_window.html#a949a4aa260a21e8a8d2f65ffbe789712',1,'ImGuiWindow']]],
+  ['rootwindowfortitlebarhighlight_5489',['RootWindowForTitleBarHighlight',['../struct_im_gui_window.html#ae5d5c6637b63f35edc415162a5674c1e',1,'ImGuiWindow']]]
+];

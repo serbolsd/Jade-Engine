@@ -37,6 +37,8 @@ namespace jdEngineSDK {
     /**
      * @brief function to release
      */
+    void*
+    getRenderTexture() override { return m_pRT.m_ppSRV[0]; };
     void
     release() override {
       m_pRT.release();
@@ -46,7 +48,7 @@ namespace jdEngineSDK {
    protected:
     friend class GraphicApi;
     friend class DirectX11Api;
-    
+   private:
 
   };
 }

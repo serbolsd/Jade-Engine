@@ -77,5 +77,8 @@
     <ClInclude Include="include\jdTestApp.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imfilebrowser.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

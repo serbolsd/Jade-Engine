@@ -29,7 +29,10 @@ cbuffer cbChangesEveryFrame : register( b2 )
 struct VS_INPUT
 {
     float4 Pos : POSITION;
+    float4 Norm : NORM0;
+    float4 Tang : TANG0;
     float2 Tex : TEXCOORD0;
+    float4 Color : COLOR0;
 };
 
 struct PS_INPUT

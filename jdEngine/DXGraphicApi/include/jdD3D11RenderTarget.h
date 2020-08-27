@@ -41,6 +41,8 @@ namespace jdEngineSDK {
       SAFE_RELEASE(m_pDepthStencil);
     }
 
+    void*
+    getRenderTexture() override { return m_pRT.m_ppSRV[0]; };
    protected:
     friend class GraphicApi;
     friend class DirectX11Api;

@@ -21,6 +21,8 @@ namespace jdEngineSDK {
 
   class D3D11Texture2D : public Texture2D
   {
+    friend class D3D11RenderTarget;
+    friend class D3D11RenderTargetView;
    public:
     /**
      * @brief Default constructor
@@ -39,6 +41,7 @@ namespace jdEngineSDK {
     release() override {
       SAFE_RELEASE(m_texture);
       SAFE_RELEASE(m_pRenderTarget);
+      SAFE_RELEASE(m_textureForDepthStencil);
       for (size_t i = 0; i < m_ppSRV.size(); i++)
       {
         SAFE_RELEASE(m_ppSRV[i]);
@@ -57,6 +60,11 @@ namespace jdEngineSDK {
      * @brief pointer to direct 11 texture2D class
      */
     ID3D11Texture2D* m_texture = nullptr;
+
+    /**
+     * @brief pointer to direct 11 texture2D class
+     */
+    ID3D11Texture2D* m_textureForDepthStencil = nullptr;
 
     /**
      * @brief pointer to direct 11 RenderTargetView class

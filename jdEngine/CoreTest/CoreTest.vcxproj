@@ -98,7 +98,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -115,7 +115,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -155,7 +155,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -180,6 +180,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui-sfml\include\imconfig.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imfilebrowser.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imgui.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_impl_dx10.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_impl_dx11.h" />

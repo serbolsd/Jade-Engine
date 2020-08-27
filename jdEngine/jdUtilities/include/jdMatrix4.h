@@ -58,6 +58,11 @@ namespace jdEngineSDK
               const JDVector4& m891011,
               const JDVector4& m12131415);
 
+    /**
+     * @brief Default constructor with jdmatrix3.
+     */
+    JDMatrix4(const JDMatrix3& mat3);
+
 /*****************************************************************************/
 /**
  * Operators
@@ -352,6 +357,16 @@ namespace jdEngineSDK
      */
     JDMatrix4&
     scale(float sx, float sy, float sz);
+
+    /**
+     * @brief scale this matrix
+     * @param sx is the value to scale on x axis this matrix
+     * @param sy is the value to scale on y axis this matrix
+     * @param sz is the value to scale on z axis this matrix
+     * @return this matrix scaled
+     */
+    JDMatrix4&
+    scale(const JDVector3& vec);
 
 /*****************************************************************************/
 /**

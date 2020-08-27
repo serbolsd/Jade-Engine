@@ -1,6 +1,8 @@
 #include "jdD3D11Api.h"
-
-#include <SFML/Window.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include <jdResourceManager.h>
+#include <jdMesh.h>
 
 #include "jdD3D11ProgramShader.h"
 #include "jdD3D11ConstantBuffer.h"
@@ -96,6 +98,8 @@ namespace jdEngineSDK {
       return false;
     };
 
+    createDefaultTextures();
+    createConstantBufferBones();
     return true;
   }
 
@@ -161,6 +165,95 @@ namespace jdEngineSDK {
     if (FAILED(hr))
       return;
 
+    for (uint32 i = 0; i < m_renderTargets.size(); ++i)
+    {
+      D3D11RenderTarget* rtResize =
+        reinterpret_cast<D3D11RenderTarget*>(m_renderTargets[i].get());
+      bool depth = false;
+      if (nullptr != rtResize->m_pRT.m_textureForDepthStencil)
+      {
+        depth = true;
+      }
+      rtResize->release();
+      CD3D11_TEXTURE2D_DESC textureDesc;
+      CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+      CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+      
+      ///////////////////////// Map's Texture
+      // Initialize the  texture description.
+      ZeroMemory(&textureDesc, sizeof(textureDesc));
+      
+      // Setup the texture description.
+      // We will have our map be a square
+      // We will need to have this texture bound as a render target AND a shader resource
+      textureDesc.Width = width;
+      textureDesc.Height = height;
+      textureDesc.MipLevels = rtResize->m_mipLeve;
+      textureDesc.ArraySize = 1;
+      //textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+      textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+      textureDesc.SampleDesc.Count = 1;
+      textureDesc.Usage = D3D11_USAGE_DEFAULT;
+      textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+      textureDesc.CPUAccessFlags = 0;
+      textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+      
+      // Create the texture
+      m_device.m_pd3dDevice->CreateTexture2D(&textureDesc, NULL, &rtResize->m_pRT.m_texture);
+      
+      /////////////////////// Map's Render Target
+      // Setup the description of the render target view.
+      renderTargetViewDesc.Format = textureDesc.Format;
+      renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+      renderTargetViewDesc.Texture2D.MipSlice = 0;
+      
+      // Create the render target view.
+      m_device.m_pd3dDevice->CreateRenderTargetView(rtResize->m_pRT.m_texture,
+                                                    &renderTargetViewDesc, 
+                                                    &rtResize->m_pRT.m_pRenderTarget);
+      
+      /////////////////////// Map's Shader Resource View
+      // Setup the description of the shader resource view.
+      shaderResourceViewDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+      shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+      shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+      shaderResourceViewDesc.Texture2D.MipLevels = rtResize->m_mipLeve;
+      
+      rtResize->m_pRT.m_ppSRV.clear();
+      rtResize->m_pRT.m_ppSRV.resize(rtResize->m_mipLeve);
+      // Create the shader resource view.
+      m_device.m_pd3dDevice->CreateShaderResourceView(rtResize->m_pRT.m_texture,
+                                                      &shaderResourceViewDesc, 
+                                                      &rtResize->m_pRT.m_ppSRV[0]);
+      if (depth)
+      {
+        //CD3D11_TEXTURE2D_DESC descDepth;
+        ZeroMemory(&descDepth, sizeof(descDepth));
+        descDepth.Width = width;
+        descDepth.Height = height;
+        descDepth.MipLevels = rtResize->m_mipLeve;
+        descDepth.ArraySize = 1;
+        descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        descDepth.SampleDesc.Count = 1;
+        descDepth.SampleDesc.Quality = 0;
+        descDepth.Usage = D3D11_USAGE_DEFAULT;
+        descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        descDepth.CPUAccessFlags = 0;
+        descDepth.MiscFlags = 0;
+      
+        m_device.m_pd3dDevice->CreateTexture2D(&descDepth, 
+                                               NULL, 
+                                               &rtResize->m_pRT.m_textureForDepthStencil);
+        //D3D11_DEPTH_STENCIL_VIEW_DESC descDSV2;
+        //ZeroMemory(&descDSV2, sizeof(descDSV2));
+        //descDSV2.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        //descDSV2.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        //descDSV2.Texture2D.MipSlice = 0;
+        m_device.m_pd3dDevice->CreateDepthStencilView(rtResize->m_pRT.m_textureForDepthStencil,
+                                                      &descDSV, 
+                                                      &rtResize->m_pDepthStencil);
+      }
+    }
 
     // Set up the viewport.
     D3D11_VIEWPORT vp;
@@ -179,9 +272,11 @@ namespace jdEngineSDK {
     {
       return false;
     }
+
     D3D11RenderTargetView* view = new D3D11RenderTargetView();
     m_RTV.reset(view);
     // Create a render target view
+
     ID3D11Texture2D* pBackBuffer = NULL;
     HRESULT hr = m_swapChain.m_pdxgSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
     if (FAILED(hr))
@@ -208,8 +303,8 @@ namespace jdEngineSDK {
     descDepth.MiscFlags = 0;
 
     hr = m_device.m_pd3dDevice->CreateTexture2D(&descDepth,
-                                                    NULL, 
-                                                    &m_RTV->m_pRT.m_texture);
+                                                NULL, 
+                                                &m_RTV->m_pRT.m_texture);
     if (FAILED(hr))
       return false;
 
@@ -229,7 +324,100 @@ namespace jdEngineSDK {
     m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(1, 
                                                             &m_RTV->m_pRT.m_pRenderTarget,
                                                             m_RTV->m_pDepthStencil);
+
     return true;
+  }
+
+  SPtr<RenderTarget> 
+  DirectX11Api::createRenderTarget(uint32 width, 
+                                   uint32 height, 
+                                   uint32 mipLevels, 
+                                   bool Depth) {
+    D3D11RenderTarget* newRender = new D3D11RenderTarget;
+    CD3D11_TEXTURE2D_DESC textureDesc;
+    CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+    CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+
+    ///////////////////////// Map's Texture
+    // Initialize the  texture description.
+    ZeroMemory(&textureDesc, sizeof(textureDesc));
+
+    // Setup the texture description.
+    // We will have our map be a square
+    // We will need to have this texture bound as a render target AND a shader resource
+    textureDesc.Width = width;
+    textureDesc.Height = height;
+    textureDesc.MipLevels = mipLevels;
+    textureDesc.ArraySize = 1;
+    //textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    textureDesc.SampleDesc.Count = 1;
+    textureDesc.Usage = D3D11_USAGE_DEFAULT;
+    textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+    textureDesc.CPUAccessFlags = 0;
+    textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+    newRender->m_mipLeve = mipLevels;
+    // Create the texture
+    m_device.m_pd3dDevice->CreateTexture2D(&textureDesc, NULL, &newRender->m_pRT.m_texture);
+
+    /////////////////////// Map's Render Target
+    // Setup the description of the render target view.
+    renderTargetViewDesc.Format = textureDesc.Format;
+    renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+    renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+    // Create the render target view.
+    m_device.m_pd3dDevice->CreateRenderTargetView(newRender->m_pRT.m_texture, 
+                                                  &renderTargetViewDesc, 
+                                                  &newRender->m_pRT.m_pRenderTarget);
+
+    /////////////////////// Map's Shader Resource View
+    // Setup the description of the shader resource view.
+    shaderResourceViewDesc.Format = textureDesc.Format;
+    shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+    shaderResourceViewDesc.Texture2D.MipLevels = mipLevels;
+    newRender->m_pRT.m_ppSRV.resize(mipLevels);
+    // Create the shader resource view.
+    //ID3D11ShaderResourceView* srv;
+    m_device.m_pd3dDevice->CreateShaderResourceView(newRender->m_pRT.m_texture, 
+                                                    &shaderResourceViewDesc, 
+                                                    &newRender->m_pRT.m_ppSRV[0]);
+    //SPtr<ID3D11ShaderResourceView> SRV(srv);
+    //newRender->m_pRT.m_ppSRV.push_back(srv);
+    if (Depth)
+    {
+      CD3D11_TEXTURE2D_DESC descDepth;
+      ZeroMemory(&descDepth, sizeof(descDepth));
+      descDepth.Width = width;
+      descDepth.Height = height;
+      descDepth.MipLevels = mipLevels;
+      descDepth.ArraySize = 1;
+      descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+      descDepth.SampleDesc.Count = 1;
+      descDepth.SampleDesc.Quality = 0;
+      descDepth.Usage = D3D11_USAGE_DEFAULT;
+      descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+      descDepth.CPUAccessFlags = 0;
+      descDepth.MiscFlags = 0;
+
+      m_device.m_pd3dDevice->CreateTexture2D(&descDepth, 
+                                             NULL, 
+                                             &newRender->m_pRT.m_textureForDepthStencil);
+      D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+      ZeroMemory(&descDSV, sizeof(descDSV));
+      descDSV.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+      descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+      descDSV.Texture2D.MipSlice = 0;
+      m_device.m_pd3dDevice->CreateDepthStencilView(newRender->m_pRT.m_textureForDepthStencil, 
+                                                    &descDSV, 
+                                                    &newRender->m_pDepthStencil);
+    }
+
+    SPtr<RenderTarget> newRT(newRender);
+    m_renderTargets.push_back(newRT);
+    return newRT;
   }
 
   SPtr<ProgramShader>
@@ -477,6 +665,160 @@ namespace jdEngineSDK {
     return SPtr<IndexBuffer>(tmpIB);
   }
 
+  void 
+  DirectX11Api::createDefaultTextures() {
+
+    Vector<JDVector4> imgpxls;
+    int32 imgSize = 128;
+    int32 scale = 4;
+    JDVector4 magenta = { 229, 9, 127,255 };
+    JDVector4 White = { 255, 255, 255,255 };
+    JDVector4 Black = { 0, 0, 0,255 };
+    JDVector4 lightBlue = { 50, 50, 255,255 };
+    JDVector4 Blue = { 150, 150, 255,255 };
+    JDVector4 Grey = { 80, 80, 80,255 };
+    JDVector4 lightGrey = { 180, 180, 180,255 };
+
+    // Create texture
+    CD3D11_TEXTURE2D_DESC desc;
+    desc.Width = imgSize;
+    desc.Height = imgSize;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags = 0;
+    desc.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA initData;
+    initData.SysMemPitch = imgSize * 4;
+    initData.SysMemSlicePitch = imgSize * imgSize * 4;
+
+    CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = desc.MipLevels;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+
+    imgpxls.clear();
+    imgpxls.resize(imgSize * imgSize);
+    for (int32 y = 0; y < imgSize; ++y)
+    {
+      for (int32 x = 0; x < imgSize; ++x)
+      {
+        int32 chessboard = x / scale + y / scale;
+        imgpxls[y * imgSize + x] = White;
+      }
+    }
+
+    D3D11Texture2D* texdef = new D3D11Texture2D;
+    initData.pSysMem = imgpxls.data();
+    m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &texdef->m_texture);
+    texdef->m_ppSRV.resize(1);
+    m_device.m_pd3dDevice->CreateShaderResourceView(texdef->m_texture, 
+                                                    &srvDesc, 
+                                                    &texdef->m_ppSRV[0]);
+    DEFAULT_TEXTURE_ERROR.reset(texdef);
+
+    imgpxls.clear();
+    imgpxls.resize(imgSize * imgSize);
+    for (int32 y = 0; y < imgSize; ++y)
+    {
+      for (int32 x = 0; x < imgSize; ++x)
+      {
+        int32 chessboard = x / scale + y / scale;
+        imgpxls[y * imgSize + x] = chessboard % 2 ? White : Black;
+      }
+    }
+    D3D11Texture2D* texchess = new D3D11Texture2D;
+    initData.pSysMem = imgpxls.data();
+    m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &texchess->m_texture);
+    texchess->m_ppSRV.resize(1);
+    m_device.m_pd3dDevice->CreateShaderResourceView(texchess->m_texture, 
+                                                    &srvDesc, 
+                                                    &texchess->m_ppSRV[0]);
+    DEFAULT_TEXTURE_CHESS.reset(texchess);
+
+    imgpxls.clear();
+    imgpxls.resize(imgSize * imgSize);
+    for (int32 y = 0; y < imgSize; ++y)
+    {
+      for (int32 x = 0; x < imgSize; ++x)
+      {
+        //int32 chessboard = x / scale + y / scale;
+        imgpxls[y * imgSize + x] = White;
+      }
+    }
+    D3D11Texture2D* texwhite = new D3D11Texture2D;
+    initData.pSysMem = imgpxls.data();
+    m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &texwhite->m_texture);
+    texwhite->m_ppSRV.resize(1);
+    m_device.m_pd3dDevice->CreateShaderResourceView(texwhite->m_texture, 
+                                                    &srvDesc, 
+                                                    &texwhite->m_ppSRV[0]);
+    DEFAULT_TEXTURE_WHITE.reset(texwhite);
+
+    imgpxls.clear();
+    imgpxls.resize(imgSize * imgSize);
+    for (int32 y = 0; y < imgSize; ++y)
+    {
+      for (int32 x = 0; x < imgSize; ++x)
+      {
+        //int32 chessboard = x / scale + y / scale;
+        imgpxls[y * imgSize + x] = Black;
+      }
+    }
+    D3D11Texture2D* texblack = new D3D11Texture2D;
+    initData.pSysMem = imgpxls.data();
+    m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &texblack->m_texture);
+    texblack->m_ppSRV.resize(1);
+    m_device.m_pd3dDevice->CreateShaderResourceView(texblack->m_texture, 
+                                                    &srvDesc, 
+                                                    &texblack->m_ppSRV[0]);
+    DEFAULT_TEXTURE_BLACK.reset(texblack);
+
+    imgpxls.clear();
+    imgpxls.resize(imgSize * imgSize);
+    for (int32 y = 0; y < imgSize; ++y)
+    {
+      for (int32 x = 0; x < imgSize; ++x)
+      {
+        int32 chessboard = x / scale + y / scale;
+        imgpxls[y * imgSize + x] = chessboard % 2 ? Blue : lightBlue;
+      }
+    }
+    D3D11Texture2D* texnormal = new D3D11Texture2D;
+    initData.pSysMem = imgpxls.data();
+    m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &texnormal->m_texture);
+    texnormal->m_ppSRV.resize(1);
+    m_device.m_pd3dDevice->CreateShaderResourceView(texnormal->m_texture, 
+                                                    &srvDesc, 
+                                                    &texnormal->m_ppSRV[0]);
+    DEFAULT_TEXTURE_NORMAL.reset(texnormal);
+
+    imgpxls.clear();
+    imgpxls.resize(imgSize * imgSize);
+    for (int32 y = 0; y < imgSize; ++y)
+    {
+      for (int32 x = 0; x < imgSize; ++x)
+      {
+        int32 chessboard = x / scale + y / scale;
+        imgpxls[y * imgSize + x] = chessboard % 2 ? Grey : lightGrey;
+      }
+    }
+    D3D11Texture2D* textrans = new D3D11Texture2D;
+    initData.pSysMem = imgpxls.data();
+    m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &textrans->m_texture);
+    textrans->m_ppSRV.resize(1);
+    m_device.m_pd3dDevice->CreateShaderResourceView(textrans->m_texture, 
+                                                    &srvDesc, 
+                                                    &textrans->m_ppSRV[0]);
+    DEFAULT_TEXTURE_TRANSPARENT.reset(textrans);
+  }
+
   SPtr<ConstantBuffer>
   DirectX11Api::CreateConstantBuffer(uint32 sizeOfStruct) {
     D3D11ConstantBuffer* tmpB = new D3D11ConstantBuffer;
@@ -558,7 +900,60 @@ namespace jdEngineSDK {
     return SPtr<InputLayout>(input);
   }
 
-  void 
+  SPtr<Texture2D> 
+  DirectX11Api::LoadShaderResourceFromFile(const char* filePath) {
+    int width, height, channels;
+    unsigned char* img = stbi_load(filePath, &width, &height, &channels, 4);
+    if (img == NULL) {
+      printf("Error in loading the image\n");
+      return nullptr;
+    }   
+    
+    // Create texture
+    CD3D11_TEXTURE2D_DESC desc;
+    desc.Width = width;
+    desc.Height = height;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags = 0;
+    desc.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA initData;
+    initData.pSysMem = img;
+    initData.SysMemPitch = width * 4;
+    initData.SysMemSlicePitch = width * height * 4;
+
+    D3D11Texture2D* tex = new D3D11Texture2D;
+    HRESULT hr = m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &tex->m_texture);
+    if (FAILED(hr))
+    {
+      //coudn't create texture
+      return nullptr;
+    }
+
+    CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = desc.MipLevels;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    tex->m_ppSRV.resize(desc.MipLevels);
+    hr = m_device.m_pd3dDevice->CreateShaderResourceView(tex->m_texture, &srvDesc, &tex->m_ppSRV[0]);
+
+    if (FAILED(hr))
+    {
+      //coudn't create texture
+      return nullptr;
+    }
+
+    return SPtr<Texture2D>(tex);
+  }
+
+  void
   DirectX11Api::setRenderTarget(WeakSptr<RenderTarget> rt) {
     D3D11RenderTarget* ret = reinterpret_cast<D3D11RenderTarget*>(rt.lock().get());
 
@@ -711,6 +1106,12 @@ namespace jdEngineSDK {
   }
 
   void 
+  DirectX11Api::SetBonesConstanBuffer() {
+    VertexShaderSetConstanBuffer(m_bonesBuffer,3);
+    PixelShaderSetConstanBuffer(m_bonesBuffer, 3);
+  }
+
+  void 
   DirectX11Api::setShaderResources(WeakSptr<Texture2D> resource,
                                    int32 ResourceSlot, 
                                    uint32 numresources) {
@@ -735,9 +1136,12 @@ namespace jdEngineSDK {
                                               int32 ResourceSlot, 
                                               uint32 numresources) {
     D3D11Texture2D* t = reinterpret_cast<D3D11Texture2D*>(resource.lock().get());
-    m_deviceContext.m_pd3dDeviceContext->PSSetShaderResources(ResourceSlot, 
-                                                              numresources, 
-                                                              &t->m_ppSRV[0]);
+    if (NULL != t)
+    {
+      m_deviceContext.m_pd3dDeviceContext->PSSetShaderResources(ResourceSlot,
+        numresources,
+        &t->m_ppSRV[0]);
+    }
   }
 
   void 
@@ -777,7 +1181,17 @@ namespace jdEngineSDK {
     m_swapChain.m_pdxgSwapChain->Present(0,0);
   }
 
-  void 
+  SPtr<ConstantBuffer> 
+  DirectX11Api::createConstantBufferBones() {
+    if (nullptr != m_bonesBuffer)
+    {
+      return m_bonesBuffer;
+    }
+    m_bonesBuffer = CreateConstantBuffer(sizeof(cbBonesTranform));
+    return m_bonesBuffer;
+  }
+
+  void
   DirectX11Api::onStartUp() {
     createDevice();
   }
@@ -869,7 +1283,17 @@ namespace jdEngineSDK {
     SAFE_RELEASE(m_device.m_pd3dDevice);
     SAFE_RELEASE(m_deviceContext.m_pd3dDeviceContext);
     SAFE_RELEASE(m_swapChain.m_pdxgSwapChain);
+    DEFAULT_TEXTURE_ERROR->release();
+    DEFAULT_TEXTURE_TRANSPARENT->release();
+    DEFAULT_TEXTURE_BLACK->release();
+    DEFAULT_TEXTURE_WHITE->release();
+    DEFAULT_TEXTURE_NORMAL->release();
+    DEFAULT_TEXTURE_CHESS->release();
     m_RTV->release();
+    for (uint32 i = 0; i < m_renderTargets.size(); i++)
+    {
+      m_renderTargets[i]->release();
+    }
   }
 
 }

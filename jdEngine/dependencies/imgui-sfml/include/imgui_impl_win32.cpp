@@ -60,9 +60,9 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
     io.BackendPlatformName = "imgui_impl_win32";
     io.ImeWindowHandle = hwnd;
-
+    
     // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array that we will update during the application lifetime.
-    io.KeyMap[ImGuiKey_Tab] = VK_TAB;
+    /*io.KeyMap[ImGuiKey_Tab] = VK_TAB;
     io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
     io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
     io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
@@ -82,7 +82,29 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
     io.KeyMap[ImGuiKey_V] = 'V';
     io.KeyMap[ImGuiKey_X] = 'X';
     io.KeyMap[ImGuiKey_Y] = 'Y';
-    io.KeyMap[ImGuiKey_Z] = 'Z';
+    io.KeyMap[ImGuiKey_Z] = 'Z';*/
+
+    io.KeyMap[ImGuiKey_Tab] = sf::Keyboard::Key::Tab;
+    io.KeyMap[ImGuiKey_LeftArrow] = sf::Keyboard::Key::Left;
+    io.KeyMap[ImGuiKey_RightArrow] = sf::Keyboard::Key::Right;
+    io.KeyMap[ImGuiKey_UpArrow] = sf::Keyboard::Key::Up;
+    io.KeyMap[ImGuiKey_DownArrow] = sf::Keyboard::Key::Down;
+    io.KeyMap[ImGuiKey_PageUp] = sf::Keyboard::Key::PageUp;
+    io.KeyMap[ImGuiKey_PageDown] = sf::Keyboard::Key::PageDown;
+    io.KeyMap[ImGuiKey_Home] = sf::Keyboard::Key::Home;
+    io.KeyMap[ImGuiKey_End] = sf::Keyboard::Key::End;
+    io.KeyMap[ImGuiKey_Insert] = sf::Keyboard::Key::Insert;
+    io.KeyMap[ImGuiKey_Delete] = sf::Keyboard::Key::Delete;
+    io.KeyMap[ImGuiKey_Backspace] = sf::Keyboard::Key::BackSpace;
+    io.KeyMap[ImGuiKey_Space] = sf::Keyboard::Key::Space;
+    io.KeyMap[ImGuiKey_Enter] = sf::Keyboard::Key::Enter;
+    io.KeyMap[ImGuiKey_Escape] = sf::Keyboard::Key::Return;
+    io.KeyMap[ImGuiKey_A] = sf::Keyboard::Key::A;
+    io.KeyMap[ImGuiKey_C] = sf::Keyboard::Key::C;
+    io.KeyMap[ImGuiKey_V] = sf::Keyboard::Key::V;
+    io.KeyMap[ImGuiKey_X] = sf::Keyboard::Key::X;
+    io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Key::Y;
+    io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Key::Z;
 
     return true;
 }

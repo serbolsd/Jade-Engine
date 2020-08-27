@@ -12,9 +12,11 @@
 /*****************************************************************************/
 #pragma once
 #include <SFML/Window.hpp>
-#include "jdGraphicApi.h"
-#include "jdPoint.h"
+#include <jdGraphicApi.h>
+#include <jdPoint.h>
 #include <imgui.h>
+#include <jdSceneGraph.h>
+#include <jdResourceManager.h>
 
 using sf::WindowBase;
 using sf::Event;

@@ -131,13 +131,27 @@ namespace jdEngineSDK {
     resizeSwapChain(uint32 /*width*/, uint32 /*height*/) {};
 
     /**
-     * @brief create swap chain
+     * @brief create RenderTargetView
      * @param width is width to depth stencil
      * @param height is is height to depth stencil
      * @return false if couldn´t create
      */
     virtual bool
     createRenderTargetView(uint32 /*width*/, uint32 /*height*/) { return false; };
+
+    /**
+     * @brief create swap chain
+     * @param width is width to depth stencil
+     * @param height is is height to depth stencil
+     * @return false if couldn´t create
+     */
+    virtual SPtr<RenderTarget>
+    createRenderTarget(uint32 /*width*/, 
+                       uint32 /*height*/, 
+                       uint32 /*mipLevels*/ = 1, 
+                       bool /*Depth*/ = false) {
+      return nullptr; 
+    };
 
     /**
      * @brief virtual function to load and save pixel and vertex shade from file
@@ -210,6 +224,12 @@ namespace jdEngineSDK {
     createIndexBuffer(int32 /*numindices*/, uint32* /*index*/) { return nullptr; };
 
     /**
+     * @brief Create Default Textures
+     */
+    virtual void
+    createDefaultTextures() {};
+
+    /**
      * @brief Create ConstantBuffer
      * @param sizeOfStruct is the size of the struct of buffer
      */
@@ -250,7 +270,7 @@ namespace jdEngineSDK {
      * @return a shared pointer with the Texture
      */
     virtual SPtr<Texture2D>
-    LoadShaderResourceFromFile(char* /*filePath*/) { return nullptr; };
+    LoadShaderResourceFromFile(const char* /*filePath*/) { return nullptr; };
 
     /**
      * @brief function to clear the render target
@@ -371,6 +391,9 @@ namespace jdEngineSDK {
                                  int32 /*bufferSlot*/, 
                                  uint32 /*numBuffers*/ = 1) {};
 
+    virtual void
+    SetBonesConstanBuffer() {};
+
     /**
      * @brief virtual function to set Shader Resource in pixel and vertex Shader
      * @param resoure is a Texture 2d with the resourse
@@ -464,6 +487,38 @@ namespace jdEngineSDK {
      */
     virtual SPtr<RenderTargetView>
     getRenderTargetView() { return nullptr; };
+    
+    SPtr<Texture2D>
+    getDefaultTextureError() { return DEFAULT_TEXTURE_ERROR; };
+
+    SPtr<Texture2D>
+    getDefaultTextureTransparent() { return DEFAULT_TEXTURE_TRANSPARENT; };
+
+    SPtr<Texture2D>
+    getDefaultTextureBlack() { return DEFAULT_TEXTURE_BLACK; };
+
+    SPtr<Texture2D>
+    getDefaultTextureWhite() { return DEFAULT_TEXTURE_WHITE; };
+
+    SPtr<Texture2D>
+    getDefaultTextureNormal() { return DEFAULT_TEXTURE_NORMAL; };
+
+    SPtr<Texture2D>
+    getDefaultTextureChess() { return DEFAULT_TEXTURE_CHESS; };
+
+    virtual SPtr<ConstantBuffer>
+    createConstantBufferBones() { return nullptr; };
+
+    virtual SPtr<ConstantBuffer>
+    getConstantBufferBones() { return nullptr; };
+
+   protected:
+    SPtr<Texture2D> DEFAULT_TEXTURE_ERROR;
+    SPtr<Texture2D> DEFAULT_TEXTURE_TRANSPARENT;
+    SPtr<Texture2D> DEFAULT_TEXTURE_BLACK;
+    SPtr<Texture2D> DEFAULT_TEXTURE_WHITE;
+    SPtr<Texture2D> DEFAULT_TEXTURE_NORMAL;
+    SPtr<Texture2D> DEFAULT_TEXTURE_CHESS;
 
 		};
 

@@ -77,5 +77,8 @@
     <ClInclude Include="include\jdD3D11InputLayout.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="include\jdD3D11GameObject.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -50,6 +50,12 @@ namespace jdEngineSDK {
     m[12] = m12131415.x; m[13] = m12131415.y; m[14] = m12131415.z; m[15] = m12131415.w;
   }
   
+  JDMatrix4::JDMatrix4(const JDMatrix3& mat3) {
+    m[0] = mat3.m[0]; m[1] = mat3.m[1]; m[2] = mat3.m[2]; m[3] = 0;
+    m[4] = mat3.m[3]; m[5] = mat3.m[4]; m[6] = mat3.m[5]; m[7] = 0;
+    m[8] = mat3.m[6]; m[9] = mat3.m[7]; m[10] = mat3.m[8]; m[11] = 0;
+    m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1.0f;
+  }
   
   JDMatrix4 
   JDMatrix4::get() const	{
@@ -336,6 +342,12 @@ namespace jdEngineSDK {
      0, 0, 0, 1};
     
     *this *= scal;
+    return *this;
+  }
+
+  JDMatrix4& 
+  JDMatrix4::scale(const JDVector3& vec) {
+    scale(vec.x, vec.y, vec.z);
     return *this;
   }
   

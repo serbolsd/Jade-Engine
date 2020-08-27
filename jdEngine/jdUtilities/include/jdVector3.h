@@ -36,7 +36,7 @@ namespace jdEngineSDK {
      * @param _y for y cordinate
      * @param _z for z cordinate
      */
-    JDVector3(const float& _x = 0.0f, const float& _y = 0.0f, const float& _z =0.0f) 
+    JDVector3(const float& _x, const float& _y = 0.0f, const float& _z =0.0f) 
     		: x(_x), y(_y), z(_z) {};
     
     /**
