@@ -192,7 +192,7 @@ namespace jdEngineSDK {
             {
               if (meshVertex[verID].boneWeights[b] < weight)
               {
-                meshVertex[verID].boneIDs[b] = (float)BoneIndex;
+                meshVertex[verID].boneIDs[b] = BoneIndex;
                 meshVertex[verID].boneWeights[b] = weight;
               }
             }
@@ -215,6 +215,8 @@ namespace jdEngineSDK {
       newMesh->setVertexBuffer(g_graphicsApi().createVertexBuffer(numVertex, 
                                                                   sizeof(DefaultVertexData), 
                                                                   meshVertex));
+      newMesh->m_bonesTransforms.clear();
+      newMesh->m_bonesTransforms.resize(skeletal->m_numBones);
       //Index Info
       for (uint32 indx = 0; indx < numIndex; ++indx)
       {

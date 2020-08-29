@@ -17,23 +17,22 @@ namespace jdEngineSDK {
   		float animation_time = fmod(time_in_ticks, (float)m_myModel->m_scene->mAnimations[0]->mDuration);
   
   		readNodeHierarchy(animation_time, m_myModel->m_scene->mRootNode, identity_matrix);
-  		m_bonesTransforms.clear();
-  		m_bonesTransforms.resize(m_skeletalSData->m_numBones);
   
-  		for (uint32 i = 0; i < m_skeletalSData->m_numBones; ++i) {
-  				m_bonesTransforms[i] = m_skeletalSData->m_bonesInfo[i].Transform;
-  		}
-    for (uint32 i = 0; i < 100; ++i)
-    {
-      if (i < m_skeletalSData->m_numBones)
-      {
-        m_cbBonesTranform.boneTransform[i] = m_bonesTransforms[i];
-      }
-      else
-      {
-        m_cbBonesTranform.boneTransform[i].identity();
-      }
-    }
+    //uint32 size = m_skeletalSData->m_bonesInfo.size();
+  		//for (uint32 i = 0; i < size; ++i) {
+    //  m_cbBonesTranform.boneTransform[i] = m_skeletalSData->m_bonesInfo[i].Transform;
+  		//}
+    //for (uint32 i = 0; i < m_skeletalSData->m_numBones; ++i)
+    //{
+    //  m_cbBonesTranform.boneTransform[i] = m_bonesTransforms[i];
+    //  //if (i < m_skeletalSData->m_numBones)
+    //  //{
+    //  //}
+    //  //else
+    //  //{
+    //  //  break;
+    //  //}
+    //}
   }
   
   void 
@@ -74,7 +73,8 @@ namespace jdEngineSDK {
   		
   		if (m_skeletalSData->m_bonesMap.find(node_name) != m_skeletalSData->m_bonesMap.end()) {// true if node_name exist in bone_mapping	
   				uint32 bone_index = m_skeletalSData->m_bonesMap[node_name];
-      m_skeletalSData->m_bonesInfo[bone_index].Transform =
+      //m_skeletalSData->m_bonesInfo[bone_index].Transform =
+      m_cbBonesTranform.boneTransform[bone_index]=
         m_myModel->m_global_inverse_transform * 
         global_transform * 
         m_skeletalSData->m_bonesInfo[bone_index].offset;

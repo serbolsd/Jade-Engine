@@ -28,7 +28,7 @@ cbuffer cbChangesEveryFrame : register( b2 )
 
 cbuffer cbBonesTransform : register ( b3 )
 {
-  matrix boneTransform[100];
+  matrix boneTransform[400];
 };
 
 //--------------------------------------------------------------------------------------
@@ -39,8 +39,8 @@ struct VS_INPUT
     float4 Tang : TANG0;
     float2 Tex : TEXCOORD0;
     float4 Color : COLOR0;
-    float4 BonesIDs : BONE0;
-    float4 Weights : WEIGHT0;
+    uint4 BonesIDs : BLENDINDICES0;
+    float4 Weights : BLENDWEIGHT0;
 };
 
 struct PS_INPUT
