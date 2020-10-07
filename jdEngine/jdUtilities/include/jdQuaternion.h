@@ -15,6 +15,7 @@
 
 #include "jdPrerequisitesUtil.h"
 #include "jdVector3.h"
+#include "jdMatrix4.h"
 #include "jdRadian.h"
 
 namespace jdEngineSDK {
@@ -223,6 +224,8 @@ namespace jdEngineSDK {
     Quaternion 
     getInverse() const;
 
+    JDMatrix4
+    getMatrix() const;
 /*****************************************************************************/
 /**
  * Members

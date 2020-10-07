@@ -173,5 +173,8 @@
     <ClInclude Include="..\dependencies\imgui-sfml\include\imfilebrowser.h">
       <Filter>ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="include\jdCamera.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

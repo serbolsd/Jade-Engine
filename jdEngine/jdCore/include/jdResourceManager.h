@@ -91,6 +91,12 @@ namespace jdEngineSDK {
     SPtr<Resource>
     loadModel(const char* path);
 
+    void
+    loadModelNodes(WeakSptr<ModelNodes> myNode, const aiNode* ainode);
+
+    void
+    getModelNodesChildren(WeakSptr<ModelNodes> myNode, const aiNode* ainode);
+
     SPtr<Resource>
     loadTexture(const char* path);
 

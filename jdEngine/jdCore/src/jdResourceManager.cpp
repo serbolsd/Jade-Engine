@@ -285,6 +285,11 @@ namespace jdEngineSDK {
                 &m_aiScene->mRootNode->mTransformation,
                 sizeof(JDMatrix4));
     newModel->m_global_inverse_transform.invert();
+    ModelNodes* rootNode = new ModelNodes();
+
+    newModel->m_animationNodes.reset(rootNode);
+    loadModelNodes(newModel->m_animationNodes, m_aiScene->mRootNode);
+    
     for (uint32 i = 0; i < m_aiScene->mNumAnimations; ++i)
     {
       AnimationsData* newAnimation = new AnimationsData;
@@ -296,6 +301,57 @@ namespace jdEngineSDK {
       else
       {
         newAnimation->ticks_per_second = 25.0f;
+      }
+      newAnimation->duration = (float)m_aiScene->mAnimations[i]->mDuration;
+      uint32 numchanels;
+      numchanels = newAnimation->numChannels = m_aiScene->mAnimations[i]->mNumChannels;
+      newAnimation->channels.resize(numchanels);
+      for (uint32 j = 0; j < numchanels; ++j)
+      {
+        SPtr<AnimationNode> newAnimNode(new AnimationNode);
+        newAnimNode->mNodeName = m_aiScene->mAnimations[i]->mChannels[j]->mNodeName.C_Str();
+
+        newAnimNode->mNumPositionKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumPositionKeys;
+        newAnimNode->mPositionKeys.resize(newAnimNode->mNumPositionKeys);
+        for (uint32 key = 0; key < newAnimNode->mNumPositionKeys; ++key) {
+          newAnimNode->mPositionKeys[key].mTime = 
+            m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mTime;
+          newAnimNode->mPositionKeys[key].mValue.x = 
+            m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mValue.x;
+          newAnimNode->mPositionKeys[key].mValue.y =
+            m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mValue.y;
+          newAnimNode->mPositionKeys[key].mValue.z =
+            m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mValue.z;
+        }
+        newAnimNode->mNumRotationKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumRotationKeys;
+        newAnimNode->mRotationKeys.resize(newAnimNode->mNumRotationKeys);
+        for (uint32 key = 0; key < newAnimNode->mNumRotationKeys; ++key) {
+          newAnimNode->mRotationKeys[key].mTime =
+            m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mTime;
+          newAnimNode->mRotationKeys[key].Value.x =
+            m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.x;
+          newAnimNode->mRotationKeys[key].Value.y =
+            m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.y;
+          newAnimNode->mRotationKeys[key].Value.z =
+            m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.z;
+          newAnimNode->mRotationKeys[key].Value.w =
+            m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.w;
+        }
+
+        newAnimNode->mNumScalingKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumScalingKeys;
+        newAnimNode->mScalingKeys.resize(newAnimNode->mNumScalingKeys);
+        for (uint32 key = 0; key < newAnimNode->mNumScalingKeys; ++key) {
+          newAnimNode->mScalingKeys[key].time =
+            m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mTime;
+          newAnimNode->mScalingKeys[key].value =
+            m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mValue.x;
+          newAnimNode->mScalingKeys[key].value.y =
+            m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mValue.y;
+          newAnimNode->mScalingKeys[key].value.z =
+            m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mValue.z;
+        }
+
+        newAnimation->channels[j] = newAnimNode;
       }
       SPtr<AnimationsData> anim(newAnimation);
       newModel->m_animations.push_back(anim);
@@ -312,6 +368,45 @@ namespace jdEngineSDK {
     strcpy(cname, name.c_str());
     m_modelsNames.push_back(cname);
     return modelCreate;
+  }
+
+  void 
+  ResourceManager::loadModelNodes(WeakSptr<ModelNodes> myNode, const aiNode* ainode) {
+    SPtr <ModelNodes> node = myNode.lock();
+    uint32 numChil;
+    node->mName = ainode->mName.C_Str();
+    numChil = node->numChildren = (uint32)ainode->mNumChildren;
+    node->numMeshes = (uint32)ainode->mNumMeshes;
+    std::memcpy(&node->transformation,
+            &ainode->mTransformation,
+            sizeof(JDMatrix4));
+
+    node->children.resize(numChil);
+    for (uint32 i = 0; i < numChil; ++i)
+    {
+      ModelNodes* newNode = new ModelNodes;
+      newNode->parent = node;
+      node->children[i].reset(newNode);
+      loadModelNodes(node->children[i], ainode->mChildren[i]);
+    }
+  }
+
+  void 
+  ResourceManager::getModelNodesChildren(WeakSptr<ModelNodes> myNode, const aiNode* ainode) {
+    ModelNodes* node = myNode.lock().get();
+    uint32 numChil;
+    node->mName = ainode->mName.C_Str();
+    numChil = node->numChildren = (uint32)ainode->mNumChildren;
+    node->numMeshes = (uint32)ainode->mNumMeshes;
+    std::memcpy(&node->transformation,
+      &m_aiScene->mRootNode->mTransformation,
+      sizeof(JDMatrix4));
+    node->children.resize(numChil);
+    for (uint32 i = 0; i < numChil; ++i)
+    {
+      ModelNodes* newNode = new ModelNodes;
+      node->children[i].reset(newNode);
+    }
   }
 
   SPtr<Resource> ResourceManager::loadTexture(const char* path)

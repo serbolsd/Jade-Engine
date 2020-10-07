@@ -216,6 +216,7 @@
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_textedit.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h" />
     <ClInclude Include="include\jdBaseApp.h" />
+    <ClInclude Include="include\jdCamera.h" />
     <ClInclude Include="include\jdComponent.h" />
     <ClInclude Include="include\jdComponentRenderModel.h" />
     <ClInclude Include="include\jdComponentTransform.h" />

@@ -197,4 +197,20 @@ namespace jdEngineSDK {
     return Quaternion(invSMagnitude, scalar);
   }
 
+  JDMatrix4 Quaternion::getMatrix() const
+  {
+    JDMatrix4 mat;
+    mat.m[0] = 1.0f - 2.0f * (y * y + z * z); mat.m[1] = 2.0f * (x * y - z * w);
+    mat.m[2] = 2.0f * (x * z + y * w); mat.m[3] = 0;
+
+    mat.m[4] = 2.0f* (x * y + z * w); mat.m[5] = 1.0f - 2.0f* (x * x + z * z); 
+    mat.m[6] = 2.0f* (y * z - x * w); mat.m[7] = 0;
+    
+    mat.m[8] = 2.0f * (x * z - y * w); mat.m[9] = 2.0f * (y * z + x * w); 
+    mat.m[10] = 1.0f - 2.0f * (x * x + y * y); mat.m[11] = 0;
+    
+    mat.m[12] = 0; mat.m[13] = 0; mat.m[14] = 0; mat.m[15] = 1;
+    return mat;
+  }
+
 }

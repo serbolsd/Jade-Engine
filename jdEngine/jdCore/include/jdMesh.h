@@ -21,11 +21,14 @@
 #include "jdResource.h"
 #include "jdVertexBuffer.h"
 #include "jdIndexBuffer.h"
+#include "jdQuaternion.h"
 
 namespace jdEngineSDK {
 
   class Model;
-
+  struct ModelNodes;
+  struct AnimationsData;
+  struct AnimationNode;
   struct cbBonesTranform
   {
     JDMatrix4 boneTransform[400];
@@ -236,32 +239,32 @@ namespace jdEngineSDK {
 
     void
     readNodeHierarchy(const float& p_animation_time, 
-                      const aiNode* p_node, 
+                      WeakSptr<ModelNodes> p_node,
                       const JDMatrix4& parent_transform);
 
-    const aiNodeAnim* 
-    findNodeAnim(const aiAnimation* p_animation, const String& p_node_name);
+    const AnimationNode*
+    findNodeAnim(AnimationsData* p_animation, const String& p_node_name);
 
     JDVector3
-    calcInterpolatedScaling(const float& p_animation_time, const aiNodeAnim* p_node_anim);
+    calcInterpolatedScaling(const float& p_animation_time, const AnimationNode* p_node_anim);
 
     uint32
-    findScaling(const float& p_animation_time, const aiNodeAnim* p_node_anim);
+    findScaling(const float& p_animation_time, const AnimationNode* p_node_anim);
 
     JDMatrix4
-    calcInterpolatedRotation(const float& p_animation_time, const aiNodeAnim* p_node_anim);
+    calcInterpolatedRotation(const float& p_animation_time, const AnimationNode* p_node_anim);
 
     uint32
-    findRotation(const float& p_animation_time, const aiNodeAnim* p_node_anim);
+    findRotation(const float& p_animation_time, const AnimationNode* p_node_anim);
 
     JDVector3
-    calcInterpolatedPosition(const float& p_animation_time, const aiNodeAnim* p_node_anim);
+    calcInterpolatedPosition(const float& p_animation_time, const AnimationNode* p_node_anim);
 
     uint32
-    findPosition(const float& p_animation_time, const aiNodeAnim* p_node_anim);
+    findPosition(const float& p_animation_time, const AnimationNode* p_node_anim);
 
     JDMatrix4
-    nlerp(aiQuaternion a, aiQuaternion b, const float& blend);
+    nlerp(Quaternion a, Quaternion b, const float& blend);
 
     SPtr<uint32> m_index = nullptr;
     uint32 m_numIndex = 0;
