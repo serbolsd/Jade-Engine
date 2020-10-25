@@ -493,7 +493,7 @@ namespace jdEngineSDK {
       0,
       &tmpS->m_pVBlob,
       &pErroMsg);
-
+    size_t foundErrorVertex;
     if (pErroMsg)
     {
       SIZE_T msgSize = pErroMsg->GetBufferSize();
@@ -501,23 +501,25 @@ namespace jdEngineSDK {
       msg.resize(msgSize);
       memcpy(&msg[0], pErroMsg->GetBufferPointer(), msgSize);
       std::string toBox = "Couldn't read the vertex shader for: \n" + msg;
-      MessageBox(NULL, toBox.c_str(), "Error to read shader", MB_ICONERROR | MB_OK);
       std::cout << toBox.c_str() << std::endl;
 
-      SAFE_RELEASE(pErroMsg);
-      SAFE_RELEASE(tmpS->m_pVBlob);
 
       OutputDebugStringA(msg.c_str());
-      std::cout << "can't compile vertex shader\n" << std::endl;
-      return nullptr;
+      foundErrorVertex=msg.find("error");
+      if (foundErrorVertex != std::string::npos)
+      {
+        MessageBox(NULL, toBox.c_str(), "Error to read shader", MB_ICONERROR | MB_OK);
+        std::cout << "can't compile vertex shader\n" << std::endl;
+        SAFE_RELEASE(pErroMsg);
+        SAFE_RELEASE(tmpS->m_pVBlob);
+        return nullptr;
+      }
     }
-    else
-    {
-      m_device.m_pd3dDevice->CreateVertexShader(tmpS->m_pVBlob->GetBufferPointer(),
-        tmpS->m_pVBlob->GetBufferSize(),
-        NULL,
-        &tmpS->m_pdxVS);
-    }
+    m_device.m_pd3dDevice->CreateVertexShader(tmpS->m_pVBlob->GetBufferPointer(),
+                                              tmpS->m_pVBlob->GetBufferSize(),
+                                              NULL,
+                                              &tmpS->m_pdxVS);
+    
 
 
     VertexShaderStream.close();
@@ -562,7 +564,7 @@ namespace jdEngineSDK {
       MessageBox(NULL, toBox.c_str(), "Error to find shader", MB_ICONERROR | MB_OK);
       std::cout << ("Impossible to open %s. Are you in the right directory ? ");
       std::cout << ("Don't forget to read the FAQ !\n", pixelFilePath);
-      return false;
+      return nullptr;
     }
     auto FrameShader = FragmentShaderCode;
     //Microsoft::WRL::ComPtr<ID3DBlob> blob;
@@ -585,22 +587,23 @@ namespace jdEngineSDK {
       memcpy(&msg[0], pErroMsg->GetBufferPointer(), msgSize);
       std::string toBox = "Couldn't read the pixel shader for: \n";
       toBox += msg;
-      MessageBox(NULL, toBox.c_str(), "Error to read shader", MB_ICONERROR | MB_OK);
       std::cout << toBox.c_str() << std::endl;
-      SAFE_RELEASE(pErroMsg);
-      SAFE_RELEASE(tmpS->m_pPBlob);
       OutputDebugStringA(msg.c_str());
-      std::cout << "can't compile pixel shader\n" << std::endl;
 
-      return false;
+      if (msg.find("error") != std::string::npos)
+      {
+        MessageBox(NULL, toBox.c_str(), "Error to read shader", MB_ICONERROR | MB_OK);
+        std::cout << "can't compile pixel shader\n" << std::endl;
+        SAFE_RELEASE(pErroMsg);
+        SAFE_RELEASE(tmpS->m_pPBlob);
+        return nullptr;
+      }
     }
-    else
-    {
-      m_device.m_pd3dDevice->CreatePixelShader(tmpS->m_pPBlob->GetBufferPointer(),
-                                               tmpS->m_pPBlob->GetBufferSize(),
-                                               NULL,
-                                               &tmpS->m_pdxPS);
-    }
+    m_device.m_pd3dDevice->CreatePixelShader(tmpS->m_pPBlob->GetBufferPointer(),
+                                             tmpS->m_pPBlob->GetBufferSize(),
+                                             NULL,
+                                             &tmpS->m_pdxPS);
+    
 
     FragmentShaderStream.close();
     SAFE_RELEASE(pErroMsg);
@@ -709,8 +712,8 @@ namespace jdEngineSDK {
     {
       for (int32 x = 0; x < imgSize; ++x)
       {
-        int32 chessboard = x / scale + y / scale;
-        imgpxls[y * imgSize + x] = White;
+        float chessboard = float(x / scale + y / scale);
+        imgpxls[y * imgSize + x] = chessboard;
       }
     }
 

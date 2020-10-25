@@ -33,7 +33,7 @@ namespace jdEngineSDK {
   SceneGraph::createGameObject() {
     GameObject* newObject = new GameObject;
     newObject->m_layer = 0;
-    newObject->setName("GameObject");
+    newObject->setName("GameObject##");
     newObject->addComponent(COMPONENT_TYPE::TRANSFORM);
     SPtr<GameObject> NObj(newObject);
     if (nullptr == selectedObjet)

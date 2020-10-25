@@ -8,22 +8,34 @@
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
 Texture2D txDiffuse : register(t0);
+Texture2D txNormal : register(t1);
 SamplerState samLinear : register(s0);
 
-cbuffer cbNeverChanges : register( b0 )
+cbuffer cbNeverChanges : register(b0)
 {
-    matrix View;
+  matrix View;
+  matrix ViewInv;
 };
 
-cbuffer cbChangeOnResize : register( b1 )
+cbuffer cbChangeOnResize : register(b1)
 {
-    matrix Projection;
+  matrix Projection;
+  matrix ProjectionInv;
+  matrix ViewProjection;
+  matrix ViewProjectionInv;
 };
 
-cbuffer cbChangesEveryFrame : register( b2 )
+cbuffer cbChangesEveryFrame : register(b2)
 {
-    matrix World;
-    float4 vMeshColor;
+  matrix World;
+  matrix WorldInv;
+  matrix WorldView;
+  matrix WorldViewInv;
+  matrix WorldProj;
+  matrix WorldProjInv;
+  matrix WorldViewProj;
+  matrix WorldViewProjInv;
+  float4 vMeshColor;
 };
 
 cbuffer cbBonesTransform : register ( b3 )

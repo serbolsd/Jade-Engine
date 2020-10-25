@@ -20,6 +20,7 @@ namespace jdEngineSDK {
   const float PlatformMath::EPSILONF = FLT_EPSILON;
 
   const float PlatformMath::EULERS_NUMBER = (2.71828182845904523536f);
+  const float PlatformMath::MAXFLOAT = 3.402823466e+38F;
   
   float
   PlatformMath::factorial(const int32& n) {

@@ -2,39 +2,44 @@
 #include "jdModel.h"
 namespace jdEngineSDK {
   void 
-  Mesh::animated(const float& animtaionTime) {
-    if (nullptr != m_myModel->m_currentAnimation) {
-      boneTransform(animtaionTime);
+  Mesh::animated(const float& animtaionTime, SPtr<AnimationsData> m_currentAnimation) {
+    if (nullptr != m_currentAnimation) {
+
+      boneTransform(animtaionTime, m_currentAnimation);
     }
   }
 
   void
-  Mesh::boneTransform(const float& deltaTime) {
+  Mesh::boneTransform(const float& deltaTime, SPtr<AnimationsData> m_currentAnimation) {
   		JDMatrix4 identity_matrix; // = mat4(1.0f);
   		identity_matrix.identity();
   		
-  		float time_in_ticks = deltaTime * m_myModel->m_currentAnimation->ticks_per_second;
+  		//float time_in_ticks = deltaTime * m_myModel->m_currentAnimation->m_ticks_per_second;
+  		float time_in_ticks = deltaTime * m_currentAnimation->m_ticks_per_second;
   		//float animation_time = fmod(time_in_ticks, (float)m_myModel->m_scene->mAnimations[0]->mDuration);
-  		float animation_time = fmod(time_in_ticks, (float)m_myModel->m_currentAnimation->duration);
+  		//float animation_time = fmod(time_in_ticks, (float)m_myModel->m_currentAnimation->m_duration);
+  		float animation_time = fmod(time_in_ticks, (float)m_currentAnimation->m_duration);
   
   		//readNodeHierarchy(animation_time, m_myModel->m_scene->mRootNodemRootNode, identity_matrix);
-  		readNodeHierarchy(animation_time, m_myModel->m_animationNodes, identity_matrix);
+  		readNodeHierarchy(animation_time, m_myModel->m_animationNodes, identity_matrix, m_currentAnimation);
   
   }
   
   void 
   Mesh::readNodeHierarchy(const float& p_animation_time, 
                           WeakSptr<ModelNodes> p_node,
-                          const JDMatrix4& parent_transform) {
+                          const JDMatrix4& parent_transform,
+                          SPtr<AnimationsData> m_currentAnimation) {
     ModelNodes* animNode = p_node.lock().get();
-  		String node_name(animNode->mName);
+  		String node_name(animNode->m_name);
   
   		//const aiAnimation* animation = m_myModel->m_scene->mAnimations[0];
     //m_myModel->m_currentAnimation;
   		JDMatrix4 node_transform;
-    std::memcpy(&node_transform, &animNode->transformation, sizeof(JDMatrix4));
+    std::memcpy(&node_transform, &animNode->m_transform, sizeof(JDMatrix4));
   
-  		const AnimationNode* node_anim = findNodeAnim(m_myModel->m_currentAnimation.get(), node_name);
+  		//const AnimationNode* node_anim = findNodeAnim(m_myModel->m_currentAnimation.get(), node_name);
+  		const AnimationNode* node_anim = findNodeAnim(m_currentAnimation.get(), node_name);
   
   		if (node_anim)
   		{
@@ -59,14 +64,14 @@ namespace jdEngineSDK {
   		if (m_skeletalSData->m_bonesMap.find(node_name) != m_skeletalSData->m_bonesMap.end()) {// true if node_name exist in bone_mapping	
   				uint32 bone_index = m_skeletalSData->m_bonesMap[node_name];
       //m_skeletalSData->m_bonesInfo[bone_index].Transform =
-      m_cbBonesTranform.boneTransform[bone_index]=
+      m_cbBonesTranform->boneTransform[bone_index]=
         m_myModel->m_global_inverse_transform * 
         global_transform * 
         m_skeletalSData->m_bonesInfo[bone_index].offset;
   		}
   
-  		for (uint32 i = 0; i < animNode->numChildren; ++i)	{
-  				readNodeHierarchy(p_animation_time, animNode->children[i], global_transform);
+  		for (uint32 i = 0; i < animNode->m_numChildren; ++i)	{
+  				readNodeHierarchy(p_animation_time, animNode->m_children[i], global_transform, m_currentAnimation);
   		}
   
   }
@@ -75,9 +80,9 @@ namespace jdEngineSDK {
   Mesh::findNodeAnim(AnimationsData* p_animation, const String& p_node_name) {
   		// channel in animation contains aiNodeAnim (aiNodeAnim its transformation for bones)
   		// numChannels == numBones
-  		for (uint32 i = 0; i < p_animation->numChannels; ++i)	{
-  				const AnimationNode* node_anim = p_animation->channels[i].get();
-  				if (node_anim->mNodeName == p_node_name)	{
+  		for (uint32 i = 0; i < p_animation->m_numChannels; ++i)	{
+  				const AnimationNode* node_anim = p_animation->m_channels[i].get();
+  				if (node_anim->m_nodeName == p_node_name)	{
   						return node_anim;
   				}
   		}
@@ -87,23 +92,23 @@ namespace jdEngineSDK {
   JDVector3 
   Mesh::calcInterpolatedScaling(const float& p_animation_time, const AnimationNode* p_node_anim) {
     JDVector3 scaling;
-    if (p_node_anim->mNumScalingKeys == 1) {
-      scaling = p_node_anim->mScalingKeys[0].value;
+    if (p_node_anim->m_numScalingKeys == 1) {
+      scaling = p_node_anim->m_scalingKeys[0].m_value;
       return scaling;
     }
 
     uint32 scaling_index = findScaling(p_animation_time, p_node_anim); 
     uint32 next_scaling_index = scaling_index + 1; 
-    JD_ASSERT(next_scaling_index < p_node_anim->mNumScalingKeys);
-    float delta_time = (float)(p_node_anim->mScalingKeys[next_scaling_index].time - 
-                       p_node_anim->mScalingKeys[scaling_index].time);
+    JD_ASSERT(next_scaling_index < p_node_anim->m_numScalingKeys);
+    float delta_time = (float)(p_node_anim->m_scalingKeys[next_scaling_index].m_time -
+                       p_node_anim->m_scalingKeys[scaling_index].m_time);
     
     float factor = (p_animation_time - 
-                   (float)p_node_anim->mScalingKeys[scaling_index].time) / 
+                   (float)p_node_anim->m_scalingKeys[scaling_index].m_time) /
                    delta_time;
     JD_ASSERT(factor >= 0.0f && factor <= 1.0f);
-    JDVector3 start = p_node_anim->mScalingKeys[scaling_index].value;
-    JDVector3 end = p_node_anim->mScalingKeys[next_scaling_index].value;
+    JDVector3 start = p_node_anim->m_scalingKeys[scaling_index].m_value;
+    JDVector3 end = p_node_anim->m_scalingKeys[next_scaling_index].m_value;
     JDVector3 delta = end - start;
     scaling = start + factor * delta;
     return scaling;
@@ -112,8 +117,8 @@ namespace jdEngineSDK {
   uint32 Mesh::findScaling(const float& p_animation_time, const AnimationNode* p_node_anim)
   {
     
-    for (uint32 i = 0; i < p_node_anim->mNumScalingKeys - 1; ++i) {
-      if (p_animation_time < (float)p_node_anim->mScalingKeys[i + 1].time) {
+    for (uint32 i = 0; i < p_node_anim->m_numScalingKeys - 1; ++i) {
+      if (p_animation_time < (float)p_node_anim->m_scalingKeys[i + 1].m_time) {
         return i;
       }
     }
@@ -126,25 +131,25 @@ namespace jdEngineSDK {
   Mesh::calcInterpolatedRotation(const float& p_animation_time, 
                                  const AnimationNode* p_node_anim) {
     JDMatrix4 final;
-    if (p_node_anim->mNumRotationKeys == 1) {
-      final = p_node_anim->mRotationKeys[0].Value.getMatrix();
+    if (p_node_anim->m_numRotationKeys == 1) {
+      final = p_node_anim->m_rotationKeys[0].m_value.getMatrix();
       return final;
     }
 
     uint32 rotation_index = findRotation(p_animation_time, p_node_anim);
     uint32 next_rotation_index = rotation_index + 1;
-    JD_ASSERT(next_rotation_index < p_node_anim->mNumRotationKeys);
+    JD_ASSERT(next_rotation_index < p_node_anim->m_numRotationKeys);
 
-    float delta_time = (float)(p_node_anim->mRotationKeys[next_rotation_index].mTime - 
-                       p_node_anim->mRotationKeys[rotation_index].mTime);
+    float delta_time = (float)(p_node_anim->m_rotationKeys[next_rotation_index].m_time -
+                       p_node_anim->m_rotationKeys[rotation_index].m_time);
     
     float factor = (p_animation_time - 
-                   (float)p_node_anim->mRotationKeys[rotation_index].mTime) / 
+                   (float)p_node_anim->m_rotationKeys[rotation_index].m_time) /
                    delta_time;
 
     JD_ASSERT(factor >= 0.0f && factor <= 1.0f);
-    Quaternion start_quat = p_node_anim->mRotationKeys[rotation_index].Value;
-    Quaternion end_quat = p_node_anim->mRotationKeys[next_rotation_index].Value;
+    Quaternion start_quat = p_node_anim->m_rotationKeys[rotation_index].m_value;
+    Quaternion end_quat = p_node_anim->m_rotationKeys[next_rotation_index].m_value;
 
     return nlerp(start_quat, end_quat, factor);
   }
@@ -152,8 +157,8 @@ namespace jdEngineSDK {
   uint32 Mesh::findRotation(const float& p_animation_time, const AnimationNode* p_node_anim)
   {
    
-    for (uint32 i = 0; i < p_node_anim->mNumRotationKeys - 1; ++i) {
-      if (p_animation_time < (float)p_node_anim->mRotationKeys[i + 1].mTime) {
+    for (uint32 i = 0; i < p_node_anim->m_numRotationKeys - 1; ++i) {
+      if (p_animation_time < (float)p_node_anim->m_rotationKeys[i + 1].m_time) {
         return i;
       }
     }
@@ -166,23 +171,23 @@ namespace jdEngineSDK {
   Mesh::calcInterpolatedPosition(const float& p_animation_time, 
                                  const AnimationNode* p_node_anim) {
     JDVector3 pos;
-    if (p_node_anim->mNumPositionKeys == 1) {
+    if (p_node_anim->m_numPositionKeys == 1) {
       //std::memcpy(&pos, &p_node_anim->mPositionKeys[0].mValue, sizeof(JDVector3));
-      pos = p_node_anim->mPositionKeys[0].mValue;
+      pos = p_node_anim->m_positionKeys[0].m_value;
       return pos;
     }
 
     uint32 position_index = findPosition(p_animation_time, p_node_anim);
     uint32 next_position_index = position_index + 1;
-    JD_ASSERT(next_position_index < p_node_anim->mNumPositionKeys);
-    float delta_time = (float)(p_node_anim->mPositionKeys[next_position_index].mTime - 
-                        p_node_anim->mPositionKeys[position_index].mTime);
+    JD_ASSERT(next_position_index < p_node_anim->m_numPositionKeys);
+    float delta_time = (float)(p_node_anim->m_positionKeys[next_position_index].m_time - 
+                        p_node_anim->m_positionKeys[position_index].m_time);
     float factor = (p_animation_time - 
-                   (float)p_node_anim->mPositionKeys[position_index].mTime) / 
+                   (float)p_node_anim->m_positionKeys[position_index].m_time) /
                    delta_time;
     JD_ASSERT(factor >= 0.0f && factor <= 1.0f);
-    JDVector3 start = p_node_anim->mPositionKeys[position_index].mValue;
-    JDVector3 end = p_node_anim->mPositionKeys[next_position_index].mValue;
+    JDVector3 start = p_node_anim->m_positionKeys[position_index].m_value;
+    JDVector3 end = p_node_anim->m_positionKeys[next_position_index].m_value;
     JDVector3 delta = end - start;
     pos = start + factor * delta;
     return pos;
@@ -190,8 +195,8 @@ namespace jdEngineSDK {
 
   uint32 
   Mesh::findPosition(const float& p_animation_time, const AnimationNode* p_node_anim) {
-    for (uint32 i = 0; i < p_node_anim->mNumPositionKeys - 1; ++i) {
-      if (p_animation_time < (float)p_node_anim->mPositionKeys[i + 1].mTime) {
+    for (uint32 i = 0; i < p_node_anim->m_numPositionKeys - 1; ++i) {
+      if (p_animation_time < (float)p_node_anim->m_positionKeys[i + 1].m_time) {
         return i;
       }
     }

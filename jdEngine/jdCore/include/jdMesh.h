@@ -41,7 +41,7 @@ namespace jdEngineSDK {
     JDVector2 TexCoord = { 0, 0};
     JDVector4 Color = { 0, 0, 0, 0 };
     uint32 boneIDs[4] = { 0,0,0,0 };
-    JDVector4 boneWeights = {  0, 0, 0, 0 };
+    JDVector4 boneWeights = { 0,0,0,0 };
   };
 
   struct Bone {
@@ -224,23 +224,25 @@ namespace jdEngineSDK {
     uint32 m_roughOption = 0;
 
     void
-    animated(const float& animtaionTime);
+    animated(const float& animtaionTime, SPtr<AnimationsData> Animation);
 
     cbBonesTranform&
     getBonesTransform()
     {
-      return m_cbBonesTranform;
+      return *m_cbBonesTranform;
     }
 
+    cbBonesTranform* m_cbBonesTranform;
 		 private:
 
     void 
-    boneTransform(const float& deltaTime);
+    boneTransform(const float& deltaTime, SPtr<AnimationsData> m_currentAnimation);
 
     void
     readNodeHierarchy(const float& p_animation_time, 
                       WeakSptr<ModelNodes> p_node,
-                      const JDMatrix4& parent_transform);
+                      const JDMatrix4& parent_transform, 
+                      SPtr<AnimationsData> m_currentAnimation);
 
     const AnimationNode*
     findNodeAnim(AnimationsData* p_animation, const String& p_node_name);
@@ -296,7 +298,6 @@ namespace jdEngineSDK {
     Model* m_myModel;
     Vector<JDMatrix4> m_bonesTransforms;
     Vector<BoneMatrix> m_bone_matrices;
-    cbBonesTranform m_cbBonesTranform;
 
     friend class ResourceManager;
     friend class CRenderModel;

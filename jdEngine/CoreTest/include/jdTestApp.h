@@ -27,7 +27,8 @@ struct SimpleVertex
  */
 struct CBNeverChanges
 {
-  JDMatrix4 mView;
+  JDMatrix4 m_view;
+  JDMatrix4 m_viewInv;
 };
 
 /**
@@ -35,7 +36,10 @@ struct CBNeverChanges
  */
 struct CBChangeOnResize
 {
-  JDMatrix4 mProjection;
+  JDMatrix4 m_projection;
+  JDMatrix4 m_projectionInv;
+  JDMatrix4 m_viewProjection;
+  JDMatrix4 m_viewProjectionInv;
 };
 
 /**
@@ -43,7 +47,15 @@ struct CBChangeOnResize
  */
 struct CBChangesEveryFrame
 {
-  JDMatrix4 mWorld;
+  JDMatrix4 m_world;
+  JDMatrix4 m_worldInv;
+  JDMatrix4 m_worldView;
+  JDMatrix4 m_worldViewInv;
+  JDMatrix4 m_worldProj;
+  JDMatrix4 m_worldProjInv;
+  JDMatrix4 m_worldViewProj;
+  JDMatrix4 m_worldViewProjInv;
+  JDVector4 m_viewPosition;
   JDVector4 vMeshColor;
 };
 
@@ -174,6 +186,9 @@ class testApp : public BaseApp
   showRenderModelComponent();
 
   void
+  showRenderModelMaterias(CRenderModel* rModel);
+
+  void
   ImGuiAddComponent();
 
   void
@@ -257,4 +272,6 @@ class testApp : public BaseApp
   ImGui::FileBrowser m_fileDialog;
 
   RESOURCE_TYPE::E m_typeResourceToLoad = RESOURCE_TYPE::UNKNOWTYPE;
+
+  SPtr<Camera> m_debugCam = nullptr;
 };

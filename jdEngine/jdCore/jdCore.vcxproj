@@ -200,6 +200,8 @@
     <ClCompile Include="include\jdMesh.cpp" />
     <ClCompile Include="include\jdSceneGraph.cpp" />
     <ClCompile Include="src\jdBaseApp.cpp" />
+    <ClCompile Include="src\jdCamera.cpp" />
+    <ClCompile Include="src\jdCameraManager.cpp" />
     <ClCompile Include="src\jdComponentRenderModel.cpp" />
     <ClCompile Include="src\jdGameObject.cpp" />
     <ClCompile Include="src\jdGraphicApi.cpp" />
@@ -217,6 +219,7 @@
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h" />
     <ClInclude Include="include\jdBaseApp.h" />
     <ClInclude Include="include\jdCamera.h" />
+    <ClInclude Include="include\jdCameraManager.h" />
     <ClInclude Include="include\jdComponent.h" />
     <ClInclude Include="include\jdComponentRenderModel.h" />
     <ClInclude Include="include\jdComponentTransform.h" />

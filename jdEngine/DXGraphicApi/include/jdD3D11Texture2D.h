@@ -52,6 +52,11 @@ namespace jdEngineSDK {
       }
     };
 
+    void*
+    getTexture() override {
+      return m_ppSRV[0];
+    }
+
    protected:
     friend class GraphicApi;
     friend class DirectX11Api;

@@ -66,6 +66,12 @@
     <ClCompile Include="include\jdMesh.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="src\jdCamera.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdCameraManager.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\jdPrerequisitesCore.h">
@@ -174,6 +180,9 @@
       <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="include\jdCamera.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdCameraManager.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

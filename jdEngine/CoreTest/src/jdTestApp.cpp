@@ -37,11 +37,12 @@ testApp::onCreate() {
 
   g_graphicsApi().setRenderTarget(m_rtv);
 
-  m_progShader = g_graphicsApi().loadShaderFromFile("data/shader/TestDifiuse.fx",
+  m_progShader = g_graphicsApi().loadShaderFromFile("data/shader/TestOrenNayar.fx",
                                                     "VS",
                                                     "vs_5_0",
                                                     //"data/shader/Tutorial072.fx",
-                                                    "data/shader/TestDifiuse.fx",
+                                                    //"data/shader/TestDifiuse.fx",
+                                                    "data/shader/TestOrenNayar.fx",
                                                     "PS",
                                                     "ps_5_0");
   g_graphicsApi().setProgramShader(m_progShader);
@@ -136,22 +137,71 @@ testApp::onCreate() {
 
   m_changeEveryFrameB = g_graphicsApi().CreateConstantBuffer(sizeof(CBChangesEveryFrame));
 
-  JDVector4 Eye(0.0f, 20.0f, -150.0f, 0.0f);
-  JDVector4 At(0.0f, 0.0f, 0.0f, 0.0f);
-  JDVector4 Up(0.0f, 1.0f, 0.0f, 0.0f);
-  m_neverChanges.mView = createViewMatrix(Eye, At, Up);
-  m_neverChanges.mView.transpose();
 
-  m_changeOnResize.mProjection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2, 
-                                                                   (float)m_clientSize.x, 
-                                                                   (float)m_clientSize.y, 
-                                                                   0.01f, 
-                                                                   10000.0f);
-  m_changeOnResize.mProjection.transpose();
+  JDVector3 Eye(0.0f, 0, -150.0f);
+  JDVector3 At(0.0f, 0.0f, 0.0f);
+  JDVector3 Up(0.0f, 1.0f, 0.0f);
+  //m_neverChanges.mView = createViewMatrix(Eye, At, Up);
+  //m_neverChanges.mView.transpose();
+  //
+  //m_changeOnResize.mProjection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2, 
+  //                                                                 (float)m_clientSize.x, 
+  //                                                                 (float)m_clientSize.y, 
+  //                                                                 0.01f, 
+  //                                                                 10000.0f);
+  m_debugCam = g_CameraMan().createCamera("debug",
+                                           Eye,
+                                           Up,
+                                           At,
+                                           0.01f,
+                                           100000.0f, 
+                                           Radian(Math::HALF_PI / 2), 
+                                           float (m_clientSize.x/ m_clientSize.y),
+                                           CAMERA_PROJECTION_TYPE::PERSPECTIVE);
+
+  g_CameraMan().createCamera("main",
+                             Eye,
+                             Up,
+                             At,
+                             0.01f,
+                             100000.0f, 
+                             Radian(Math::HALF_PI / 2), 
+                             float (m_clientSize.x/ m_clientSize.y),
+                             CAMERA_PROJECTION_TYPE::PERSPECTIVE);
+
+  //m_changeOnResize.mProjection.transpose();
+  m_neverChanges.m_view = m_debugCam->getMatrixView();
+  m_neverChanges.m_viewInv = m_neverChanges.m_view;
+  m_neverChanges.m_viewInv.invert();
+  
+  m_changeOnResize.m_projection = m_debugCam->getMatrixProjection();
+  m_changeOnResize.m_projectionInv = m_changeOnResize.m_projection;
+  m_changeOnResize.m_projectionInv.invert();
+
+  m_changeOnResize.m_viewProjection = m_neverChanges.m_view * m_changeOnResize.m_projection;
+  m_changeOnResize.m_viewProjectionInv = m_changeOnResize.m_viewProjection;
+  m_changeOnResize.m_viewProjectionInv.invert();
   JDMatrix4 world;
   world.identity();
   JDVector4 color(0.5f, 0, 0.5f, 1);
-  m_changeEveryFrame.mWorld = world;
+
+  m_changeEveryFrame.m_world = world;
+  m_changeEveryFrame.m_worldInv = world;
+  m_changeEveryFrame.m_worldInv.invert();
+
+  m_changeEveryFrame.m_worldProj = world * m_changeOnResize.m_projection;
+  m_changeEveryFrame.m_worldProjInv = m_changeEveryFrame.m_worldProj;
+  m_changeEveryFrame.m_worldProjInv.invert();
+
+  m_changeEveryFrame.m_worldView = world * m_neverChanges.m_view;
+  m_changeEveryFrame.m_worldViewInv = m_changeEveryFrame.m_worldView;
+  m_changeEveryFrame.m_worldViewInv.invert();
+
+  m_changeEveryFrame.m_worldViewProj = m_changeEveryFrame.m_worldView * 
+                                       m_changeOnResize.m_projection;
+  m_changeEveryFrame.m_worldViewProjInv = m_changeEveryFrame.m_worldViewProj;
+  m_changeEveryFrame.m_worldViewProjInv.invert();
+  m_changeEveryFrame.m_viewPosition = m_debugCam->getPositionVector();
   m_changeEveryFrame.vMeshColor = color;
 
   g_graphicsApi().updateSubresource(m_neverChangeB, &m_neverChanges);
@@ -173,6 +223,69 @@ testApp::onCreate() {
 
   g_graphicsApi().setPrimitiveTopology(PRIMITIVE_TOPOLOGY_FORMAT::TRIANGLELIST);
 
+  //Load defaultTextures
+  g_ResourceMan().loadResourceFromFile("data/textures/black.png",
+    RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/white.png",
+    RESOURCE_TYPE::TEXTURE);
+
+  //load spidergwen
+  //g_ResourceMan().loadResourceFromFile("data/models/Happy Idle.fbx",
+  //                                     RESOURCE_TYPE::MODEL);
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMap.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMapV2.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyNormalMap.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacySpecularMap.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyMetallnessMap.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //
+  //
+  ////load noivern
+  //g_ResourceMan().loadResourceFromFile("data/models/Noivern.fbx",
+  //                                     RESOURCE_TYPE::MODEL);
+  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_albedo.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_normals.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_occlusion.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_roughness.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_albedo.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_normals.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_metallic.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_occlusion.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_roughness.png",
+  //                                     RESOURCE_TYPE::TEXTURE);
+
+  //load cyberWarrior
+  g_ResourceMan().loadResourceFromFile("data/models/cyberWarrior.fbx",
+    RESOURCE_TYPE::MODEL);
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/TM.png",
+    RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/NM.png",
+    RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/Metal.png",
+    RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/Rough.png",
+    RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Base_Color.png",
+    RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Normal_DirectX.png",
+    RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Metallic.png",
+    RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Roughness.png",
+    RESOURCE_TYPE::TEXTURE);                         
+
   initImGui();
 }
 
@@ -189,7 +302,7 @@ testApp::onRender() {
       auto component =
         object->getComponent(COMPONENT_TYPE::TRANSFORM);
       CTransform* trans = reinterpret_cast<CTransform*>(component.get());
-      m_changeEveryFrame.mWorld = trans->getMatrixTransform();
+      m_changeEveryFrame.m_world = trans->getMatrixTransform();
 
       g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
 
@@ -216,18 +329,20 @@ testApp::onRender() {
   //get the mouse position
   ImVec2 pos = ImGui::GetCursorScreenPos();
 
-  ImGui::GetWindowDrawList()->AddImage(
-    m_first.get()->getRenderTexture(),
-    ImVec2(ImGui::GetCursorScreenPos()),
-    ImVec2(ImGui::GetCursorScreenPos().x + m_clientSize.x / 2,
-      ImGui::GetCursorScreenPos().y + m_clientSize.y / 2));
+  ImGui::GetWindowDrawList()->AddImage(m_first.get()->getRenderTexture(),
+                                       ImVec2(ImGui::GetCursorScreenPos()),
+                                       ImVec2(ImGui::GetCursorScreenPos().x + 
+                                         m_clientSize.x / 2,
+                                       ImGui::GetCursorScreenPos().y + 
+                                         m_clientSize.y / 2));
   ImGui::End();
-  bool yes = true;
-  if (!ImGui::Begin("SceneGraph", &yes))
-  {
-    ImGui::End();
-    return;
-  }
+  //if (!ImGui::Begin("SceneGraph"))
+  //{
+  //  ImGui::End();
+  //  return;
+  //}
+  ImGui::Begin("SceneGraph");
+  ImGui::CloseCurrentPopup();
   imGuiShowObject("child", SceneGraph::instance().m_root);
   ImGui::End();
 
@@ -259,12 +374,14 @@ testApp::onResize(int32 width, int32 height) {
   m_rtv = g_graphicsApi().getRenderTargetView();
   g_graphicsApi().setRenderTarget(m_rtv);
 
-  m_changeOnResize.mProjection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2, 
+  m_changeOnResize.m_projection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2, 
                                                                    (float)m_clientSize.x, 
                                                                    (float)m_clientSize.y, 
                                                                    0.01f, 
-                                                                   100.0f);
-  m_changeOnResize.mProjection.transpose();
+                                                                   100000.0f);
+  m_changeOnResize.m_projection.transpose();
+  m_changeOnResize.m_projectionInv = m_changeOnResize.m_projection;
+  m_changeOnResize.m_projectionInv.invert();
   g_graphicsApi().updateSubresource(m_changeOnResizeB, &m_changeOnResize);
 }
 
@@ -291,7 +408,82 @@ testApp::onKeyPressed(int32 code, bool /*alt*/, bool /*control*/, bool /*shift*/
   {
     io.KeysDown[static_cast<int32>(code)] = true;
   }
+  if (code == sf::Keyboard::W || 
+      code == sf::Keyboard::S || 
+      code == sf::Keyboard::A || 
+      code == sf::Keyboard::D || 
+      code == sf::Keyboard::Q || 
+      code == sf::Keyboard::E || 
+      code == sf::Keyboard::Right || 
+      code == sf::Keyboard::Left || 
+      code == sf::Keyboard::Up || 
+      code == sf::Keyboard::Down) {
+    if (code == sf::Keyboard::W)
+    {
+      m_debugCam->traslate(0, 0, 1);
+    }
+    if (code == sf::Keyboard::S)
+    {
+      m_debugCam->traslate(0, 0, -1);
+    }
+    if (code == sf::Keyboard::A)
+    {
+      m_debugCam->traslate(-1, 0, 0);
+    }
+    if (code == sf::Keyboard::D)
+    {
+      m_debugCam->traslate(1, 0, 0);
+    }
+    if (code == sf::Keyboard::Q)
+    {
+      m_debugCam->traslate(0, -1, 0);
+    }
+    if (code == sf::Keyboard::E)
+    {
+      m_debugCam->traslate(0, 1, 0);
+    }
+    if (code == sf::Keyboard::Left)
+    {
+      m_debugCam->rotate(0, Degree(10));
+    }
+    if (code == sf::Keyboard::Right)
+    {
+      m_debugCam->rotate(0, Degree(-10));
+    }
+    if (code == sf::Keyboard::Up)
+    {
+      m_debugCam->rotate(Degree(10), 0);
+    }
+    if (code == sf::Keyboard::Down)
+    {
+      m_debugCam->rotate(Degree(-10), 0);
+    }
+    m_neverChanges.m_view = m_debugCam->getMatrixView();
+    m_neverChanges.m_viewInv = m_neverChanges.m_view;
+    m_neverChanges.m_viewInv.invert();
 
+    m_changeOnResize.m_viewProjection = m_neverChanges.m_view * m_changeOnResize.m_projection;
+    m_changeOnResize.m_viewProjectionInv = m_changeOnResize.m_viewProjection;
+    m_changeOnResize.m_viewProjectionInv.invert();
+
+    m_changeEveryFrame.m_worldProj = m_changeEveryFrame.m_world * 
+                                     m_changeOnResize.m_projection;
+    m_changeEveryFrame.m_worldProjInv = m_changeEveryFrame.m_worldProj;
+    m_changeEveryFrame.m_worldProjInv.invert();
+    
+    m_changeEveryFrame.m_worldView = m_changeEveryFrame.m_world * m_neverChanges.m_view;
+    m_changeEveryFrame.m_worldViewInv = m_changeEveryFrame.m_worldView;
+    m_changeEveryFrame.m_worldViewInv.invert();
+    
+    m_changeEveryFrame.m_worldViewProj = m_changeEveryFrame.m_worldView * 
+                                         m_changeOnResize.m_projection;
+    m_changeEveryFrame.m_worldViewProjInv = m_changeEveryFrame.m_worldViewProj;
+    m_changeEveryFrame.m_worldViewProjInv.invert();
+
+    m_changeEveryFrame.m_viewPosition = m_debugCam->getPositionVector();
+
+    g_graphicsApi().updateSubresource(m_neverChangeB, &m_neverChanges);
+  }
 }
 
 void
@@ -421,38 +613,66 @@ testApp::imguiDockScreen(){
   ImGui::End();
 }
 
+
+
 void 
 testApp::imGuiShowObject(const char* /*nameObject*/, WeakSptr<GameObject> child) {
   auto object = child.lock();
-  if (ImGui::Checkbox(object->getName().c_str(), &object->selected))
+  bool hasChildren = false;
+  bool isOpen = false;
+  if (0<object->m_children.size())
   {
+    hasChildren = true;
+  }
+  if (hasChildren)
+  {
+    isOpen = ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow);
+  }
+  else
+  {
+    ImGui::Selectable(object->getName().c_str());
+  }
+
+  if (ImGui::IsItemClicked()) {
+    object->selected = true;
     if (SceneGraph::instance().selectedObjet != object)
     {
       if (nullptr != SceneGraph::instance().selectedObjet)
       {
         SceneGraph::instance().selectedObjet->selected = false;
       }
-      SceneGraph::instance().selectedObjet = object; 
+      SceneGraph::instance().selectedObjet = object;
     }
   }
-  // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
-  ImGui::AlignTextToFramePadding();   // Text and Tree nodes are less high than framed widgets, here we add vertical spacing to make the tree lines equal high.
-  if (0 < object->m_children.size())
+  if (hasChildren)
   {
-    if (ImGui::TreeNode("children: "))
-    {
-      for (auto son : object->m_children)
+    if (isOpen) {
+
+
+      ImGui::AlignTextToFramePadding();   // Text and Tree nodes are less high than framed widgets, here we add vertical spacing to make the tree lines equal high.
+      if (0 < object->m_children.size())
       {
-        imGuiShowObject(son->getName().c_str(),son);
+        for (auto son : object->m_children)
+        {
+          imGuiShowObject(son->getName().c_str(), son);
+        }
       }
       ImGui::TreePop();
     }
   }
+  
+  // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
+  
 }
 
 void 
 testApp::imGuiInspectorObject() {
-  ImGui::Begin("Inspector");
+  ImGui::CloseCurrentPopup();
+  ImGui::Begin("Inspector",NULL);
+  JDVector3 pos = { m_changeEveryFrame.m_viewPosition.x,
+                    m_changeEveryFrame.m_viewPosition.y,
+                    m_changeEveryFrame.m_viewPosition.z };
+  ImGui::InputFloat3("View Position", &pos.x, 10);
   if (nullptr == SceneGraph::instance().selectedObjet)
   {
     ImGui::End();
@@ -500,68 +720,210 @@ testApp::showRenderModelComponent() {
   ImGui::Separator();
   ImGui::Text("Render Model");
   auto Model = SceneGraph::instance().selectedObjet.get();
-  auto rModel = reinterpret_cast<CRenderModel*>(Model->getComponent(COMPONENT_TYPE::RENDERMODEL).get());
-  String g_UnitOptionPreviw = ResourceManager::instance().m_modelsNames[Model->m_modelOption];
-  if (ImGui::BeginCombo("Models", g_UnitOptionPreviw.c_str()))
+  auto rModel = 
+    reinterpret_cast<CRenderModel*>(Model->getComponent(COMPONENT_TYPE::RENDERMODEL).get());
+  String g_OptionPreviw = ResourceManager::instance().m_modelsNames[Model->m_modelOption];
+  if (ImGui::BeginCombo("Models", g_OptionPreviw.c_str()))
   {
-    int
+    int32
     modelOption = Model->m_modelOption;
-    g_UnitOptionPreviw = "";
+    g_OptionPreviw = "";
     ImGui::ListBox("Model", &modelOption,
                    &ResourceManager::instance().m_modelsNames[0], 
                    (int)ResourceManager::instance().m_modelsNames.size());
     //static String g_UnitOptionPreviw = ResourceManager::instance().m_modelsNames[0];
-    g_UnitOptionPreviw = ResourceManager::instance().m_modelsNames[modelOption];
-    if (modelOption>0)
+    g_OptionPreviw = ResourceManager::instance().m_modelsNames[modelOption];
+    if (modelOption != (int32)Model->m_modelOption)
     {
-      rModel->setModel(ResourceManager::instance().m_models[modelOption-1]);
+      if (modelOption > 0)
+      {
+        rModel->setModel(ResourceManager::instance().m_models[modelOption-1]);
+      }
+      else
+      {
+        rModel->m_currentAnimation = nullptr;
+        rModel->m_animationOption = 0;
+        rModel->m_model = nullptr;
+      }
+      Model->m_modelOption = modelOption;
     }
-    else
-    {
-      rModel->m_model = nullptr;
-    }
-    Model->m_modelOption = modelOption;
     ImGui::EndCombo();
   }
   if (nullptr != rModel->m_model)
   {
-    for (auto m : rModel->m_model->m_meshes)
-    {
-      g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[m->m_albedoOption];
-      if (ImGui::CollapsingHeader(m->getName().c_str())) {
-        ImGui::Text("Albedo");
-        ImGui::Image(m->getAlbedoTexture()->getTexture(), ImVec2(40, 40));
-        if (ImGui::BeginCombo("Textures##1", g_UnitOptionPreviw.c_str()))
+    if (ImGui::CollapsingHeader("Materials")) {
+      showRenderModelMaterias(rModel);
+    }
+    
+    g_OptionPreviw = rModel->m_model->m_AnimationsList[rModel->m_animationOption];
+    if (ImGui::CollapsingHeader("Animation")) {
+      if (ImGui::BeginCombo("Current Animation", g_OptionPreviw.c_str()))
+      {
+        int32 animationOption = rModel->m_animationOption;
+        g_OptionPreviw = "";
+        ImGui::ListBox("Texture##2", &animationOption,
+          &rModel->m_model->m_AnimationsList[0],
+          (int)rModel->m_model->m_AnimationsList.size());
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (animationOption != rModel->m_animationOption)
         {
-          int albedolOption = m->m_albedoOption;
-          g_UnitOptionPreviw = "";
-          ImGui::ListBox("Texture##1", &albedolOption,
-            &ResourceManager::instance().m_texturesNames[0],
-            (int)ResourceManager::instance().m_texturesNames.size());
-          //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
-          g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[albedolOption];
-          if (albedolOption > 0)
+          if (animationOption > 0)
           {
-            m->setAlbedoTexture(ResourceManager::instance().m_textures[albedolOption - 1]);
+            rModel->m_currentAnimation = rModel->m_model->m_animations[animationOption - 1];
           }
           else
           {
-            m->setAlbedoTexture(ResourceManager::instance().DEFAULT_TEXTURE_ERROR);
+            rModel->m_currentAnimation = nullptr;
+            rModel->noneAnimation();
           }
-          m->m_albedoOption = albedolOption;
-          ImGui::EndCombo();
+          rModel->m_animationOption = animationOption;
         }
-
+        ImGui::EndCombo();
+      }
+      if (rModel->m_animationOption > 0)
+      {
+        ImGui::SliderFloat("Time",
+                           &rModel->m_animatedTime,
+                           0,
+                           rModel->m_currentAnimation->m_duration);
+        if (rModel->m_playAnimation)
+        {
+          if (ImGui::Button("Pause"))
+          {
+            rModel->m_playAnimation = false;
+          }
+        }
+        else
+        {
+          if (ImGui::Button("Play"))
+          {
+            rModel->m_playAnimation = true;
+          }
+        }
       }
     }
   }
 }
 
+void testApp::showRenderModelMaterias(CRenderModel* rModel)
+{
+  ImGui::AlignTextToFramePadding();
+  String g_OptionPreviw;
+  uint32 conter = 0;
+  for (auto m : rModel->m_model->m_meshes)
+  {
+    std::stringstream ss;
+    ss << conter;
+    String str = ss.str();
+    String typeText;
+
+    g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_albedoOption];
+    if (ImGui::CollapsingHeader(m->getName().c_str())) {
+      typeText = "Albedo##";
+      typeText += str;
+      ImGui::Text("Albedo");
+      ImGui::Image(m->getAlbedoTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
+      {
+        int albedolOption = m->m_albedoOption;
+        g_OptionPreviw = "";
+        ImGui::ListBox("Texture##", &albedolOption,
+          &ResourceManager::instance().m_texturesNames[0],
+          (int)ResourceManager::instance().m_texturesNames.size());
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (albedolOption > 0)
+        {
+          m->setAlbedoTexture(ResourceManager::instance().m_textures[albedolOption - 1]);
+        }
+        else
+        {
+          m->setAlbedoTexture(ResourceManager::instance().DEFAULT_TEXTURE_BLACK);
+        }
+        m->m_albedoOption = albedolOption;
+        ImGui::EndCombo();
+      }
+      g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_NormalOption];
+      typeText = "Normal##";
+      typeText += str;
+      ImGui::Text("Normal");
+      ImGui::Image(m->getNormalTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
+      {
+        int normalOption = m->m_NormalOption;
+        g_OptionPreviw = "";
+        ImGui::ListBox("Texture##2", &normalOption,
+          &ResourceManager::instance().m_texturesNames[0],
+          (int)ResourceManager::instance().m_texturesNames.size());
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (normalOption > 0)
+        {
+          m->setNormalTexture(ResourceManager::instance().m_textures[normalOption - 1]);
+        }
+        else
+        {
+          m->setNormalTexture(ResourceManager::instance().DEFAULT_TEXTURE_NORMAL);
+        }
+        m->m_NormalOption = normalOption;
+        ImGui::EndCombo();
+      }
+      g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_specularOption];
+      typeText = "Specular/Metalic##";
+      typeText += str;
+      ImGui::Text("Specular/Metalic");
+      ImGui::Image(m->getSpecularTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
+      {
+        int specularOption = m->m_specularOption;
+        g_OptionPreviw = "";
+        ImGui::ListBox("Texture##3", &specularOption,
+          &ResourceManager::instance().m_texturesNames[0],
+          (int)ResourceManager::instance().m_texturesNames.size());
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (specularOption > 0)
+        {
+          m->setSpecularTexture(ResourceManager::instance().m_textures[specularOption - 1]);
+        }
+        else
+        {
+          m->setSpecularTexture(ResourceManager::instance().DEFAULT_TEXTURE_WHITE);
+        }
+        m->m_specularOption = specularOption;
+        ImGui::EndCombo();
+      }
+      g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_roughOption];
+      typeText = "Roughness##";
+      typeText += str;
+      ImGui::Text("Roughness");
+      ImGui::Image(m->getRoughnessTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
+      {
+        int roughOption = m->m_roughOption;
+        g_OptionPreviw = "";
+        ImGui::ListBox("Texture##4", &roughOption,
+          &ResourceManager::instance().m_texturesNames[0],
+          (int)ResourceManager::instance().m_texturesNames.size());
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (roughOption > 0)
+        {
+          m->setRoughnessTexture(ResourceManager::instance().m_textures[roughOption - 1]);
+        }
+        else
+        {
+          m->setRoughnessTexture(ResourceManager::instance().DEFAULT_TEXTURE_WHITE);
+        }
+        m->m_roughOption = roughOption;
+        ImGui::EndCombo();
+      }
+    }
+    ++conter;
+  }
+}
+
 void 
 testApp::ImGuiAddComponent() {
-  ImGui::Begin("Components");
+  ImGui::Begin("Components",&m_showComponentImGui);
   static ImGuiTextFilter filter;
-  filter.Draw();
+  filter.Draw("Filter");
   const char* lines[] = { "Transform", "RenderModel"};
   for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
   {

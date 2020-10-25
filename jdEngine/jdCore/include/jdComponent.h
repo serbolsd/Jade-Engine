@@ -23,6 +23,7 @@ namespace jdEngineSDK {
       SPHERECOLLIDRE,
       SOUND,
       SPRITE,
+      CAMERA,
       KNUMCOMPONENTS
     };
   };

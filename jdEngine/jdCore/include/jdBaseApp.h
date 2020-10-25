@@ -17,6 +17,7 @@
 #include <imgui.h>
 #include <jdSceneGraph.h>
 #include <jdResourceManager.h>
+#include <jdCameraManager.h>
 
 using sf::WindowBase;
 using sf::Event;

@@ -27,9 +27,18 @@ namespace jdEngineSDK {
                            0, 0, 0, 1 };
     matT *= traslate;
     if (nullptr != m_myObject->m_parent) {
-      matT.rotateXstayPos(Degree(rotation.x));
-      matT.rotateYstayPos(Degree(rotation.y));
-      matT.rotateZstayPos(Degree(rotation.z));
+      if (nullptr != m_myObject->m_parent->m_parent)
+      {
+        matT.rotateXstayPos(Degree(rotation.x));
+        matT.rotateYstayPos(Degree(rotation.y));
+        matT.rotateZstayPos(Degree(rotation.z));
+      }
+      else
+      {
+        matT.rotateX(Degree(rotation.x));
+        matT.rotateY(Degree(rotation.y));
+        matT.rotateZ(Degree(rotation.z));
+      }
     }
     else {
       matT.rotateX(Degree(rotation.x));

@@ -23,71 +23,71 @@ namespace jdEngineSDK {
     /** 
      * @brief The name of the node.
      */
-    String mName;
+    String m_name;
 
     /** 
      * @briefThe transformation relative to the node's parent. 
      */
-    JDMatrix4 transformation;
+    JDMatrix4 m_transform;
 
     /** 
      *@brief Parent node. NULL if this node is the root node. 
      */
-    SPtr<ModelNodes> parent = nullptr;
+    SPtr<ModelNodes> m_parent = nullptr;
 
     /** 
      * @brief The number of child nodes of this node. 
      */
-    uint32 numChildren;
+    uint32 m_numChildren;
 
     /** 
      * @briefThe child nodes of this node. NULL if mNumChildren is 0. 
      */
-    Vector<SPtr<ModelNodes>>  children;
+    Vector<SPtr<ModelNodes>>  m_children;
 
     /** 
      * @briefThe number of meshes of this node. 
      */
-    uint32 numMeshes;
+    uint32 m_numMeshes;
   };
 
   struct ScalingKey {
-    JDVector3 value;
-    float time;
+    JDVector3 m_value;
+    float m_time;
   };
 
   struct RotationKey {
     /** The value of this key */
-    Quaternion Value;
+    Quaternion m_value;
 
     /** The time of this key */
-    float mTime;
+    float m_time;
   };
 
   struct PositionKey {
     /** The time of this key */
-    float mTime;
+    float m_time;
 
     /** The value of this key */
-    JDVector3 mValue;
+    JDVector3 m_value;
   };
 
   struct AnimationNode {
     /** The name of the node affected by this animation. The node
    *  must exist and it must be unique.*/
-    String mNodeName = "";
+    String m_nodeName = "";
 
     /** The number of scaling keys */
-    uint32 mNumScalingKeys = 0;
+    uint32 m_numScalingKeys = 0;
     /** The scaling keys of this animation channel. Scalings are
      *  specified as 3D vector. The array is mNumScalingKeys in size.
      *
      * If there are scaling keys, there will also be at least one
      * position and one rotation key.*/
-    Vector<ScalingKey> m_ScalingKeys;
+    Vector<ScalingKey> m_scalingKeys;
 
     /** The number of rotation keys */
-    uint32 m_NumRotationKeys = 0;
+    uint32 m_numRotationKeys = 0;
 
     /** The rotation keys of this animation channel. Rotations are
      *  given as quaternions,  which are 4D vectors. The array is
@@ -95,29 +95,29 @@ namespace jdEngineSDK {
      *
      * If there are rotation keys, there will also be at least one
      * scaling and one position key. */
-    Vector<RotationKey> m_RotationKeys;
+    Vector<RotationKey> m_rotationKeys;
 
     /** The number of position keys */
-    uint32 m_NumPositionKeys;
+    uint32 m_numPositionKeys;
 
     /** The position keys of this animation channel. Positions are
      * specified as 3D vector. The array is mNumPositionKeys in size.
      *
      * If there are position keys, there will also be at least one
      * scaling and one rotation key.*/
-    Vector<PositionKey> m_PositionKeys;
+    Vector<PositionKey> m_positionKeys;
   };
 
   struct AnimationsData {
-    String name = "Animation";
-    float duration = 0.0f;
-    float ticks_per_second = 0.0f;
+    String m_name = "Animation";
+    float m_duration = 0.0f;
+    float m_ticks_per_second = 0.0f;
     /** The number of bone animation channels. Each channel affects
      *  a single node. */
-    uint32 numChannels = 0;
+    uint32 m_numChannels = 0;
     /** The node animation channels. Each channel affects a single node.
      *  The array is mNumChannels in size. */
-    Vector<SPtr<AnimationNode>> channels;
+    Vector<SPtr<AnimationNode>> m_channels;
 
   };
 
@@ -135,7 +135,8 @@ namespace jdEngineSDK {
     };
 
     Vector<SPtr<Mesh>> m_meshes;
-
+    Vector<char*> m_AnimationsList;
+    Vector<SPtr<AnimationsData>> m_animations;
 		 private:
 
     friend class Mesh;
@@ -143,8 +144,9 @@ namespace jdEngineSDK {
     friend class CRenderModel;
 
     JDMatrix4 m_global_inverse_transform;
-    Vector<SPtr<AnimationsData>> m_animations;
     SPtr<AnimationsData> m_currentAnimation = nullptr;
     SPtr<ModelNodes> m_animationNodes = nullptr;
+
+    uint32 m_numAnimations = 0;
 		};
 }

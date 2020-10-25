@@ -102,6 +102,7 @@ namespace jdEngineSDK {
     g_graphicsApi().createSwapChain(handle, FORMAT::E::FORMAT_R8G8B8A8_UNORM, m_clientSize.x, m_clientSize.y);
     g_graphicsApi().createRenderTargetView(m_clientSize.x, m_clientSize.y);
 
+    CameraManager::startUp();
     ResourceManager::startUp();
     SceneGraph::startUp();
     
@@ -113,6 +114,7 @@ namespace jdEngineSDK {
     SceneGraph::shutDown();
     ResourceManager::instance().release();
     ResourceManager::shutDown();
+    CameraManager::shutDown();
     g_graphicsApi().shutDown();
   }
   

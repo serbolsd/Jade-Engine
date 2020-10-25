@@ -41,7 +41,7 @@ namespace jdEngineSDK
      * @brief constructor with float.
      * @param degree is the float value
      */
-    constexpr explicit Degree(float f) : m_degree(f) {}
+    constexpr Degree(float f) : m_degree(f) {}
 
     /**
      * @brief constructor with a radian.

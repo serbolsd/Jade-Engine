@@ -186,6 +186,8 @@ namespace jdEngineSDK {
     static const float EPSILONF;
 
     static const float EULERS_NUMBER;
+
+    static const float MAXFLOAT;
      
   };
   //jdWindowsMath.h osea va en otro header, solo se activa cuando el systema sea seleccionado

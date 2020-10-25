@@ -36,13 +36,13 @@ namespace jdEngineSDK
      * @brief constructor with other radian.
      * @param radian is the radian with which is equaled
      */
-    constexpr Radian(const Radian& radian) = default;
+    Radian(const Radian& radian) = default;
 
     /**
      * @brief constructor with float.
      * @param radian is the float value
      */
-    constexpr explicit Radian(const float& radian) : m_radian(radian) {}
+    Radian(const float& radian) : m_radian(radian) {}
 
     /**
      * @brief constructor with a degree.

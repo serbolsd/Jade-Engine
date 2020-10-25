@@ -81,7 +81,6 @@ namespace jdEngineSDK {
     }
 
     Model* newModel = new Model;
-    newModel->m_scene = m_aiScene;
     int32 sameName = 1;
     for (uint32 i = 0; i < m_aiScene->mNumMeshes; ++i)
     {
@@ -185,15 +184,16 @@ namespace jdEngineSDK {
             &mesh->mBones[j]->mOffsetMatrix,
             sizeof(JDMatrix4));
 
-          for (uint32 k = 0; k < mesh->mBones[j]->mNumWeights; k++) {
+          for (uint32 k = 0; k < mesh->mBones[j]->mNumWeights; ++k) {
             uint32 verID = mesh->mBones[j]->mWeights[k].mVertexId;
             float weight = mesh->mBones[j]->mWeights[k].mWeight;
             for (uint32 b = 0; b < 4; ++b)
             {
-              if (meshVertex[verID].boneWeights[b] < weight)
+              if (meshVertex[verID].boneWeights[b] == 0)
               {
                 meshVertex[verID].boneIDs[b] = BoneIndex;
                 meshVertex[verID].boneWeights[b] = weight;
+                break;
               }
             }
           }
@@ -228,8 +228,8 @@ namespace jdEngineSDK {
 
       newMesh->setIndexBuffer(g_graphicsApi().createIndexBuffer(numIndex, meshIndex));
 
-      newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
-      newMesh->setNormalTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+      newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_WHITE);
+      newMesh->setNormalTexture(g_ResourceMan().DEFAULT_TEXTURE_NORMAL);
       newMesh->setSpecularTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
       newMesh->setMetalnessTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
       newMesh->setRoughnessTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
@@ -253,6 +253,10 @@ namespace jdEngineSDK {
           }
         }
       }
+      else
+      {
+        newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_WHITE);
+      }
       /////////////////////////////////////////////////////////////////////////
       // Load Material info
       /////////////////////////////////////////////////////////////////////////
@@ -264,7 +268,7 @@ namespace jdEngineSDK {
           SPtr<Resource> normal = loadResourceFromFile(PathMat.C_Str(), RESOURCE_TYPE::TEXTURE);
           if (nullptr == normal)
           {
-            newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+            newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_NORMAL);
           }
           else
           {
@@ -272,6 +276,10 @@ namespace jdEngineSDK {
             newMesh->setAlbedoTexture(no);
           }
         }
+      }
+      else
+      {
+        newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
       }
       SPtr<Mesh> meshToAdd(newMesh);
       newModel->addMesh(meshToAdd);
@@ -289,76 +297,78 @@ namespace jdEngineSDK {
 
     newModel->m_animationNodes.reset(rootNode);
     loadModelNodes(newModel->m_animationNodes, m_aiScene->mRootNode);
-    
+    newModel->m_AnimationsList.push_back((char*)"None");
     for (uint32 i = 0; i < m_aiScene->mNumAnimations; ++i)
     {
       AnimationsData* newAnimation = new AnimationsData;
-      newAnimation->name = m_aiScene->mAnimations[i]->mName.C_Str();
+      newAnimation->m_name = m_aiScene->mAnimations[i]->mName.C_Str();
+      newModel->m_AnimationsList.push_back((char*)newAnimation->m_name.c_str());
       if (m_aiScene->mAnimations[i]->mTicksPerSecond != 0.0)
       {
-        newAnimation->ticks_per_second = (float)m_aiScene->mAnimations[i]->mTicksPerSecond;
+        newAnimation->m_ticks_per_second = (float)m_aiScene->mAnimations[i]->mTicksPerSecond;
       }
       else
       {
-        newAnimation->ticks_per_second = 25.0f;
+        newAnimation->m_ticks_per_second = 25.0f;
       }
-      newAnimation->duration = (float)m_aiScene->mAnimations[i]->mDuration;
+      newAnimation->m_duration = (float)m_aiScene->mAnimations[i]->mDuration;
       uint32 numchanels;
-      numchanels = newAnimation->numChannels = m_aiScene->mAnimations[i]->mNumChannels;
-      newAnimation->channels.resize(numchanels);
+      numchanels = newAnimation->m_numChannels = m_aiScene->mAnimations[i]->mNumChannels;
+      newAnimation->m_channels.resize(numchanels);
       for (uint32 j = 0; j < numchanels; ++j)
       {
         SPtr<AnimationNode> newAnimNode(new AnimationNode);
-        newAnimNode->mNodeName = m_aiScene->mAnimations[i]->mChannels[j]->mNodeName.C_Str();
+        newAnimNode->m_nodeName = m_aiScene->mAnimations[i]->mChannels[j]->mNodeName.C_Str();
 
-        newAnimNode->mNumPositionKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumPositionKeys;
-        newAnimNode->mPositionKeys.resize(newAnimNode->mNumPositionKeys);
-        for (uint32 key = 0; key < newAnimNode->mNumPositionKeys; ++key) {
-          newAnimNode->mPositionKeys[key].mTime = 
+        newAnimNode->m_numPositionKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumPositionKeys;
+        newAnimNode->m_positionKeys.resize(newAnimNode->m_numPositionKeys);
+        for (uint32 key = 0; key < newAnimNode->m_numPositionKeys; ++key) {
+          newAnimNode->m_positionKeys[key].m_time =
             m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mTime;
-          newAnimNode->mPositionKeys[key].mValue.x = 
+          newAnimNode->m_positionKeys[key].m_value.x =
             m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mValue.x;
-          newAnimNode->mPositionKeys[key].mValue.y =
+          newAnimNode->m_positionKeys[key].m_value.y =
             m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mValue.y;
-          newAnimNode->mPositionKeys[key].mValue.z =
+          newAnimNode->m_positionKeys[key].m_value.z =
             m_aiScene->mAnimations[i]->mChannels[j]->mPositionKeys[key].mValue.z;
         }
-        newAnimNode->mNumRotationKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumRotationKeys;
-        newAnimNode->mRotationKeys.resize(newAnimNode->mNumRotationKeys);
-        for (uint32 key = 0; key < newAnimNode->mNumRotationKeys; ++key) {
-          newAnimNode->mRotationKeys[key].mTime =
+        newAnimNode->m_numRotationKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumRotationKeys;
+        newAnimNode->m_rotationKeys.resize(newAnimNode->m_numRotationKeys);
+        for (uint32 key = 0; key < newAnimNode->m_numRotationKeys; ++key) {
+          newAnimNode->m_rotationKeys[key].m_time =
             m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mTime;
-          newAnimNode->mRotationKeys[key].Value.x =
+          newAnimNode->m_rotationKeys[key].m_value.x =
             m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.x;
-          newAnimNode->mRotationKeys[key].Value.y =
+          newAnimNode->m_rotationKeys[key].m_value.y =
             m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.y;
-          newAnimNode->mRotationKeys[key].Value.z =
+          newAnimNode->m_rotationKeys[key].m_value.z =
             m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.z;
-          newAnimNode->mRotationKeys[key].Value.w =
+          newAnimNode->m_rotationKeys[key].m_value.w =
             m_aiScene->mAnimations[i]->mChannels[j]->mRotationKeys[key].mValue.w;
         }
 
-        newAnimNode->mNumScalingKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumScalingKeys;
-        newAnimNode->mScalingKeys.resize(newAnimNode->mNumScalingKeys);
-        for (uint32 key = 0; key < newAnimNode->mNumScalingKeys; ++key) {
-          newAnimNode->mScalingKeys[key].time =
+        newAnimNode->m_numScalingKeys = m_aiScene->mAnimations[i]->mChannels[j]->mNumScalingKeys;
+        newAnimNode->m_scalingKeys.resize(newAnimNode->m_numScalingKeys);
+        for (uint32 key = 0; key < newAnimNode->m_numScalingKeys; ++key) {
+          newAnimNode->m_scalingKeys[key].m_time =
             m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mTime;
-          newAnimNode->mScalingKeys[key].value =
+          newAnimNode->m_scalingKeys[key].m_value.x =
             m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mValue.x;
-          newAnimNode->mScalingKeys[key].value.y =
+          newAnimNode->m_scalingKeys[key].m_value.y =
             m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mValue.y;
-          newAnimNode->mScalingKeys[key].value.z =
+          newAnimNode->m_scalingKeys[key].m_value.z =
             m_aiScene->mAnimations[i]->mChannels[j]->mScalingKeys[key].mValue.z;
         }
 
-        newAnimation->channels[j] = newAnimNode;
+        newAnimation->m_channels[j] = newAnimNode;
       }
       SPtr<AnimationsData> anim(newAnimation);
       newModel->m_animations.push_back(anim);
     }
     if (0 < m_aiScene->mNumAnimations)
     {
-      newModel->m_currentAnimation = newModel->m_animations[0];
+      //newModel->m_currentAnimation = newModel->m_animations[0];
+      newModel->m_numAnimations = (uint32)m_aiScene->mNumAnimations;
     }
     //newModel->m_boneBuffer = g_graphicsApi().getConstantBufferBones();
     SPtr<Model> modelCreate(newModel);
@@ -374,38 +384,20 @@ namespace jdEngineSDK {
   ResourceManager::loadModelNodes(WeakSptr<ModelNodes> myNode, const aiNode* ainode) {
     SPtr <ModelNodes> node = myNode.lock();
     uint32 numChil;
-    node->mName = ainode->mName.C_Str();
-    numChil = node->numChildren = (uint32)ainode->mNumChildren;
-    node->numMeshes = (uint32)ainode->mNumMeshes;
-    std::memcpy(&node->transformation,
+    node->m_name = ainode->mName.C_Str();
+    numChil = node->m_numChildren = (uint32)ainode->mNumChildren;
+    node->m_numMeshes = (uint32)ainode->mNumMeshes;
+    std::memcpy(&node->m_transform,
             &ainode->mTransformation,
             sizeof(JDMatrix4));
 
-    node->children.resize(numChil);
+    node->m_children.resize(numChil);
     for (uint32 i = 0; i < numChil; ++i)
     {
       ModelNodes* newNode = new ModelNodes;
-      newNode->parent = node;
-      node->children[i].reset(newNode);
-      loadModelNodes(node->children[i], ainode->mChildren[i]);
-    }
-  }
-
-  void 
-  ResourceManager::getModelNodesChildren(WeakSptr<ModelNodes> myNode, const aiNode* ainode) {
-    ModelNodes* node = myNode.lock().get();
-    uint32 numChil;
-    node->mName = ainode->mName.C_Str();
-    numChil = node->numChildren = (uint32)ainode->mNumChildren;
-    node->numMeshes = (uint32)ainode->mNumMeshes;
-    std::memcpy(&node->transformation,
-      &m_aiScene->mRootNode->mTransformation,
-      sizeof(JDMatrix4));
-    node->children.resize(numChil);
-    for (uint32 i = 0; i < numChil; ++i)
-    {
-      ModelNodes* newNode = new ModelNodes;
-      node->children[i].reset(newNode);
+      newNode->m_parent = node;
+      node->m_children[i].reset(newNode);
+      loadModelNodes(node->m_children[i], ainode->mChildren[i]);
     }
   }
 

@@ -55,6 +55,5 @@ namespace jdEngineSDK {
     release() {};
    protected:
     String m_name = "defaultName";
-
   };
 }
