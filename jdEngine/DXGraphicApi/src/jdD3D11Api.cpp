@@ -8,6 +8,8 @@
 #include "jdD3D11ConstantBuffer.h"
 #include "jdD3D11Sampler.h"
 #include "jdD3D11InputLayout.h"
+#include "jdD3D11RasterizeState.h"
+#include "DDSTextureLoader11.h"
 
 
 namespace jdEngineSDK {
@@ -904,18 +906,10 @@ namespace jdEngineSDK {
   }
 
   SPtr<Texture2D> 
-  DirectX11Api::LoadShaderResourceFromFile(const char* filePath) {
-    int width, height, channels;
-    unsigned char* img = stbi_load(filePath, &width, &height, &channels, 4);
-    if (img == NULL) {
-      printf("Error in loading the image\n");
-      return nullptr;
-    }   
+  DirectX11Api::LoadShaderResourceFromFile(const char* filePath, bool isDDS) {
     
-    // Create texture
+    D3D11Texture2D* tex = new D3D11Texture2D;
     CD3D11_TEXTURE2D_DESC desc;
-    desc.Width = width;
-    desc.Height = height;
     desc.MipLevels = 1;
     desc.ArraySize = 1;
     desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -925,23 +919,80 @@ namespace jdEngineSDK {
     desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     desc.CPUAccessFlags = 0;
     desc.MiscFlags = 0;
+    
+    std::vector<wchar_t> vec;
+    size_t len = strlen(filePath);
+    vec.resize(len + 1);
+    mbstowcs(&vec[0], filePath, len);
+
+    const wchar_t* fileName = &vec[0];
+    if (isDDS)
+    {
+      desc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+      tex->m_ppSRV.resize(6);
+      //DirectX::CreateDDSTextureFromFile(m_device.m_pd3dDevice, fileName, tex->m_Rtexture, tex->m_psrv);
+      HRESULT hr = DirectX::CreateDDSTextureFromFileEx(m_device.m_pd3dDevice,
+        fileName,
+        (size_t)0,
+        D3D11_USAGE_DEFAULT,
+        desc.BindFlags,
+        desc.CPUAccessFlags,
+        D3D11_RESOURCE_MISC_TEXTURECUBE,
+        false,
+        (ID3D11Resource**)&tex->m_texture,
+        tex->m_ppSRV.data());
+      if (SUCCEEDED(hr))
+      {
+        return SPtr<Texture2D>(tex);
+      }
+      else
+      {
+        return nullptr;
+      }
+    }
+
+    int width, height, channels;
+    unsigned char* img = stbi_load(filePath, &width, &height, &channels, 4);
+    if (img == NULL) {
+      printf("Error in loading the image\n");
+      return nullptr;
+    }
+    // Create texture
+    desc.Width = width;
+    desc.Height = height;
+    
+
+    if (isDDS) {
+      desc.MiscFlags = desc.MiscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
+      desc.ArraySize = 6;
+    }
+    //else {
+    //  desc.MiscFlags = desc.MiscFlags & ~static_cast<uint32>(D3D11_RESOURCE_MISC_TEXTURECUBE);
+    //}
 
     D3D11_SUBRESOURCE_DATA initData;
     initData.pSysMem = img;
     initData.SysMemPitch = width * 4;
     initData.SysMemSlicePitch = width * height * 4;
 
-    D3D11Texture2D* tex = new D3D11Texture2D;
     HRESULT hr = m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &tex->m_texture);
     if (FAILED(hr))
     {
       //coudn't create texture
       return nullptr;
     }
-
     CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    if (isDDS)
+    {
+      srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+      srvDesc.TextureCube.MipLevels = desc.MipLevels;
+      srvDesc.TextureCubeArray.NumCubes = 1;
+    }
+    else
+    {
+      srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    }
     srvDesc.Texture2D.MipLevels = desc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
     tex->m_ppSRV.resize(desc.MipLevels);
@@ -1131,7 +1182,7 @@ namespace jdEngineSDK {
     D3D11Texture2D* t = reinterpret_cast<D3D11Texture2D*>(resource.lock().get());
     m_deviceContext.m_pd3dDeviceContext->VSSetShaderResources(ResourceSlot, 
                                                               numresources, 
-                                                              &t->m_ppSRV[0]);
+                                                              t->m_ppSRV.data());
   }
 
   void 
@@ -1142,8 +1193,8 @@ namespace jdEngineSDK {
     if (NULL != t)
     {
       m_deviceContext.m_pd3dDeviceContext->PSSetShaderResources(ResourceSlot,
-        numresources,
-        &t->m_ppSRV[0]);
+                                                                numresources,
+                                                                t->m_ppSRV.data());
     }
   }
 
@@ -1192,6 +1243,42 @@ namespace jdEngineSDK {
     }
     m_bonesBuffer = CreateConstantBuffer(sizeof(cbBonesTranform));
     return m_bonesBuffer;
+  }
+
+  SPtr<RasterizeState> DirectX11Api::createRasterizeState(RASTERIZER_FILL_MODE::E FillMode, 
+                                                          RASTERIZER_CULL_MODE::E CullMode, 
+                                                          bool FrontCounterClockwise, 
+                                                          int DepthBias, 
+                                                          float DepthBiasClamp, 
+                                                          float SlopeScaledDepthBias, 
+                                                          bool DepthClipEnable, 
+                                                          bool ScissorEnable, 
+                                                          bool MultisampleEnable, 
+                                                          bool AntialiasedLineEnable) {
+    CD3D11_RASTERIZER_DESC RSDesc;
+    RSDesc.FillMode = D3D11_FILL_MODE(FillMode);
+    RSDesc.CullMode = D3D11_CULL_MODE(CullMode);
+    RSDesc.FrontCounterClockwise = FrontCounterClockwise;
+    RSDesc.DepthBias = DepthBias;
+    RSDesc.DepthBiasClamp = DepthBiasClamp;
+    RSDesc.SlopeScaledDepthBias = SlopeScaledDepthBias;
+    RSDesc.DepthClipEnable = DepthClipEnable;
+    RSDesc.ScissorEnable = ScissorEnable;
+    RSDesc.MultisampleEnable = MultisampleEnable;
+    RSDesc.AntialiasedLineEnable = AntialiasedLineEnable;
+    D3D11RasterizeState* newRS = new D3D11RasterizeState();
+    HRESULT hr = m_device.m_pd3dDevice->CreateRasterizerState(&RSDesc, &newRS->m_pRasterizeState);
+    if (FAILED(hr)) {
+      return nullptr;
+    }
+    SPtr<RasterizeState> sptrRS(newRS);
+    return sptrRS;
+  }
+
+  void 
+  DirectX11Api::setRasterizeState(WeakSptr<RasterizeState> RS) {
+    D3D11RasterizeState* pRS = reinterpret_cast<D3D11RasterizeState*>(RS.lock().get());
+    m_deviceContext.m_pd3dDeviceContext->RSSetState(pRS->m_pRasterizeState);
   }
 
   void

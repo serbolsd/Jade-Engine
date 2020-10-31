@@ -59,6 +59,26 @@ struct CBChangesEveryFrame
   JDVector4 vMeshColor;
 };
 
+/**
+ * @brief struct whit 20 lights data
+ * @note type 0 = directional 1 = point 2 = spot
+ */
+struct lightStruct
+{
+  JDVector4 m_lightDirection = { 0, 0, 0, 0 };
+  JDVector4 m_lightPosition = { 0, 0, 0, 0 };
+  JDVector4 m_lightColor = { 0, 0, 0, 0 };
+  uint32 m_type = 0;//0= directional 1=point 2= spot
+  uint32 m_numberOfLights;
+  uint32 m_relleno1;
+  uint32 m_relleno2;
+};
+
+struct CBLights
+{
+  lightStruct light[20];
+};
+
 class testApp : public BaseApp
 {
  public:
@@ -103,6 +123,9 @@ class testApp : public BaseApp
    */
   void
   onResize(int32 width, int32 height) override;
+
+  void
+  onResizeSceneWindow(uint32 width, uint32 height);
 
   /**
    * @brief function to call when a mouse button pressed
@@ -186,14 +209,28 @@ class testApp : public BaseApp
   showRenderModelComponent();
 
   void
+  showLightComponent();
+
+  void
   showRenderModelMaterias(CRenderModel* rModel);
 
   void
   ImGuiAddComponent();
 
   void
+  addLightComponent();
+
+  void
   imGuiLoadResourceFile();
 
+  void
+  showAmbientOption();
+ 
+  void
+  showModels();
+
+  void
+  showTexturesResources();
   /**
    * @brief function to call when the app is being detroyed, after the loop ends
    */
@@ -214,6 +251,11 @@ class testApp : public BaseApp
    * @brief the data to never change every frame
    */
   CBChangesEveryFrame m_changeEveryFrame;
+
+  /**
+   * @brief the data to never change every frame
+   */
+  CBLights m_lights;
   
   /**
    * @brief shared pointer to render target view
@@ -225,6 +267,11 @@ class testApp : public BaseApp
    * @brief shared pointer to a program shader
    */
   SPtr<ProgramShader> m_progShader = nullptr;
+
+  /**
+   * @brief shared pointer to a program shader
+   */
+  SPtr<ProgramShader> m_progShaderWF = nullptr;
   
   /**
    * @brief elemts of input layout
@@ -260,18 +307,74 @@ class testApp : public BaseApp
    * @brief shared ponter to a constant buffer cahnge every fram
    */
   SPtr<ConstantBuffer> m_changeEveryFrameB = nullptr;
-  
-  float m_scale = 0.5f;
 
+  /**
+   * @brief shared ponter to a constant buffer cahnge every fram
+   */
+  SPtr<ConstantBuffer> m_lightsB = nullptr;
+
+  /**
+   * @brief number of light created
+   */
+  uint32 m_lightCreated = 0;
+
+  /**
+   * @brief To imgui dock menu
+   * @note to import resources and open options
+   */
   bool dockMenuOpen = false;
 
+  /**
+   * @brief To show the button add component
+   * @note only is false when the selected object is the root
+   */
   bool m_showComponentImGui = false;
 
+  /**
+   * @brief To open the load file imgui window
+   */
   bool m_loadingFile = false;
 
-  ImGui::FileBrowser m_fileDialog;
+  /**
+   * @brief the window data to load files
+   */
+  SPtr<ImGui::FileBrowser> m_fileDialog;
 
+  /**
+   * @brief the resourece's type to load
+   */
   RESOURCE_TYPE::E m_typeResourceToLoad = RESOURCE_TYPE::UNKNOWTYPE;
 
+  /**
+   * @brief share pointer to debug camera
+   * @note the debug camera is the camera how you can see the scene all time
+   */
   SPtr<Camera> m_debugCam = nullptr;
+
+  /**
+   * @brief bool to adjust the scene window to the half size of the window
+   * @note active to see the rendertexture of the secene in it's half real resoluiton
+   */
+  bool m_bSceneWindowNativeSize = false;
+
+  /**
+   * @brief bool to see ambient options
+   */
+  bool m_bAmbientOptions = false;
+
+  /**
+   * @brief bool to see ambient options
+   */
+  bool m_bWireframe = false;
+  bool m_bWireframeAlreadyActive = false;
+
+  SPtr<Texture2D> m_ambientCubeMap = nullptr;
+
+  uint32 m_ambientCubeMapOption = 0;
+
+  JDPoint m_sceneSize;
+
+  SPtr<RasterizeState> m_defaultRasState = nullptr;
+  SPtr<RasterizeState> m_wireframeRasState = nullptr;
+
 };

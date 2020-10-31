@@ -31,7 +31,7 @@ namespace jdEngineSDK {
   struct AnimationNode;
   struct cbBonesTranform
   {
-    JDMatrix4 boneTransform[400];
+    JDMatrix4 boneTransform[200];
   };
 
   struct DefaultVertexData {
@@ -39,7 +39,7 @@ namespace jdEngineSDK {
     JDVector4 Norm = { 0, 0, 0, 0 };
     JDVector4 Tang = { 0, 0, 0, 0 };
     JDVector2 TexCoord = { 0, 0};
-    JDVector4 Color = { 0, 0, 0, 0 };
+    JDVector4 Color = { 255,255,255,255 };
     uint32 boneIDs[4] = { 0,0,0,0 };
     JDVector4 boneWeights = { 0,0,0,0 };
   };

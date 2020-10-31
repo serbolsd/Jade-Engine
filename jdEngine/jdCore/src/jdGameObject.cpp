@@ -2,9 +2,10 @@
 #include "jdComponent.h"
 #include "jdComponentRenderModel.h"
 #include "jdComponentTransform.h"
+#include "jdComponentLight.h"
 
 namespace jdEngineSDK {
-  void 
+  SPtr<Component>
   GameObject::addComponent(COMPONENT_TYPE::E componentType) {
     //auto newComp = component.lock();
     //auto compT = newComp.get()->getType();
@@ -12,7 +13,7 @@ namespace jdEngineSDK {
     if (comp != m_components.end())
     {
       //Component alredy exist in this object
-      return;
+      return nullptr;
     }
     Component* addComponent = nullptr;
     switch (componentType)
@@ -33,10 +34,15 @@ namespace jdEngineSDK {
       break;
      case jdEngineSDK::COMPONENT_TYPE::SPRITE:
       break;
+     case jdEngineSDK::COMPONENT_TYPE::CAMERA:
+       break;
+     case jdEngineSDK::COMPONENT_TYPE::LIGHT:
+       addComponent = new CLight;
+       break;
      case jdEngineSDK::COMPONENT_TYPE::KNUMCOMPONENTS:
       break;
      default:
-       return;
+       return nullptr;
       break;
     }
     //for (uint32 i = 0; i < m_components.size(); ++i)
@@ -50,12 +56,13 @@ namespace jdEngineSDK {
     //}
     if (nullptr == addComponent)
     {
-      return;
+      return nullptr;
     }
     addComponent->setGameObject(this);
     SPtr<Component> newComp(addComponent);
     m_components.insert(std::pair <COMPONENT_TYPE::E, SPtr<Component>>(componentType, 
                                                                        newComp));
+    return newComp;
   }
   //template<typename T>
   //inline SPtr<T> GameObject::GetComponent()

@@ -1,6 +1,7 @@
 #include "jdTestApp.h"
 #include <jdComponentTransform.h>
 #include <jdComponentRenderModel.h>
+#include <jdComponentLight.h>
 #include <imfilebrowser.h>
 
 testApp::testApp() {
@@ -37,14 +38,18 @@ testApp::onCreate() {
 
   g_graphicsApi().setRenderTarget(m_rtv);
 
-  m_progShader = g_graphicsApi().loadShaderFromFile("data/shader/TestOrenNayar.fx",
+  m_progShader = g_graphicsApi().loadShaderFromFile("data/shader/TestCubeMapMultiLight.fx",
                                                     "VS",
                                                     "vs_5_0",
-                                                    //"data/shader/Tutorial072.fx",
-                                                    //"data/shader/TestDifiuse.fx",
-                                                    "data/shader/TestOrenNayar.fx",
+                                                    "data/shader/TestCubeMapMultiLight.fx",
                                                     "PS",
                                                     "ps_5_0");
+  m_progShaderWF = g_graphicsApi().loadShaderFromFile("data/shader/wireFrameShader.fx",
+                                                      "VS",
+                                                      "vs_5_0",
+                                                      "data/shader/wireFrameShader.fx",
+                                                      "PS",
+                                                      "ps_5_0");
   g_graphicsApi().setProgramShader(m_progShader);
 
   m_inLayoutElements.resize(2);
@@ -137,9 +142,20 @@ testApp::onCreate() {
 
   m_changeEveryFrameB = g_graphicsApi().CreateConstantBuffer(sizeof(CBChangesEveryFrame));
 
+  m_lightsB = g_graphicsApi().CreateConstantBuffer(sizeof(CBLights));
 
-  JDVector3 Eye(0.0f, 0, -150.0f);
-  JDVector3 At(0.0f, 0.0f, 0.0f);
+  m_lights.light[0].m_lightColor = { 1,1,1,1 };
+  m_lights.light[0].m_lightDirection = { -1,0,1 };
+  m_lights.light[0].m_lightPosition = { 0,0,0 };
+  m_lights.light[0].m_type = 0;
+  //m_lights.light[1].m_lightColor = { 1,1,1,0 };
+  //m_lights.light[1].m_lightDirection = { 1,0,1,0 };
+  //m_lights.light[1].m_lightPosition = { 0,0,0, };
+  //m_lights.light[1].m_type = 0;
+  m_lights.light[0].m_numberOfLights = 1;
+
+  JDVector3 Eye(0.0f, 130, -195);
+  JDVector3 At(0.0f, 130.0f, 0.0f);
   JDVector3 Up(0.0f, 1.0f, 0.0f);
   //m_neverChanges.mView = createViewMatrix(Eye, At, Up);
   //m_neverChanges.mView.transpose();
@@ -207,6 +223,7 @@ testApp::onCreate() {
   g_graphicsApi().updateSubresource(m_neverChangeB, &m_neverChanges);
   g_graphicsApi().updateSubresource(m_changeOnResizeB, &m_changeOnResize);
   g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+  g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
 
   //g_graphicsApi().setConstanBuffer(neverChangeB,0);
   g_graphicsApi().VertexShaderSetConstanBuffer(m_neverChangeB, 0);
@@ -217,6 +234,9 @@ testApp::onCreate() {
   //g_graphicsApi().setConstanBuffer(changeEveryFrameB,2);
   g_graphicsApi().VertexShaderSetConstanBuffer(m_changeEveryFrameB, 2);
   g_graphicsApi().PixelShaderSetConstanBuffer(m_changeEveryFrameB, 2);
+
+  g_graphicsApi().VertexShaderSetConstanBuffer(m_lightsB, 4);
+  g_graphicsApi().PixelShaderSetConstanBuffer(m_lightsB, 4);
   g_graphicsApi().SetBonesConstanBuffer();
   SPtr<Sampler> samplerLineal = g_graphicsApi().CreateSampleLinearState();
   g_graphicsApi().setSampler(samplerLineal, 0);
@@ -225,23 +245,28 @@ testApp::onCreate() {
 
   //Load defaultTextures
   g_ResourceMan().loadResourceFromFile("data/textures/black.png",
-    RESOURCE_TYPE::TEXTURE);
+                                       RESOURCE_TYPE::TEXTURE);
   g_ResourceMan().loadResourceFromFile("data/textures/white.png",
-    RESOURCE_TYPE::TEXTURE);
-
+                                       RESOURCE_TYPE::TEXTURE);
+  SPtr<Resource> cubeResource = 
+    g_ResourceMan().loadResourceFromFile("data/textures/LightCube.dds",
+                                         RESOURCE_TYPE::TEXTURE);
+  SPtr<Texture2D> cubeMap(cubeResource, reinterpret_cast<Texture2D*>(cubeResource.get()));
+  m_ambientCubeMap = cubeMap;
+  m_ambientCubeMapOption = 3;
   //load spidergwen
-  //g_ResourceMan().loadResourceFromFile("data/models/Happy Idle.fbx",
-  //                                     RESOURCE_TYPE::MODEL);
-  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMap.jpg",
-  //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMapV2.jpg",
-  //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyNormalMap.jpg",
-  //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacySpecularMap.jpg",
-  //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyMetallnessMap.jpg",
-  //                                     RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/models/Happy Idle.fbx",
+                                       RESOURCE_TYPE::MODEL);
+  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMap.jpg",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMapV2.jpg",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyNormalMap.jpg",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacySpecularMap.jpg",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyMetallnessMap.jpg",
+                                       RESOURCE_TYPE::TEXTURE);
   //
   //
   ////load noivern
@@ -267,25 +292,66 @@ testApp::onCreate() {
   //                                     RESOURCE_TYPE::TEXTURE);
 
   //load cyberWarrior
-  g_ResourceMan().loadResourceFromFile("data/models/cyberWarrior.fbx",
-    RESOURCE_TYPE::MODEL);
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/TM.png",
-    RESOURCE_TYPE::TEXTURE);                         
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/NM.png",
-    RESOURCE_TYPE::TEXTURE);                         
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/Metal.png",
-    RESOURCE_TYPE::TEXTURE);                         
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/Rough.png",
-    RESOURCE_TYPE::TEXTURE);                         
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Base_Color.png",
-    RESOURCE_TYPE::TEXTURE);                         
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Normal_DirectX.png",
-    RESOURCE_TYPE::TEXTURE);                         
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Metallic.png",
-    RESOURCE_TYPE::TEXTURE);                         
-  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Roughness.png",
-    RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/models/cyberWarrior.fbx",
+  //                                     RESOURCE_TYPE::MODEL);
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/TM.png",
+  //                                     RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/NM.png",
+  //                                     RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/Metal.png",
+  //                                     RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/Rough.png",
+  //                                     RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Base_Color.png",
+  //                                     RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Normal_DirectX.png",
+  //                                     RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Metallic.png",
+  //                                     RESOURCE_TYPE::TEXTURE);                         
+  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Roughness.png",
+  //                                     RESOURCE_TYPE::TEXTURE);  
 
+  //Load Trooper
+  //g_ResourceMan().loadResourceFromFile("data/models/trooper.fbx",
+  //                                     RESOURCE_TYPE::MODEL);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/Helmet.001_Base_Color.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/Helmet.001_Normal_OpenGL.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/Helmet.001_Metallic.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/Helmet.001_Roughness.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/LowerBody.001_Base_Color.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/LowerBody.001_Normal_OpenGL.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/LowerBody.001_Metallic.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/LowerBody.001_Roughness.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/UpperBody.001_Base_Color.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/UpperBody.001_Normal_OpenGL.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/UpperBody.001_Metallic.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+  //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/UpperBody.001_Roughness.jpg",
+  //                                     RESOURCE_TYPE::TEXTURE);
+
+  g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
+
+  //Rasterize states
+  m_defaultRasState = g_graphicsApi().createRasterizeState();
+  m_wireframeRasState = 
+    g_graphicsApi().createRasterizeState(RASTERIZER_FILL_MODE::D3D11_FILL_WIREFRAME);
+
+  SPtr<GameObject> light = SceneGraph::instance().createGameObject();
+  light->setName("mainLight");
+  SPtr<Component> mainLight = light->addComponent(COMPONENT_TYPE::LIGHT);
+  CLight* ml = reinterpret_cast<CLight*>(mainLight.get());
+  ml->setIdArray(m_lightCreated);
+  ++m_lightCreated;
   initImGui();
 }
 
@@ -323,24 +389,26 @@ testApp::onRender() {
   g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
   
   imguiDockScreen();
-  ImGui::SetNextWindowSize(ImVec2(m_clientSize.x * 0.5f, m_clientSize.y * 0.5f));
-  ImGui::Begin("Scene Window");
-  ImGui::SetWindowSize(ImVec2(m_clientSize.x * 0.5f, m_clientSize.y * 0.5f));
-  //get the mouse position
-  ImVec2 pos = ImGui::GetCursorScreenPos();
+  if (m_bSceneWindowNativeSize)
+  {
+    ImGui::SetNextWindowSize(ImVec2(m_clientSize.x * 0.5f, m_clientSize.y * 0.5f));
+  }
+  ImGui::Begin("Scene Window", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-  ImGui::GetWindowDrawList()->AddImage(m_first.get()->getRenderTexture(),
-                                       ImVec2(ImGui::GetCursorScreenPos()),
-                                       ImVec2(ImGui::GetCursorScreenPos().x + 
-                                         m_clientSize.x / 2,
-                                       ImGui::GetCursorScreenPos().y + 
-                                         m_clientSize.y / 2));
+  ImVec2 wsize = ImGui::GetWindowSize();
+  ImVec2 pos = ImGui::GetWindowPos();
+  wsize.y -= 30;
+  JDPoint size = { (int32)wsize.x, (int32)wsize.y };
+  //size.y -= 20;
+  if (m_sceneSize != size)
+  {
+    onResizeSceneWindow(size.x, size.y);
+    m_sceneSize = size;
+  }
+  ImGui::Image(m_first.get()->getRenderTexture(),wsize);
   ImGui::End();
-  //if (!ImGui::Begin("SceneGraph"))
-  //{
-  //  ImGui::End();
-  //  return;
-  //}
+
+
   ImGui::Begin("SceneGraph");
   ImGui::CloseCurrentPopup();
   imGuiShowObject("child", SceneGraph::instance().m_root);
@@ -348,8 +416,13 @@ testApp::onRender() {
 
   //ImGui::ShowDemoWindow();
 
-
   imGuiInspectorObject();
+
+  showTexturesResources();
+
+  showModels();
+
+  showAmbientOption();
 
   if (m_loadingFile)
   {
@@ -363,22 +436,32 @@ testApp::onRender() {
 
 void 
 testApp::onResize(int32 width, int32 height) {
+  if (!m_windowHasFocus)
+  {
+    return;
+  }
   ImGui::GetIO().DisplaySize = ImVec2((float)width, (float)height);
   ImGui::GetIO().DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-  auto clientSize = m_window.getSize();
-  m_clientSize.x = clientSize.x;
-  m_clientSize.y = clientSize.y;
-
   g_graphicsApi().resizeSwapChain(width, height);
+}
 
+void 
+testApp::onResizeSceneWindow(uint32 width, uint32 height) {
+  //auto clientSize = m_window.getSize();
+  //m_clientSize.x = clientSize.x;
+  //m_clientSize.y = clientSize.y;
+  if (!m_windowHasFocus)
+  {
+    return;
+  }
   m_rtv = g_graphicsApi().getRenderTargetView();
   g_graphicsApi().setRenderTarget(m_rtv);
 
-  m_changeOnResize.m_projection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2, 
-                                                                   (float)m_clientSize.x, 
-                                                                   (float)m_clientSize.y, 
-                                                                   0.01f, 
-                                                                   100000.0f);
+  m_changeOnResize.m_projection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2,
+                                                                    (float)width,
+                                                                    (float)height,
+                                                                    0.01f,
+                                                                    100000.0f);
   m_changeOnResize.m_projection.transpose();
   m_changeOnResize.m_projectionInv = m_changeOnResize.m_projection;
   m_changeOnResize.m_projectionInv.invert();
@@ -539,11 +622,12 @@ testApp::initImGui() {
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
   }
 
-  
-
+  //ImGui::FileBrowser fileDialog(ImGuiFileBrowserFlags_CloseOnEsc);
+  //m_fileDialog = fileDialog;
   // (optional) set browser properties
-  m_fileDialog.SetTitle("LoadResource");
-  m_fileDialog.SetTypeFilters({ ".h", ".cpp" });
+  m_fileDialog.reset(new ImGui::FileBrowser(ImGuiFileBrowserFlags_CloseOnEsc |
+                                            ImGuiFileBrowserFlags_MultipleSelection));
+  m_fileDialog->SetTitle("LoadResource");
 }
 
 void 
@@ -573,7 +657,6 @@ testApp::imguiDockScreen(){
 
   if (opt_fullscreen)
     ImGui::PopStyleVar(2);
-
   // DockSpace
   ImGuiIO& io = ImGui::GetIO();
   if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
@@ -591,19 +674,36 @@ testApp::imguiDockScreen(){
       {
         if (ImGui::MenuItem("Model")) {
           m_typeResourceToLoad = RESOURCE_TYPE::MODEL;
-          m_fileDialog.SetTypeFilters({ ".fbx",".FBX", ".obj" });
-          m_fileDialog.Open();
+          m_fileDialog->SetTypeFilters({ ".fbx.FBX.obj",".fbx",".FBX", ".obj" });
+          m_fileDialog->Open();
           m_loadingFile = true;
         }
         if (ImGui::MenuItem("Image")) {
           m_typeResourceToLoad = RESOURCE_TYPE::TEXTURE;
-          m_fileDialog.SetTypeFilters({".jpg", ".png", ".dds" });
-          m_fileDialog.Open();
+          m_fileDialog->SetTypeFilters({ ".jpg.png.dds",".jpg", ".png", ".dds" });
+          m_fileDialog->Open();
           m_loadingFile = true;
         }
         ImGui::EndMenu();
       }
       
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Options"))
+    {
+      ImGui::Checkbox("SceneWindowNativeSize", &m_bSceneWindowNativeSize);
+      ImGui::Checkbox("ShowAmbientOptions", &m_bAmbientOptions);
+      ImGui::Checkbox("Wireframe", &m_bWireframe);
+      if (m_bWireframe)
+      {
+        g_graphicsApi().setRasterizeState(m_wireframeRasState);
+        g_graphicsApi().setProgramShader(m_progShaderWF);
+      }
+      else
+      {
+        g_graphicsApi().setRasterizeState(m_defaultRasState);
+        g_graphicsApi().setProgramShader(m_progShader);
+      }
       ImGui::EndMenu();
     }
 
@@ -624,14 +724,24 @@ testApp::imGuiShowObject(const char* /*nameObject*/, WeakSptr<GameObject> child)
   {
     hasChildren = true;
   }
-  if (hasChildren)
+
+  ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth |
+                             ImGuiTreeNodeFlags_OpenOnArrow |
+                             ImGuiTreeNodeFlags_OpenOnDoubleClick;
+  if (nullptr == object->getParent())
   {
-    isOpen = ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow);
+    flags |= ImGuiTreeNodeFlags_DefaultOpen ;
+    ImGui::SetNextTreeNodeOpen(true);
   }
-  else
-  {
-    ImGui::Selectable(object->getName().c_str());
+  if (!hasChildren) {
+    flags |= ImGuiTreeNodeFlags_Leaf |
+             ImGuiTreeNodeFlags_Bullet;
   }
+  isOpen = ImGui::TreeNodeEx(object->getName().c_str(), flags);
+  //else
+  //{
+  //  ImGui::Selectable(object->getName().c_str());
+  //}
 
   if (ImGui::IsItemClicked()) {
     object->selected = true;
@@ -644,8 +754,7 @@ testApp::imGuiShowObject(const char* /*nameObject*/, WeakSptr<GameObject> child)
       SceneGraph::instance().selectedObjet = object;
     }
   }
-  if (hasChildren)
-  {
+
     if (isOpen) {
 
 
@@ -659,7 +768,7 @@ testApp::imGuiShowObject(const char* /*nameObject*/, WeakSptr<GameObject> child)
       }
       ImGui::TreePop();
     }
-  }
+  
   
   // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
   
@@ -672,23 +781,29 @@ testApp::imGuiInspectorObject() {
   JDVector3 pos = { m_changeEveryFrame.m_viewPosition.x,
                     m_changeEveryFrame.m_viewPosition.y,
                     m_changeEveryFrame.m_viewPosition.z };
-  ImGui::InputFloat3("View Position", &pos.x, 10);
-  if (nullptr == SceneGraph::instance().selectedObjet)
-  {
+
+  ImGui::InputFloat3("View Position", &pos.x, 2);
+  ImGui::Separator();
+  if (nullptr == SceneGraph::instance().selectedObjet) {
     ImGui::End();
     return;
   }
-  if (ImGui::Button("Add child Object"))
-  {
+  if (ImGui::Button("Add child Object")) {
     SceneGraph::instance().createGameObject();
   }
+  ImGui::Separator();
+
   char* name = (char*)SceneGraph::instance().selectedObjet->getName().c_str();
   ImGui::InputText("Name", name, 255);
   SceneGraph::instance().selectedObjet->setName(String(name));
+
+  if (SceneGraph::instance().selectedObjet == SceneGraph::instance().m_root) {
+    ImGui::End();
+    return;
+  }
   auto component =
     SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
-  if (nullptr != component)
-  {
+  if (nullptr != component) {
     ImGui::Separator();
     ImGui::Text("Transform");
     CTransform* trans = reinterpret_cast<CTransform*>(component.get());
@@ -701,6 +816,12 @@ testApp::imGuiInspectorObject() {
   if (nullptr != component)
   {
     showRenderModelComponent();
+  }
+  component =
+    SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::LIGHT);
+  if (nullptr != component)
+  {
+    showLightComponent();
   }
 
   ImGui::Separator();
@@ -723,56 +844,56 @@ testApp::showRenderModelComponent() {
   auto rModel = 
     reinterpret_cast<CRenderModel*>(Model->getComponent(COMPONENT_TYPE::RENDERMODEL).get());
   String g_OptionPreviw = ResourceManager::instance().m_modelsNames[Model->m_modelOption];
-  if (ImGui::BeginCombo("Models", g_OptionPreviw.c_str()))
+  int32 modelOption = Model->m_modelOption;
+  ImGui::Button(ResourceManager::instance().m_modelsNames[modelOption], ImVec2(80, 80));
+  if (ImGui::BeginDragDropTarget())
   {
-    int32
-    modelOption = Model->m_modelOption;
+    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Modeldrop");
+    if (payload)
+    {
+      modelOption = *reinterpret_cast<uint32*>(payload->Data);
+    }
+    ImGui::EndDragDropTarget();
+  }
+  if (ImGui::BeginCombo("Models", g_OptionPreviw.c_str())) {
     g_OptionPreviw = "";
     ImGui::ListBox("Model", &modelOption,
                    &ResourceManager::instance().m_modelsNames[0], 
                    (int)ResourceManager::instance().m_modelsNames.size());
-    //static String g_UnitOptionPreviw = ResourceManager::instance().m_modelsNames[0];
-    g_OptionPreviw = ResourceManager::instance().m_modelsNames[modelOption];
-    if (modelOption != (int32)Model->m_modelOption)
-    {
-      if (modelOption > 0)
-      {
-        rModel->setModel(ResourceManager::instance().m_models[modelOption-1]);
-      }
-      else
-      {
-        rModel->m_currentAnimation = nullptr;
-        rModel->m_animationOption = 0;
-        rModel->m_model = nullptr;
-      }
-      Model->m_modelOption = modelOption;
-    }
     ImGui::EndCombo();
+  }
+  if (modelOption != (int32)Model->m_modelOption) {
+    if (modelOption > 0) {
+      rModel->setModel(ResourceManager::instance().m_models[modelOption - 1]);
+    }
+    else {
+      rModel->m_currentAnimation = nullptr;
+      rModel->m_animationOption = 0;
+      rModel->m_model = nullptr;
+    }
+    Model->m_modelOption = modelOption;
   }
   if (nullptr != rModel->m_model)
   {
-    if (ImGui::CollapsingHeader("Materials")) {
+    if (ImGui::TreeNode("Materials")) {
       showRenderModelMaterias(rModel);
+      ImGui::TreePop();
     }
     
     g_OptionPreviw = rModel->m_model->m_AnimationsList[rModel->m_animationOption];
-    if (ImGui::CollapsingHeader("Animation")) {
-      if (ImGui::BeginCombo("Current Animation", g_OptionPreviw.c_str()))
-      {
+    if (ImGui::TreeNode("Animation")) {
+      if (ImGui::BeginCombo("Current Animation", g_OptionPreviw.c_str())) {
         int32 animationOption = rModel->m_animationOption;
         g_OptionPreviw = "";
-        ImGui::ListBox("Texture##2", &animationOption,
-          &rModel->m_model->m_AnimationsList[0],
-          (int)rModel->m_model->m_AnimationsList.size());
+        ImGui::ListBox("animation##2", &animationOption,
+                       &rModel->m_model->m_AnimationsList[0],
+                       (int)rModel->m_model->m_AnimationsList.size());
         //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
-        if (animationOption != rModel->m_animationOption)
-        {
-          if (animationOption > 0)
-          {
+        if (animationOption != (int32)rModel->m_animationOption) {
+          if (animationOption > 0) {
             rModel->m_currentAnimation = rModel->m_model->m_animations[animationOption - 1];
           }
-          else
-          {
+          else {
             rModel->m_currentAnimation = nullptr;
             rModel->noneAnimation();
           }
@@ -780,28 +901,47 @@ testApp::showRenderModelComponent() {
         }
         ImGui::EndCombo();
       }
-      if (rModel->m_animationOption > 0)
-      {
+      if (rModel->m_animationOption > 0) {
         ImGui::SliderFloat("Time",
                            &rModel->m_animatedTime,
                            0,
                            rModel->m_currentAnimation->m_duration);
-        if (rModel->m_playAnimation)
-        {
-          if (ImGui::Button("Pause"))
-          {
+        if (rModel->m_playAnimation) {
+          if (ImGui::Button("Pause")) {
             rModel->m_playAnimation = false;
           }
         }
-        else
-        {
-          if (ImGui::Button("Play"))
-          {
+        else {
+          if (ImGui::Button("Play")) {
             rModel->m_playAnimation = true;
           }
         }
       }
+      ImGui::TreePop();
     }
+  }
+}
+
+void 
+testApp::showLightComponent() {
+  ImGui::Separator();
+  auto Model = SceneGraph::instance().selectedObjet.get();
+  auto clight =
+    reinterpret_cast<CLight*>(Model->getComponent(COMPONENT_TYPE::LIGHT).get());
+  String g_OptionPreviw = ResourceManager::instance().m_modelsNames[Model->m_modelOption];
+  if (ImGui::TreeNode("Light")) {
+    uint32 id = clight->getIdArray();
+    ImGui::DragFloat3("LightDirection", 
+                      &m_lights.light[id].m_lightDirection.x,
+                      0.01f,
+                      -1, 
+                      1);
+    if (ImGui::TreeNode("LightColor")) {
+      ImGui::ColorPicker3("LightColor", &m_lights.light[id].m_lightColor.x);
+      ImGui::TreePop();
+    }
+    g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
+    ImGui::TreePop();
   }
 }
 
@@ -816,20 +956,35 @@ void testApp::showRenderModelMaterias(CRenderModel* rModel)
     ss << conter;
     String str = ss.str();
     String typeText;
-
+   
     g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_albedoOption];
     if (ImGui::CollapsingHeader(m->getName().c_str())) {
+
+      //SelectAlbedo
       typeText = "Albedo##";
       typeText += str;
       ImGui::Text("Albedo");
+      int32 albedolOption = m->m_albedoOption;
       ImGui::Image(m->getAlbedoTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginDragDropTarget())
+      {
+        const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("textdrop");
+        if (payload)
+        {
+          albedolOption = *reinterpret_cast<uint32*>(payload->Data);
+        }
+        ImGui::EndDragDropTarget();
+      }
       if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
       {
-        int albedolOption = m->m_albedoOption;
         g_OptionPreviw = "";
-        ImGui::ListBox("Texture##", &albedolOption,
-          &ResourceManager::instance().m_texturesNames[0],
-          (int)ResourceManager::instance().m_texturesNames.size());
+        ImGui::ListBox("Texture##1", &albedolOption,
+                       &ResourceManager::instance().m_texturesNames[0],
+                       (int)ResourceManager::instance().m_texturesNames.size());
+        ImGui::EndCombo();
+      }
+      if (albedolOption != (int32)m->m_albedoOption)
+      {
         //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
         if (albedolOption > 0)
         {
@@ -840,21 +995,33 @@ void testApp::showRenderModelMaterias(CRenderModel* rModel)
           m->setAlbedoTexture(ResourceManager::instance().DEFAULT_TEXTURE_BLACK);
         }
         m->m_albedoOption = albedolOption;
-        ImGui::EndCombo();
       }
+      //SelectNormal
       g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_NormalOption];
       typeText = "Normal##";
       typeText += str;
       ImGui::Text("Normal");
+      int32 normalOption = m->m_NormalOption;
       ImGui::Image(m->getNormalTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginDragDropTarget())
+      {
+        const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("textdrop");
+        if (payload)
+        {
+          normalOption = *reinterpret_cast<uint32*>(payload->Data);
+        }
+        ImGui::EndDragDropTarget();
+      }
       if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
       {
-        int normalOption = m->m_NormalOption;
         g_OptionPreviw = "";
         ImGui::ListBox("Texture##2", &normalOption,
           &ResourceManager::instance().m_texturesNames[0],
           (int)ResourceManager::instance().m_texturesNames.size());
-        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        ImGui::EndCombo();
+      }
+      if (normalOption != (int32)m->m_NormalOption)
+      {
         if (normalOption > 0)
         {
           m->setNormalTexture(ResourceManager::instance().m_textures[normalOption - 1]);
@@ -864,21 +1031,33 @@ void testApp::showRenderModelMaterias(CRenderModel* rModel)
           m->setNormalTexture(ResourceManager::instance().DEFAULT_TEXTURE_NORMAL);
         }
         m->m_NormalOption = normalOption;
-        ImGui::EndCombo();
       }
+      //SelectSpecularOrMetallic
       g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_specularOption];
       typeText = "Specular/Metalic##";
       typeText += str;
       ImGui::Text("Specular/Metalic");
+      int32 specularOption = m->m_specularOption;
       ImGui::Image(m->getSpecularTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginDragDropTarget())
+      {
+        const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("textdrop");
+        if (payload)
+        {
+          specularOption = *reinterpret_cast<uint32*>(payload->Data);
+        }
+        ImGui::EndDragDropTarget();
+      }
       if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
       {
-        int specularOption = m->m_specularOption;
         g_OptionPreviw = "";
         ImGui::ListBox("Texture##3", &specularOption,
           &ResourceManager::instance().m_texturesNames[0],
           (int)ResourceManager::instance().m_texturesNames.size());
-        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        ImGui::EndCombo();
+      }
+      if (specularOption != (int32)m->m_specularOption)
+      {
         if (specularOption > 0)
         {
           m->setSpecularTexture(ResourceManager::instance().m_textures[specularOption - 1]);
@@ -888,21 +1067,33 @@ void testApp::showRenderModelMaterias(CRenderModel* rModel)
           m->setSpecularTexture(ResourceManager::instance().DEFAULT_TEXTURE_WHITE);
         }
         m->m_specularOption = specularOption;
-        ImGui::EndCombo();
       }
+      //selecetRoughness
       g_OptionPreviw = ResourceManager::instance().m_texturesNames[m->m_roughOption];
       typeText = "Roughness##";
       typeText += str;
       ImGui::Text("Roughness");
+      int32 roughOption = m->m_roughOption;
       ImGui::Image(m->getRoughnessTexture()->getTexture(), ImVec2(40, 40));
+      if (ImGui::BeginDragDropTarget())
+      {
+        const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("textdrop");
+        if (payload)
+        {
+          roughOption = *reinterpret_cast<uint32*>(payload->Data);
+        }
+        ImGui::EndDragDropTarget();
+      }
       if (ImGui::BeginCombo(typeText.c_str(), g_OptionPreviw.c_str()))
       {
-        int roughOption = m->m_roughOption;
         g_OptionPreviw = "";
         ImGui::ListBox("Texture##4", &roughOption,
           &ResourceManager::instance().m_texturesNames[0],
           (int)ResourceManager::instance().m_texturesNames.size());
-        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        ImGui::EndCombo();
+      }
+      if (roughOption != (int32)m->m_roughOption)
+      {
         if (roughOption > 0)
         {
           m->setRoughnessTexture(ResourceManager::instance().m_textures[roughOption - 1]);
@@ -912,7 +1103,6 @@ void testApp::showRenderModelMaterias(CRenderModel* rModel)
           m->setRoughnessTexture(ResourceManager::instance().DEFAULT_TEXTURE_WHITE);
         }
         m->m_roughOption = roughOption;
-        ImGui::EndCombo();
       }
     }
     ++conter;
@@ -924,7 +1114,7 @@ testApp::ImGuiAddComponent() {
   ImGui::Begin("Components",&m_showComponentImGui);
   static ImGuiTextFilter filter;
   filter.Draw("Filter");
-  const char* lines[] = { "Transform", "RenderModel"};
+  const char* lines[] = { "Transform", "RenderModel","Light"};
   for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
   {
     if (filter.PassFilter(lines[i]))
@@ -939,6 +1129,9 @@ testApp::ImGuiAddComponent() {
          case 1:
           SceneGraph::instance().selectedObjet->addComponent(COMPONENT_TYPE::RENDERMODEL);
           break;
+         case 2:
+          addLightComponent();
+          break;
          default:
           break;
         }
@@ -950,17 +1143,167 @@ testApp::ImGuiAddComponent() {
 }
 
 void 
+testApp::addLightComponent() {
+  if (m_lightCreated>=20) {
+    return;
+  }
+  SPtr<Component> newLight =
+    SceneGraph::instance().selectedObjet->addComponent(COMPONENT_TYPE::LIGHT);
+  if (nullptr == newLight) {
+    return;
+  }
+  CLight* ml = reinterpret_cast<CLight*>(newLight.get());
+  ml->setIdArray(m_lightCreated);
+  ++m_lightCreated;
+  m_lights.light[0].m_numberOfLights = m_lightCreated;
+  g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
+}
+
+void 
 testApp::imGuiLoadResourceFile() {
   
-  m_fileDialog.Display();
-  if (m_fileDialog.HasSelected())
+  m_fileDialog->Display();
+  if (m_fileDialog->HasSelected())
   {
-    ResourceManager::instance().loadResourceFromFile(m_fileDialog.GetSelected().string().c_str(), 
-                                                     m_typeResourceToLoad);
-    std::cout << "Selected filename" << m_fileDialog.GetSelected().string() << std::endl;
-    m_fileDialog.ClearSelected();
+    uint32 files = (uint32)m_fileDialog->GetMultiSelected().size();
+    for (uint32 i = 0; i < files; ++i)
+    {
+      g_ResourceMan().loadResourceFromFile(m_fileDialog->GetMultiSelected()[i].string().c_str(),
+                                           m_typeResourceToLoad);
+    }
+    //std::cout << "Selected filename" << m_fileDialog->GetSelected().string() << std::endl;
+    m_fileDialog->ClearSelected();
     m_loadingFile = false;
   }
+}
+
+void 
+testApp::showAmbientOption() {
+  if (!m_bAmbientOptions)
+  {
+    return;
+  }
+  if (ImGui::Begin("AmbientOption", &m_bAmbientOptions))
+  {
+    String optionPreviw = ResourceManager::instance().m_texturesNames[m_ambientCubeMapOption];
+    //ImGui::Text("Roughness");
+    ImGui::Image(m_ambientCubeMap->getTexture(), ImVec2(40, 40));
+    if (ImGui::BeginCombo("CubeMap", optionPreviw.c_str()))
+    {
+      int option = m_ambientCubeMapOption;
+      optionPreviw = "";
+      ImGui::ListBox("Texture##5", &option,
+        &ResourceManager::instance().m_texturesNames[0],
+        (int)ResourceManager::instance().m_texturesNames.size());
+      if (option != (int32)m_ambientCubeMapOption)
+      {
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (option > 0)
+        {
+          m_ambientCubeMap = (ResourceManager::instance().m_textures[option - 1]);
+        }
+        else
+        {
+          m_ambientCubeMap = (ResourceManager::instance().DEFAULT_TEXTURE_WHITE);
+        }
+        m_ambientCubeMapOption = option;
+        g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
+      }
+      ImGui::EndCombo();
+    }
+    ImGui::End();
+  }
+}
+
+void 
+testApp::showModels() {
+  if (!m_windowHasFocus)
+  {
+    return;
+  }
+  ImGui::Begin("Models##30");
+  uint32 numModels = (uint32)g_ResourceMan().m_models.size();
+  ImVec2 size = ImGui::GetWindowSize();
+  if (size.x < 80)
+  {
+    size.x = 80;
+    ImGui::SetWindowSize(size);
+  }
+  int32 alocator = int32((size.x - 40) / 80);
+  if (alocator<1)
+  {
+    alocator = 1;
+  }
+  for (uint32 n = 0; n < numModels; ++n) {
+    //ImGui::PushID(n);
+    if ((n % alocator) != 0)
+      ImGui::SameLine();
+
+    //ImGui::SetNextItemWidth(60);
+    ImGui::BeginGroup();
+    //ImGui::al();
+    String child = "child";
+    child += n;
+    ImGui::BeginChild(child.c_str(), ImVec2(80, 80));
+    ImGui::Button(g_ResourceMan().m_modelsNames[n+1], ImVec2(60, 60));
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+    {
+      uint32 info = n + 1;
+      ImGui::SetDragDropPayload("Modeldrop", &info, sizeof(const char*));
+      ImGui::TextUnformatted(g_ResourceMan().m_modelsNames[n + 1]);
+      ImGui::EndDragDropSource();
+    }
+    ImGui::EndChild();
+    ImGui::EndGroup();
+    //ImGui::PopID();
+  }
+  ImGui::End();
+}
+
+void 
+testApp::showTexturesResources() {
+  if (!m_windowHasFocus)
+  {
+    return;
+  }
+  ImGui::Begin("Textures##30");
+  uint32 numText = (uint32)g_ResourceMan().m_textures.size();
+  ImVec2 size = ImGui::GetWindowSize();
+  if (size.x<80)
+  {
+    size.x = 80;
+    ImGui::SetWindowSize(size);
+  }
+  int32 alocator = int32((size.x-40) / 80);
+  if (alocator < 1)
+  {
+    alocator = 1;
+  }
+  for (uint32 n = 0; n < numText; ++n) {
+    //ImGui::PushID(n);
+    if ((n % alocator) != 0)
+      ImGui::SameLine();
+
+    //ImGui::SetNextItemWidth(60);
+    ImGui::BeginGroup();
+    //ImGui::al();
+    String child = "child";
+    child += n;
+    ImGui::BeginChild(child.c_str(), ImVec2(80, 140));
+    ImGui::ImageButton(g_ResourceMan().m_textures[n]->getTexture(), ImVec2(60, 60));
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+    {
+      uint32 info = n + 1;
+      ImGui::SetDragDropPayload("textdrop", &info, sizeof(const char*));
+      ImGui::TextUnformatted(g_ResourceMan().m_texturesNames[n + 1]);
+      ImGui::EndDragDropSource();
+    }
+    ImGui::TextWrapped(g_ResourceMan().m_texturesNames[n + 1], ImVec2(65, 20));
+    ImGui::EndChild();
+    ImGui::EndGroup();
+    //ImGui::PopID();
+  }
+  ImGui::End();
 }
 
 void 

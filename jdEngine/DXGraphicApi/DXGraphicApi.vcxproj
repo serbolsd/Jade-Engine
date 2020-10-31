@@ -189,12 +189,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\DDSTextureLoader11.cpp" />
     <ClCompile Include="src\jdD3D11Api.cpp" />
     <ClCompile Include="src\jdD3D11Device.cpp" />
     <ClCompile Include="src\jdD3D11DeviceContext.cpp" />
     <ClCompile Include="src\jdD3D11SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\DDSTextureLoader11.h" />
     <ClInclude Include="include\jdD3D11Api.h" />
     <ClInclude Include="include\jdD3D11ConstantBuffer.h" />
     <ClInclude Include="include\jdD3D11Device.h" />
@@ -205,6 +207,7 @@
     <ClInclude Include="include\jdD3D11PixelShader.h" />
     <ClInclude Include="include\jdD3D11Prerequisites.h" />
     <ClInclude Include="include\jdD3D11ProgramShader.h" />
+    <ClInclude Include="include\jdD3D11RasterizeState.h" />
     <ClInclude Include="include\jdD3D11RenderTarget.h" />
     <ClInclude Include="include\jdD3D11RenderTargetView.h" />
     <ClInclude Include="include\jdD3D11SwapChain.h" />

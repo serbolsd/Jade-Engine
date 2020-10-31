@@ -38,7 +38,7 @@ struct VS_INPUT
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
-    float2 Tex : TEXCOORD0;
+    float4 Color : COLOR0;
 };
 
 
@@ -51,7 +51,7 @@ PS_INPUT VS( VS_INPUT input )
     output.Pos = mul( input.Pos, World );
     output.Pos = mul( output.Pos, View );
     output.Pos = mul( output.Pos, Projection );
-    output.Tex = input.Tex;
+    output.Color = input.Color;
     
     return output;
 }
@@ -62,5 +62,5 @@ PS_INPUT VS( VS_INPUT input )
 //--------------------------------------------------------------------------------------
 float4 PS( PS_INPUT input) : SV_Target
 {
-    return vMeshColor;
+    return input.Color;
 }

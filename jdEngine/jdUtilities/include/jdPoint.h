@@ -270,7 +270,7 @@ namespace jdEngineSDK {
 
   FORCEINLINE bool 
   JDPoint::operator!=(const JDPoint& point) const {
-    return (x != point.x && y != point.y);
+    return (x != point.x || y != point.y);
   }
 
   FORCEINLINE bool

@@ -24,6 +24,7 @@ namespace jdEngineSDK {
       SOUND,
       SPRITE,
       CAMERA,
+      LIGHT,
       KNUMCOMPONENTS
     };
   };

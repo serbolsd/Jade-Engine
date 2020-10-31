@@ -24,6 +24,8 @@
 #include "jdD3D11RenderTargetView.h"
 #include "jdD3D11VertexBuffer.h"
 #include "jdD3D11IndexBuffer.h"
+#include "jdRasterizeState.h"
+
 using namespace jdEngineSDK;
 
 namespace jdEngineSDK {
@@ -237,7 +239,7 @@ namespace jdEngineSDK {
      * @return a shared pointer with the Texture
      */
     SPtr<Texture2D>
-    LoadShaderResourceFromFile(const char* filePath);
+    LoadShaderResourceFromFile(const char* filePath, bool isDDS);
 
     /**
      * @brief function to clear the render target
@@ -457,6 +459,23 @@ namespace jdEngineSDK {
         return m_bonesBuffer;
       return nullptr;
     };
+
+    SPtr<RasterizeState>
+    createRasterizeState(RASTERIZER_FILL_MODE::E FillMode = 
+                                                       RASTERIZER_FILL_MODE::D3D11_FILL_SOLID,
+                         RASTERIZER_CULL_MODE::E CullMode = 
+                                                        RASTERIZER_CULL_MODE::D3D11_CULL_BACK,
+                         bool FrontCounterClockwise=false,
+                         int DepthBias = 0,
+                         float DepthBiasClamp = 0.0f,
+                         float SlopeScaledDepthBias = 0.0f,
+                         bool DepthClipEnable=true,
+                         bool ScissorEnable=false,
+                         bool MultisampleEnable=false,
+                         bool AntialiasedLineEnable=false) override;
+
+    void
+    setRasterizeState(WeakSptr<RasterizeState> RS) override;
 
    private:
     /**

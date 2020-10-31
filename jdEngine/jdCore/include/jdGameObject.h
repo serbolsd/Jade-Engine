@@ -27,19 +27,25 @@ namespace jdEngineSDK {
         return (gA.get()->m_layer < gB.get()->m_layer);
       };
     };
+
     friend class ResourceManager;
     friend class Component;
     friend class CTransform;
+
    public:
     GameObject() = default;
     ~GameObject() {};
 
     void
     setParent(WeakSptr<GameObject> parent){
-      m_parent = parent.lock().get();
+      m_parent = parent.lock();
     }
 
-    void
+    SPtr<GameObject>
+    getParent(){
+      return m_parent;
+    }
+    SPtr<Component>
     addComponent(COMPONENT_TYPE::E componentType);
 
     /*template <typename T>
@@ -53,7 +59,7 @@ namespace jdEngineSDK {
 
     void
     setName(const String& name){
-    m_name = name;
+      m_name = name;
     }
 
     String&
@@ -80,7 +86,7 @@ namespace jdEngineSDK {
 
     uint32 m_modelOption=0;
    protected:
-    GameObject* m_parent = nullptr;
+    SPtr<GameObject> m_parent = nullptr;
     Map<COMPONENT_TYPE::E, SPtr<Component>> m_components;
 
     String m_name = "";

@@ -26,6 +26,7 @@
 #include "jdRenderTargetView.h"
 #include "jdTexture2D.h"
 #include "jdInputLayout.h"
+#include "jdRasterizeState.h"
 
 
 namespace PRIMITIVE_TOPOLOGY_FORMAT {
@@ -270,7 +271,9 @@ namespace jdEngineSDK {
      * @return a shared pointer with the Texture
      */
     virtual SPtr<Texture2D>
-    LoadShaderResourceFromFile(const char* /*filePath*/) { return nullptr; };
+    LoadShaderResourceFromFile(const char* /*filePath*/, bool /*isCubeMap*/) { 
+      return nullptr; 
+    };
 
     /**
      * @brief function to clear the render target
@@ -488,36 +491,105 @@ namespace jdEngineSDK {
     virtual SPtr<RenderTargetView>
     getRenderTargetView() { return nullptr; };
     
+    /**
+     * @brief get default error texture
+     */
     SPtr<Texture2D>
     getDefaultTextureError() { return DEFAULT_TEXTURE_ERROR; };
 
+    /**
+     * @brief get default trasparent texture
+     */
     SPtr<Texture2D>
     getDefaultTextureTransparent() { return DEFAULT_TEXTURE_TRANSPARENT; };
 
+    /**
+     * @brief get default black texture
+     */
     SPtr<Texture2D>
     getDefaultTextureBlack() { return DEFAULT_TEXTURE_BLACK; };
 
+    /**
+     * @brief get default white texture
+     */
     SPtr<Texture2D>
     getDefaultTextureWhite() { return DEFAULT_TEXTURE_WHITE; };
 
+    /**
+     * @brief get default normal texture
+     */
     SPtr<Texture2D>
     getDefaultTextureNormal() { return DEFAULT_TEXTURE_NORMAL; };
 
+    /**
+     * @brief get default chess texture
+     */
     SPtr<Texture2D>
     getDefaultTextureChess() { return DEFAULT_TEXTURE_CHESS; };
 
+    /**
+     * @brief to create constant buffer for bones
+     * @note only call with the mesh
+     */
     virtual SPtr<ConstantBuffer>
     createConstantBufferBones() { return nullptr; };
 
+    /**
+     * @brief to get constant buffer for bones
+     * @note only call with the mesh
+     */
     virtual SPtr<ConstantBuffer>
     getConstantBufferBones() { return nullptr; };
 
+    virtual SPtr<RasterizeState>
+    createRasterizeState(RASTERIZER_FILL_MODE::E /*FillMode*/ = 
+                                                       RASTERIZER_FILL_MODE::D3D11_FILL_SOLID,
+                         RASTERIZER_CULL_MODE::E /*CullMode*/ = 
+                                                        RASTERIZER_CULL_MODE::D3D11_CULL_BACK,
+                         bool /*FrontCounterClockwise*/ = false,
+                         int /*DepthBias*/ = 0,
+                         float /*DepthBiasClamp*/ = 0.0f,
+                         float /*SlopeScaledDepthBias*/ = 0.0f,
+                         bool /*DepthClipEnable*/ = true,
+                         bool /*ScissorEnable*/ = false,
+                         bool /*MultisampleEnable*/ = false,
+                         bool /*AntialiasedLineEnable*/ = false) { 
+      return nullptr; 
+    };
+
+    virtual void
+    setRasterizeState(WeakSptr<RasterizeState> RS) {};
+
    protected:
+
+    /**
+     * @brief default error texture
+     */
     SPtr<Texture2D> DEFAULT_TEXTURE_ERROR;
+
+    /**
+     * @brief default transparent texture
+     */
     SPtr<Texture2D> DEFAULT_TEXTURE_TRANSPARENT;
+
+    /**
+     * @brief default black texture
+     */
     SPtr<Texture2D> DEFAULT_TEXTURE_BLACK;
+
+    /**
+     * @brief default white texture
+     */
     SPtr<Texture2D> DEFAULT_TEXTURE_WHITE;
+
+    /**
+     * @brief default normal texture
+     */
     SPtr<Texture2D> DEFAULT_TEXTURE_NORMAL;
+
+    /**
+     * @brief default chess texture
+     */
     SPtr<Texture2D> DEFAULT_TEXTURE_CHESS;
 
 		};

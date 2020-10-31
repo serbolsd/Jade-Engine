@@ -221,6 +221,7 @@
     <ClInclude Include="include\jdCamera.h" />
     <ClInclude Include="include\jdCameraManager.h" />
     <ClInclude Include="include\jdComponent.h" />
+    <ClInclude Include="include\jdComponentLight.h" />
     <ClInclude Include="include\jdComponentRenderModel.h" />
     <ClInclude Include="include\jdComponentTransform.h" />
     <ClInclude Include="include\jdConstantBuffer.h" />
@@ -235,6 +236,7 @@
     <ClInclude Include="include\jdPixelShader.h" />
     <ClInclude Include="include\jdPrerequisitesCore.h" />
     <ClInclude Include="include\jdProgramShader.h" />
+    <ClInclude Include="include\jdRasterizeState.h" />
     <ClInclude Include="include\jdRenderTarget.h" />
     <ClInclude Include="include\jdRenderTargetView.h" />
     <ClInclude Include="include\jdResource.h" />

@@ -9,7 +9,6 @@ namespace jdEngineSDK {
 
   SPtr<Resource> ResourceManager::loadResourceFromFile(const char* path, const RESOURCE_TYPE::E& type)
   {
-    
     uint32 newId = createHash(path);
     if (isLoadedResources(path))
     {
@@ -108,6 +107,13 @@ namespace jdEngineSDK {
       /////////////////////////////////////////////////////////////////////////
       // Load Vertex, index and bones information
       /////////////////////////////////////////////////////////////////////////
+      if (!mesh->HasFaces())
+      {
+        delete newMesh;
+        String advice = "could't load model because don't have faces";
+        std::cout << advice << std::endl;
+        return nullptr;
+      }
       for (std::uint32_t faceIdx = 0u; faceIdx < mesh->mNumFaces; faceIdx++)
       {
         //assert(m_device.model->mMeshes[faceIdx]->mFaces->mNumIndices == 3u);
@@ -122,30 +128,39 @@ namespace jdEngineSDK {
       //Vertex Info
       for (uint32 v = 0; v < numVertex; ++v)
       {
-        if (NULL != mesh->mVertices)
+        if (mesh->HasPositions())
         {
-          meshVertex[v].Pos.x = mesh->mVertices[v].x;
-          meshVertex[v].Pos.y = mesh->mVertices[v].y;
-          meshVertex[v].Pos.z = mesh->mVertices[v].z;
-          if (meshVertex[v].Pos == JDVector4(0,0,0,1))
+          if (NULL != mesh->mVertices)
           {
-            std::cout << "algo anda mal\n";
+            meshVertex[v].Pos.x = mesh->mVertices[v].x;
+            meshVertex[v].Pos.y = mesh->mVertices[v].y;
+            meshVertex[v].Pos.z = mesh->mVertices[v].z;
+            if (meshVertex[v].Pos == JDVector4(0, 0, 0, 1))
+            {
+              std::cout << "algo anda mal\n";
+            }
+            meshVertex[v].Pos.w = 1.0f;
           }
-          meshVertex[v].Pos.w = 1.0f;
         }
-        if (NULL != mesh->mNormals)
+        if (mesh->HasNormals())
         {
-          meshVertex[v].Norm.x = mesh->mNormals[v].x;
-          meshVertex[v].Norm.y = mesh->mNormals[v].y;
-          meshVertex[v].Norm.z = mesh->mNormals[v].z;
-          meshVertex[v].Norm.w = 0.0f;
+          if (NULL != mesh->mNormals)
+          {
+            meshVertex[v].Norm.x = mesh->mNormals[v].x;
+            meshVertex[v].Norm.y = mesh->mNormals[v].y;
+            meshVertex[v].Norm.z = mesh->mNormals[v].z;
+            meshVertex[v].Norm.w = 0.0f;
+          }
         }
-        if (NULL != mesh->mTangents)
+        if (mesh->HasTangentsAndBitangents())
         {
-          meshVertex[v].Tang.x = mesh->mTangents[v].x;
-          meshVertex[v].Tang.y = mesh->mTangents[v].y;
-          meshVertex[v].Tang.z = mesh->mTangents[v].z;
-          meshVertex[v].Tang.w = 0.0f;
+          if (NULL != mesh->mTangents)
+          {
+            meshVertex[v].Tang.x = mesh->mTangents[v].x;
+            meshVertex[v].Tang.y = mesh->mTangents[v].y;
+            meshVertex[v].Tang.z = mesh->mTangents[v].z;
+            meshVertex[v].Tang.w = 0.0f;
+          }
         }
         if (NULL != mesh->mTextureCoords[0])
         {
@@ -403,8 +418,15 @@ namespace jdEngineSDK {
 
   SPtr<Resource> ResourceManager::loadTexture(const char* path)
   {
+    String pa = path;
     SPtr<Texture2D> newTex;
-    newTex = g_graphicsApi().LoadShaderResourceFromFile(path);
+    if (pa.find(".dds") == String::npos) {
+      newTex = g_graphicsApi().LoadShaderResourceFromFile(path, false);
+    }
+    else
+    {
+      newTex = g_graphicsApi().LoadShaderResourceFromFile(path, true);
+    }
     if (NULL == newTex.get())
     {
       return nullptr;
@@ -435,11 +457,11 @@ namespace jdEngineSDK {
     char* token = NULL;
     char* nextToken = NULL;
     String name = path;
-    token = strtok_s((char*)name.c_str(), "\\", &nextToken);
+    token = strtok_s((char*)name.c_str(), "\\/", &nextToken);
     while ('\0' != nextToken[0])
     {
       token = nextToken;
-      token = strtok_s(token, "\\", &nextToken);
+      token = strtok_s(token, "\\/", &nextToken);
     }
     name = token;
     return name;

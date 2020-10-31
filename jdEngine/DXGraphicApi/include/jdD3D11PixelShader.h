@@ -13,7 +13,6 @@
 #pragma once
 
 #include "jdD3D11Prerequisites.h"
-
 #include <jdPixelShader.h>
 
 namespace jdEngineSDK {
