@@ -18,12 +18,19 @@ namespace jdEngineSDK {
     onCreate();
 
     //Main loop
-    float time = 0.0f;
+    //float time = 0.0f;
     bool shoudClose = false;
     Event wndEvent;
     sf::Clock clock;
     while (m_window.isOpen()) {
       sf::Time elapsed = clock.restart();
+      MSG message;
+      while (PeekMessageW(&message, m_window.getSystemHandle(), 0, 0, PM_REMOVE))
+      {
+        TranslateMessage(&message);
+        DispatchMessageW(&message);
+        m_inputAPI->handleMessage(message);
+      }
       while (m_window.pollEvent(wndEvent)) {
         if (Event::Closed == wndEvent.type) {
           m_window.close();
@@ -35,7 +42,7 @@ namespace jdEngineSDK {
       if (shoudClose) {
         break;
       }
-
+      handleWindownput(elapsed.asSeconds());
       update(elapsed.asSeconds());
 
       render();
@@ -76,6 +83,33 @@ namespace jdEngineSDK {
   void
   BaseApp::initSystems() {
     WindowHandle handle = m_window.getSystemHandle();
+    HINSTANCE m_inputHInstance;
+    //input api
+#ifdef _DEBUG
+    //m_inputHInstance = LoadLibraryExA("sysInput_Gainputd.dll",
+    m_inputHInstance = LoadLibraryExA("SysInput_OISd.dll",
+                                      nullptr,
+                                      LOAD_WITH_ALTERED_SEARCH_PATH);
+#else
+    //m_inputHInstance = LoadLibraryExA("sysInput_Gainput.dll",
+    m_inputHInstance = LoadLibraryExA("SysInput_OIS.dll",
+                                      nullptr,
+                                      LOAD_WITH_ALTERED_SEARCH_PATH);
+#endif
+    if (!m_inputHInstance) {
+      return;
+    }
+
+    using fnProtInput = InputAPI * (*)();
+    fnProtInput createInputApi = reinterpret_cast<fnProtInput>(GetProcAddress(m_inputHInstance, "createInputApi"));
+    if (!createInputApi) {
+      return;
+    }
+
+    //start input api module
+    m_inputAPI = createInputApi();
+    m_inputAPI->init(m_clientSize.x, m_clientSize.x, handle);
+
     HINSTANCE hin;
 #ifdef _DEBUG
     hin = LoadLibraryExA("jdDXGraphicApid.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
@@ -116,6 +150,7 @@ namespace jdEngineSDK {
     ResourceManager::shutDown();
     CameraManager::shutDown();
     g_graphicsApi().shutDown();
+    delete m_inputAPI;
   }
   
   void 
@@ -244,8 +279,14 @@ namespace jdEngineSDK {
     
   }
 
-  void 
+  //void 
+  //BaseApp::handleWindownput(const float& wndEvent) {
+  //
+  //}
+
+  void
   BaseApp::update(const float& deltaTime) {
+    m_inputAPI->update();
     onUpdate(deltaTime);
   }
 

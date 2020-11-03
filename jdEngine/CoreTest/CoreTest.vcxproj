@@ -98,14 +98,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)jdSysInput/include/;./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)\GoogleTest\lib/$(PlatformTarget)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;$(SolutionDir)dependencies/imgui-sfml/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gtestd.lib;jdUtilitiesd.lib;jdCored.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtestd.lib;jdUtilitiesd.lib;jdCored.lib;sfml-window-d.lib;sfml-system-d.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -115,14 +115,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)jdSysInput/include/;./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)\GoogleTest\lib/$(PlatformTarget)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;$(SolutionDir)dependencies/imgui-sfml/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gtestd.lib;jdUtilitiesd.lib;jdCored.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtestd.lib;jdUtilitiesd.lib;jdCored.lib;sfml-window-d.lib;sfml-system-d.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -134,7 +134,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)jdSysInput/include/;./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -143,7 +143,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)\GoogleTest\lib/$(PlatformTarget)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilities.lib;gtest.lib;jdCore.lib;sfml-window.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jdUtilities.lib;gtest.lib;jdCore.lib;sfml-window.lib;sfml-system.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,7 +155,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)jdSysInput/include/;./include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)/GoogleTest-1.0/include;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -164,7 +164,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)\GoogleTest\lib/$(PlatformTarget)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilities.lib;gtest.lib;jdCore.lib;sfml-window.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jdUtilities.lib;gtest.lib;jdCore.lib;sfml-window.lib;sfml-system.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

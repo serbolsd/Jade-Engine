@@ -25,32 +25,51 @@ namespace jdEngineSDK {
                            0, 1, 0, position.y,
                            0, 0, 1, position.z,
                            0, 0, 0, 1 };
+    //matT *= traslate;
+    //if (nullptr != m_myObject->m_parent) {
+    //  if (nullptr != m_myObject->m_parent->m_parent)
+    //  {
+    //    matT.rotateXstayPos(Degree(rotation.x));
+    //    matT.rotateYstayPos(Degree(rotation.y));
+    //    matT.rotateZstayPos(Degree(rotation.z));
+    //  }
+    //  else
+    //  {
+    //    matT.rotateXstayPos(Degree(rotation.x));
+    //    matT.rotateYstayPos(Degree(rotation.y));
+    //    matT.rotateZstayPos(Degree(rotation.z));
+    //  }
+    //}
+    //else {
+    //  matT.rotateXstayPos(Degree(rotation.x));
+    //  matT.rotateYstayPos(Degree(rotation.y));
+    //  matT.rotateZstayPos(Degree(rotation.z));
+    //}
     matT *= traslate;
-    if (nullptr != m_myObject->m_parent) {
-      if (nullptr != m_myObject->m_parent->m_parent)
-      {
-        matT.rotateXstayPos(Degree(rotation.x));
-        matT.rotateYstayPos(Degree(rotation.y));
-        matT.rotateZstayPos(Degree(rotation.z));
-      }
-      else
-      {
-        matT.rotateX(Degree(rotation.x));
-        matT.rotateY(Degree(rotation.y));
-        matT.rotateZ(Degree(rotation.z));
-      }
-    }
-    else {
-      matT.rotateX(Degree(rotation.x));
-      matT.rotateY(Degree(rotation.y));
-      matT.rotateZ(Degree(rotation.z));
-    }
+    Quaternion rotaNormalize = rotation;
+    matT *= rotaNormalize.getMatrix();
 
     //matT.rotateX(Degree(rotation.x));
     //matT.rotateY(Degree(rotation.y));
     //matT.rotateZ(Degree(rotation.z));
     realMatT *= matT;
+    matLocalTransform = matT;
     matTransform = realMatT;
+    matT.transpose();
+    worldPosition = { matTransform.m_03, matTransform.m_13, matTransform.m_23 };
+    right = { matT.m_00, matT.m_01, matT.m_02 };
+    up = { matT.m_10, matT.m_11, matT.m_12 };
+    forward = { matT.m_20, matT.m_21, matT.m_22 };
+    right.normalize();
+    up.normalize();
+    forward.normalize();
+    worldRight = { matTransform.m_00, matTransform.m_01, matTransform.m_02 };
+    worldUp = { matTransform.m_10, matTransform.m_11, matTransform.m_12 };
+    worldForward = { matTransform.m_20, matTransform.m_21, matTransform.m_22 };
+    worldRight.normalize();
+    worldUp.normalize();
+    worldForward.normalize();
+    matLocalTransform.transpose();
   }
   
   JDMatrix4

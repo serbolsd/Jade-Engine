@@ -36,6 +36,8 @@ namespace jdEngineSDK {
 		{
 				friend class CameraManager;
 		public:
+				Camera() = default;
+
 				Camera(String name,
 						     uint32 id,
 						     const JDVector3& eye = JDVector3(0.0f, 0.0f, 0.0f),
@@ -48,6 +50,9 @@ namespace jdEngineSDK {
 						     CAMERA_PROJECTION_TYPE::E projType = CAMERA_PROJECTION_TYPE::PERSPECTIVE);
 
 				~Camera() {};
+
+				void
+    Update(const float& deltatime) override;
 
 				/**
 					* @brief fuction to set id to the camera
@@ -145,6 +150,22 @@ namespace jdEngineSDK {
 				void
 				resize(int32 width, int32 height);
 
+				/**
+					* @brief fuction to resize the camera
+					*/
+				void
+				adjustNearAndFar(const float& _near, const float& _far);
+
+				float 
+				getNear() {
+						return m_near;
+				}
+
+    float 
+				getFar() {
+						return m_far;
+				}
+
 		private:
 
 				/**
@@ -176,6 +197,16 @@ namespace jdEngineSDK {
 					* @brief the camera큦 fovAngle
 					*/
 				float m_aspecRatio;
+
+				/**
+					* @brief the camera큦 fovAngle
+					*/
+				float m_width;
+
+				/**
+					* @brief the camera큦 fovAngle
+					*/
+				float m_height;
 
 				/**
 					* @brief the camera큦 view

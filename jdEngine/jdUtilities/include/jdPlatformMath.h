@@ -54,6 +54,16 @@ namespace jdEngineSDK {
     }
 
     template<typename T>
+    static T acos(T val) {
+      return std::acos(val);
+    }
+
+    template<>
+    static float acos(float val) {
+      return std::acosf(val);
+    }
+
+    template<typename T>
     static T sin(T val) {
       return std::sin(val);
     }
@@ -64,13 +74,43 @@ namespace jdEngineSDK {
     }
 
     template<typename T>
+    static T asin(T val) {
+      return std::asin(val);
+    }
+
+    template<>
+    static float asin(float val) {
+      return std::asinf(val);
+    }
+
+    template<typename T>
     static T tan(T val) {
       return std::tan(val);
+    }
+
+    template<typename T>
+    static T atan(T val) {
+      return std::atan(val);
+    }
+
+    template<typename T>
+    static T atan(T val,T val2) {
+      return std::atan2(val,val2);
     }
 
     template<>
     static float tan(float val) {
       return std::tanf(val);
+    }
+
+    template<>
+    static float atan(float val) {
+      return std::atanf(val);
+    }
+
+    template<>
+    static float atan(float val, float val2) {
+      return std::atan2f(val, val2);
     }
 
     static const float PI;

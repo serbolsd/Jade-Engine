@@ -1,11 +1,43 @@
 #include "jdQuaternion.h"
+#include "jdDegree.h"
 
 namespace jdEngineSDK {
 
-  Quaternion::Quaternion(const float& x, const float& y, const float& z, const float& w) :
-                         x(x), y(y), z(z), w(w) {}
+  Quaternion::Quaternion(const float& _x, const float& _y, const float& _z) : 
+    x(_x), y(_y), z(_z), w(0.0f) {}
 
-  Quaternion::Quaternion(JDVector3 xyz, const float& w) : x(xyz.x), y(xyz.y), z(xyz.z), w(w){}
+  Quaternion::Quaternion(const Radian& _x, const Radian& _y, const Radian& _z) {
+    float fSinPitch = Math::taylorSin(_x.valueRadians() * 0.5f);
+    float fCosPitch = Math::taylorCos(_x.valueRadians() * 0.5f);
+    float fSinYaw = Math::taylorSin(_y.valueRadians() * 0.5f);
+    float fCosYaw = Math::taylorCos(_y.valueRadians() * 0.5f);
+    float fSinRoll = Math::taylorSin(_z.valueRadians() * 0.5f);
+    float fCosRoll = Math::taylorCos(_z.valueRadians() * 0.5f);
+    float fCosPitchCosYaw(fCosPitch * fCosYaw);
+    float fSinPitchSinYaw(fSinPitch * fSinYaw);
+    z = fCosRoll * fCosPitch * fSinYaw - fSinRoll * fSinPitch * fCosYaw;
+    x = fSinRoll * fCosPitchCosYaw - fCosRoll * fSinPitchSinYaw;
+    y = fCosRoll * fSinPitch * fCosYaw + fSinRoll * fCosPitch * fSinYaw;
+    w = fCosRoll * fCosPitchCosYaw + fSinRoll * fSinPitchSinYaw;
+  }
+
+  Quaternion::Quaternion(const Degree& _x, const Degree& _y, const Degree& _z) {
+    float fSinPitch = Math::taylorSin(_x.valueRadians() * 0.5f);
+    float fCosPitch = Math::taylorCos(_x.valueRadians() * 0.5f);
+    float fSinYaw = Math::taylorSin(_y.valueRadians() * 0.5f);
+    float fCosYaw = Math::taylorCos(_y.valueRadians() * 0.5f);
+    float fSinRoll = Math::taylorSin(_z.valueRadians() * 0.5f);
+    float fCosRoll = Math::taylorCos(_z.valueRadians() * 0.5f);
+    float fCosPitchCosYaw(fCosPitch * fCosYaw);
+    float fSinPitchSinYaw(fSinPitch * fSinYaw);
+    z = fSinRoll * fCosPitchCosYaw - fCosRoll * fSinPitchSinYaw;
+    x = fCosRoll * fSinPitch * fCosYaw + fSinRoll * fCosPitch * fSinYaw;
+    y = fCosRoll * fCosPitch * fSinYaw - fSinRoll * fSinPitch * fCosYaw;
+    w = fCosRoll * fCosPitchCosYaw + fSinRoll * fSinPitchSinYaw;
+  }
+
+  Quaternion::Quaternion(JDVector3 xyz, const float& w) : x(xyz.x), y(xyz.y), z(xyz.z), w(w){
+  }
 
   Quaternion::Quaternion(const Quaternion& quaternion) : x(quaternion.x), y(quaternion.y), 
                                                          z(quaternion.z), w(quaternion.w) {}
@@ -59,20 +91,18 @@ namespace jdEngineSDK {
 
   Quaternion& 
   Quaternion::operator*=(const Quaternion& quaternion) {
-    x *= quaternion.x;
-    y *= quaternion.y;
-    z *= quaternion.z;
-    w *= quaternion.w;
+    Quaternion tmpQuaternion = *this * quaternion;
+    *this = tmpQuaternion;
     return *this;
   }
 
   Quaternion 
   Quaternion::operator*(const Quaternion& quaternion) const {
     Quaternion tmpQuaternion;
-    tmpQuaternion.x = x * quaternion.x;
-    tmpQuaternion.y = y * quaternion.y;
-    tmpQuaternion.z = z * quaternion.z;
-    tmpQuaternion.w = w * quaternion.w;
+    tmpQuaternion.x = w * quaternion.x + x * quaternion.w + y * quaternion.z - z * quaternion.y;
+    tmpQuaternion.y = w * quaternion.y + y * quaternion.w + z * quaternion.x - x * quaternion.z;
+    tmpQuaternion.z = w * quaternion.z + z * quaternion.w + x * quaternion.y - y * quaternion.x;
+    tmpQuaternion.w = w * quaternion.w - x * quaternion.x - y * quaternion.y - z * quaternion.z;
     return tmpQuaternion;
   }
 
@@ -195,6 +225,41 @@ namespace jdEngineSDK {
     JDVector3 tmpAxis = { tmpConjugate.x, tmpConjugate.y, tmpConjugate.z };
     tmpAxis *= invSMagnitude;
     return Quaternion(invSMagnitude, scalar);
+  }
+
+  Quaternion& 
+  Quaternion::rotate(const float& _x, const float& _y, const float& _z, bool degree) {
+    if (!degree)
+    {
+      return rotate(_x * Math::RAD2DEG, _y * Math::RAD2DEG, _z * Math::RAD2DEG);
+    }
+    else
+    {
+      return rotate(_x, _y, _z);
+    }
+  }
+
+  Quaternion&
+  Quaternion::rotate(Degree _x, Degree _y, Degree _z) {
+    Quaternion q2(_x, _y, _z), q = *this, qinv = q;
+    qinv.conjugate();
+
+    *this = q * q2 * qinv;
+    return *this;
+  }
+
+  JDVector3 
+  Quaternion::getEuler() {
+    JDVector3 euler;
+
+    euler.z = Math::atan(2 * (x * y + w * z), w * w + x * x - y * y - z * z);
+    euler.z *= Math::RAD2DEG;
+    euler.y = Math::asin(-2 * (x * z - w * y));
+    euler.y *= Math::RAD2DEG;
+    euler.x = Math::atan((2) * (y * z + w * x), w * w - x * x - y * y + z * z);
+    euler.x *= Math::RAD2DEG;
+
+    return euler;
   }
 
   JDMatrix4 Quaternion::getMatrix() const

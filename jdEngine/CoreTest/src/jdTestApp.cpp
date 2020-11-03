@@ -26,6 +26,12 @@ testApp::onCreate() {
   m_rtv = g_graphicsApi().getRenderTargetView();
 
   m_first = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 2, true);
+  m_cameraRT = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 2, true);
+  m_cameraInterpolate = g_graphicsApi().createRenderTarget(m_clientSize.x, 
+                                                           m_clientSize.y, 
+                                                           2, 
+                                                           true);
+  m_deferred = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 2, true, 2);
 
   ViewPort vp;
   vp.Width = (float)m_clientSize.x;
@@ -37,7 +43,7 @@ testApp::onCreate() {
   g_graphicsApi().setViewPort(vp);
 
   g_graphicsApi().setRenderTarget(m_rtv);
-
+  //TestDeferred
   m_progShader = g_graphicsApi().loadShaderFromFile("data/shader/TestCubeMapMultiLight.fx",
                                                     "VS",
                                                     "vs_5_0",
@@ -50,6 +56,12 @@ testApp::onCreate() {
                                                       "data/shader/wireFrameShader.fx",
                                                       "PS",
                                                       "ps_5_0");
+  m_progShaderDeferred = g_graphicsApi().loadShaderFromFile("data/shader/TestDeferred.fx",
+                                                            "VS",
+                                                            "vs_5_0",
+                                                            "data/shader/TestDeferred.fx",
+                                                            "PS",
+                                                            "ps_5_0");
   g_graphicsApi().setProgramShader(m_progShader);
 
   m_inLayoutElements.resize(2);
@@ -165,25 +177,7 @@ testApp::onCreate() {
   //                                                                 (float)m_clientSize.y, 
   //                                                                 0.01f, 
   //                                                                 10000.0f);
-  m_debugCam = g_CameraMan().createCamera("debug",
-                                           Eye,
-                                           Up,
-                                           At,
-                                           0.01f,
-                                           100000.0f, 
-                                           Radian(Math::HALF_PI / 2), 
-                                           float (m_clientSize.x/ m_clientSize.y),
-                                           CAMERA_PROJECTION_TYPE::PERSPECTIVE);
-
-  g_CameraMan().createCamera("main",
-                             Eye,
-                             Up,
-                             At,
-                             0.01f,
-                             100000.0f, 
-                             Radian(Math::HALF_PI / 2), 
-                             float (m_clientSize.x/ m_clientSize.y),
-                             CAMERA_PROJECTION_TYPE::PERSPECTIVE);
+  m_debugCam = g_CameraMan().getDebugCamera();
 
   //m_changeOnResize.mProjection.transpose();
   m_neverChanges.m_view = m_debugCam->getMatrixView();
@@ -352,17 +346,52 @@ testApp::onCreate() {
   CLight* ml = reinterpret_cast<CLight*>(mainLight.get());
   ml->setIdArray(m_lightCreated);
   ++m_lightCreated;
+
+  SPtr<GameObject> mainCam = SceneGraph::instance().createGameObject();
+  mainCam->setName("mainCamera");
+  SPtr<Component> cam = g_CameraMan().getMainCamera();
+  mainCam->addComponent(COMPONENT_TYPE::CAMERA, cam);
+
   initImGui();
 }
 
 void 
-testApp::onRender() {
+testApp::onRender() {  
+  imguiDockScreen();
+  if (m_bSceneWindowNativeSize)
+  {
+    ImGui::SetNextWindowSize(ImVec2(m_clientSize.x * 0.5f, m_clientSize.y * 0.5f));
+  }
+  ImGui::Begin("SceneGraph");
+  ImGui::CloseCurrentPopup();
+  imGuiShowObject("child", SceneGraph::instance().m_root);
+  ImGui::End();
+  //ImGui::ShowDemoWindow();
+  imGuiInspectorObject();
+
+  if (m_addigCamera)
+  {
+    addCameraComponent();
+  }
+
+  showTexturesResources();
+
+  showModels();
+
+  showAmbientOption();
+
+  showCameraInterpolateMenu();
+
+  if (m_loadingFile)
+  {
+    imGuiLoadResourceFile();
+  }
 
   {
     g_graphicsApi().setRenderTarget(m_first);
     g_graphicsApi().Clear(m_first, 0.2f, 0.2f, 0.2f, 1);
     g_graphicsApi().ClearDepthStencil(m_first);
-    //SceneGraph::instance().m_root->draw();
+    changeCameraDataBuffer(m_debugCam);
     for (auto object : SceneGraph::instance().m_GObjects)
     {
       auto component =
@@ -374,64 +403,75 @@ testApp::onRender() {
 
       object->draw();
     }
-    //g_graphicsApi().setVertexBuffer(m_vertexB);
-    //g_graphicsApi().setIndexBuffer(m_indexB);
-
-    //g_graphicsApi().DrawIndex(36);
   }
+
+  renderDeferred();
 
   g_graphicsApi().setRenderTarget(m_rtv);
   g_graphicsApi().Clear(m_rtv, 0, 0, 0, 1);
   g_graphicsApi().ClearDepthStencil(m_rtv);
-  //rot += 0.0001;
-  ////g_changeEveryFrame.mWorld.rotateY(Radian(rot));
-  //
-  g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
-  
-  imguiDockScreen();
-  if (m_bSceneWindowNativeSize)
-  {
-    ImGui::SetNextWindowSize(ImVec2(m_clientSize.x * 0.5f, m_clientSize.y * 0.5f));
-  }
-  ImGui::Begin("Scene Window", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
+  ImGui::Begin("Scene Window",
+               nullptr,
+               ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
   ImVec2 wsize = ImGui::GetWindowSize();
-  ImVec2 pos = ImGui::GetWindowPos();
   wsize.y -= 30;
   JDPoint size = { (int32)wsize.x, (int32)wsize.y };
-  //size.y -= 20;
   if (m_sceneSize != size)
   {
     onResizeSceneWindow(size.x, size.y);
     m_sceneSize = size;
   }
-  ImGui::Image(m_first.get()->getRenderTexture(),wsize);
+  ImGui::Image(m_first.get()->getRenderTexture(), wsize);
   ImGui::End();
-
-
-  ImGui::Begin("SceneGraph");
-  ImGui::CloseCurrentPopup();
-  imGuiShowObject("child", SceneGraph::instance().m_root);
-  ImGui::End();
-
-  //ImGui::ShowDemoWindow();
-
-  imGuiInspectorObject();
-
-  showTexturesResources();
-
-  showModels();
-
-  showAmbientOption();
-
-  if (m_loadingFile)
-  {
-    imGuiLoadResourceFile();
-  }
 
   ImGui::Render();
   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+}
+
+void 
+testApp::renderDeferred() {
+  {
+    if (!m_showDeferred)
+    {
+      return;
+    }
+    g_graphicsApi().setRenderTarget(m_deferred);
+    g_graphicsApi().Clear(m_deferred, 0.2f, 0.2f, 0.2f, 1);
+    g_graphicsApi().ClearDepthStencil(m_deferred);
+    g_graphicsApi().setRasterizeState(m_defaultRasState);
+    g_graphicsApi().setProgramShader(m_progShaderDeferred);
+    changeCameraDataBuffer(m_debugCam);
+    for (auto object : SceneGraph::instance().m_GObjects)
+    {
+      auto component =
+        object->getComponent(COMPONENT_TYPE::TRANSFORM);
+      CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+      m_changeEveryFrame.m_world = trans->getMatrixTransform();
+
+      g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+
+      object->draw();
+    }
+    if (m_bWireframe)
+    {
+      g_graphicsApi().setRasterizeState(m_wireframeRasState);
+      g_graphicsApi().setProgramShader(m_progShaderWF);
+    }
+    else
+    {
+      g_graphicsApi().setRasterizeState(m_defaultRasState);
+      g_graphicsApi().setProgramShader(m_progShader);
+    }
+    ImGui::Begin("Deferred",
+                 &m_showDeferred,
+                 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    ImVec2 wsize = { (float)m_sceneSize.x / 3,(float)m_sceneSize.y / 3 };
+    ImGui::Image(m_deferred.get()->getRenderTexture(0), wsize);
+    ImGui::SameLine();
+    ImGui::Image(m_deferred.get()->getRenderTexture(1), wsize);
+    ImGui::End();
+  }
 }
 
 void 
@@ -456,16 +496,19 @@ testApp::onResizeSceneWindow(uint32 width, uint32 height) {
   }
   m_rtv = g_graphicsApi().getRenderTargetView();
   g_graphicsApi().setRenderTarget(m_rtv);
-
-  m_changeOnResize.m_projection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2,
-                                                                    (float)width,
-                                                                    (float)height,
-                                                                    0.01f,
-                                                                    100000.0f);
+  g_CameraMan().resizeCameraProjection(width,height);
+  m_debugCam->resize(width, height);
+  //m_changeOnResize.m_projection = createProjectionPerspectiveMatrix(Math::HALF_PI / 2,
+  //                                                                  (float)width,
+  //                                                                  (float)height,
+  //                                                                  0.01f,
+  //                                                                  100000.0f);
+  m_changeOnResize.m_projection = m_debugCam->getMatrixProjection();
   m_changeOnResize.m_projection.transpose();
   m_changeOnResize.m_projectionInv = m_changeOnResize.m_projection;
   m_changeOnResize.m_projectionInv.invert();
   g_graphicsApi().updateSubresource(m_changeOnResizeB, &m_changeOnResize);
+  m_inputAPI->resize(width, height);
 }
 
 void 
@@ -491,82 +534,82 @@ testApp::onKeyPressed(int32 code, bool /*alt*/, bool /*control*/, bool /*shift*/
   {
     io.KeysDown[static_cast<int32>(code)] = true;
   }
-  if (code == sf::Keyboard::W || 
-      code == sf::Keyboard::S || 
-      code == sf::Keyboard::A || 
-      code == sf::Keyboard::D || 
-      code == sf::Keyboard::Q || 
-      code == sf::Keyboard::E || 
-      code == sf::Keyboard::Right || 
-      code == sf::Keyboard::Left || 
-      code == sf::Keyboard::Up || 
-      code == sf::Keyboard::Down) {
-    if (code == sf::Keyboard::W)
-    {
-      m_debugCam->traslate(0, 0, 1);
-    }
-    if (code == sf::Keyboard::S)
-    {
-      m_debugCam->traslate(0, 0, -1);
-    }
-    if (code == sf::Keyboard::A)
-    {
-      m_debugCam->traslate(-1, 0, 0);
-    }
-    if (code == sf::Keyboard::D)
-    {
-      m_debugCam->traslate(1, 0, 0);
-    }
-    if (code == sf::Keyboard::Q)
-    {
-      m_debugCam->traslate(0, -1, 0);
-    }
-    if (code == sf::Keyboard::E)
-    {
-      m_debugCam->traslate(0, 1, 0);
-    }
-    if (code == sf::Keyboard::Left)
-    {
-      m_debugCam->rotate(0, Degree(10));
-    }
-    if (code == sf::Keyboard::Right)
-    {
-      m_debugCam->rotate(0, Degree(-10));
-    }
-    if (code == sf::Keyboard::Up)
-    {
-      m_debugCam->rotate(Degree(10), 0);
-    }
-    if (code == sf::Keyboard::Down)
-    {
-      m_debugCam->rotate(Degree(-10), 0);
-    }
-    m_neverChanges.m_view = m_debugCam->getMatrixView();
-    m_neverChanges.m_viewInv = m_neverChanges.m_view;
-    m_neverChanges.m_viewInv.invert();
-
-    m_changeOnResize.m_viewProjection = m_neverChanges.m_view * m_changeOnResize.m_projection;
-    m_changeOnResize.m_viewProjectionInv = m_changeOnResize.m_viewProjection;
-    m_changeOnResize.m_viewProjectionInv.invert();
-
-    m_changeEveryFrame.m_worldProj = m_changeEveryFrame.m_world * 
-                                     m_changeOnResize.m_projection;
-    m_changeEveryFrame.m_worldProjInv = m_changeEveryFrame.m_worldProj;
-    m_changeEveryFrame.m_worldProjInv.invert();
-    
-    m_changeEveryFrame.m_worldView = m_changeEveryFrame.m_world * m_neverChanges.m_view;
-    m_changeEveryFrame.m_worldViewInv = m_changeEveryFrame.m_worldView;
-    m_changeEveryFrame.m_worldViewInv.invert();
-    
-    m_changeEveryFrame.m_worldViewProj = m_changeEveryFrame.m_worldView * 
-                                         m_changeOnResize.m_projection;
-    m_changeEveryFrame.m_worldViewProjInv = m_changeEveryFrame.m_worldViewProj;
-    m_changeEveryFrame.m_worldViewProjInv.invert();
-
-    m_changeEveryFrame.m_viewPosition = m_debugCam->getPositionVector();
-
-    g_graphicsApi().updateSubresource(m_neverChangeB, &m_neverChanges);
-  }
+  //if (code == sf::Keyboard::W || 
+  //    code == sf::Keyboard::S || 
+  //    code == sf::Keyboard::A || 
+  //    code == sf::Keyboard::D || 
+  //    code == sf::Keyboard::Q || 
+  //    code == sf::Keyboard::E || 
+  //    code == sf::Keyboard::Right || 
+  //    code == sf::Keyboard::Left || 
+  //    code == sf::Keyboard::Up || 
+  //    code == sf::Keyboard::Down) {
+  //  if (code == sf::Keyboard::W)
+  //  {
+  //    m_debugCam->traslate(0, 0, 1);
+  //  }
+  //  if (code == sf::Keyboard::S)
+  //  {
+  //    m_debugCam->traslate(0, 0, -1);
+  //  }
+  //  if (code == sf::Keyboard::A)
+  //  {
+  //    m_debugCam->traslate(-1, 0, 0);
+  //  }
+  //  if (code == sf::Keyboard::D)
+  //  {
+  //    m_debugCam->traslate(1, 0, 0);
+  //  }
+  //  if (code == sf::Keyboard::Q)
+  //  {
+  //    m_debugCam->traslate(0, -1, 0);
+  //  }
+  //  if (code == sf::Keyboard::E)
+  //  {
+  //    m_debugCam->traslate(0, 1, 0);
+  //  }
+  //  if (code == sf::Keyboard::Left)
+  //  {
+  //    m_debugCam->rotate(0, Degree(10));
+  //  }
+  //  if (code == sf::Keyboard::Right)
+  //  {
+  //    m_debugCam->rotate(0, Degree(-10));
+  //  }
+  //  if (code == sf::Keyboard::Up)
+  //  {
+  //    m_debugCam->rotate(Degree(10), 0);
+  //  }
+  //  if (code == sf::Keyboard::Down)
+  //  {
+  //    m_debugCam->rotate(Degree(-10), 0);
+  //  }
+  //  m_neverChanges.m_view = m_debugCam->getMatrixView();
+  //  m_neverChanges.m_viewInv = m_neverChanges.m_view;
+  //  m_neverChanges.m_viewInv.invert();
+  //
+  //  m_changeOnResize.m_viewProjection = m_neverChanges.m_view * m_changeOnResize.m_projection;
+  //  m_changeOnResize.m_viewProjectionInv = m_changeOnResize.m_viewProjection;
+  //  m_changeOnResize.m_viewProjectionInv.invert();
+  //
+  //  m_changeEveryFrame.m_worldProj = m_changeEveryFrame.m_world * 
+  //                                   m_changeOnResize.m_projection;
+  //  m_changeEveryFrame.m_worldProjInv = m_changeEveryFrame.m_worldProj;
+  //  m_changeEveryFrame.m_worldProjInv.invert();
+  //  
+  //  m_changeEveryFrame.m_worldView = m_changeEveryFrame.m_world * m_neverChanges.m_view;
+  //  m_changeEveryFrame.m_worldViewInv = m_changeEveryFrame.m_worldView;
+  //  m_changeEveryFrame.m_worldViewInv.invert();
+  //  
+  //  m_changeEveryFrame.m_worldViewProj = m_changeEveryFrame.m_worldView * 
+  //                                       m_changeOnResize.m_projection;
+  //  m_changeEveryFrame.m_worldViewProjInv = m_changeEveryFrame.m_worldViewProj;
+  //  m_changeEveryFrame.m_worldViewProjInv.invert();
+  //
+  //  m_changeEveryFrame.m_viewPosition = m_debugCam->getPositionVector();
+  //
+  //  g_graphicsApi().updateSubresource(m_neverChangeB, &m_neverChanges);
+  //}
 }
 
 void
@@ -591,9 +634,107 @@ testApp::onMouseButtonReleased(int32 button, int32 /*x*/, int32 /*y*/) {
 void
 testApp::onUpdate(const float& deltaTime) {
   SceneGraph::instance().onUpdate(deltaTime);
+  UpdateCameraInterpolate(deltaTime);
   ImGui_ImplDX11_NewFrame();
   ImGui_ImplWin32_NewFrame();
   ImGui::NewFrame();
+}
+
+void 
+testApp::handleWindownput(const float& deltaTime) {
+
+  if (m_inputAPI->getKeyUp(KEYBOARD::kKeyA))
+  {
+    m_debugCam->rotate(Degree(-25 * deltaTime), 0);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  //if (m_inputAPI->getKey(KEYBOARD::kKeyW) ||
+  //  m_inputAPI->getGamepadAxis(GAMEPAD_AXIS::kPadButtonLeftStickY) > 0 ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyS) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyA) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyD) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyQ) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyE) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyRight) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyLeft) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyUp) ||
+  //  m_inputAPI->getKey(KEYBOARD::kKeyDown)) {
+  //}
+  if (m_inputAPI->getKey(KEYBOARD::kKeyW) || 
+      m_inputAPI->getGamepadAxis(GAMEPAD_AXIS::kPadButtonLeftStickY) > 0) {
+    m_debugCam->traslate(0, 0, 1 * deltaTime);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyS))
+  {
+    m_debugCam->traslate(0, 0, -1 * deltaTime);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyA))
+  {
+    m_debugCam->traslate(-1 * deltaTime, 0, 0);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyD))
+  {
+    m_debugCam->traslate(1, 0 * deltaTime, 0);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyQ))
+  {
+    m_debugCam->traslate(0, -1 * deltaTime, 0);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyE))
+  {
+    m_debugCam->traslate(0, 1 * deltaTime, 0);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyLeft))
+  {
+    m_debugCam->rotate(0, Degree(25 * deltaTime));
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyRight))
+  {
+    m_debugCam->rotate(0, Degree(-25 * deltaTime));
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyUp))
+  {
+    m_debugCam->rotate(Degree(25 * deltaTime), 0);
+    changeCameraDataBuffer(m_debugCam);
+  }
+  if (m_inputAPI->getKey(KEYBOARD::kKeyDown))
+  {
+    m_debugCam->rotate(Degree(-25 * deltaTime), 0);
+    changeCameraDataBuffer(m_debugCam);
+  }
+   /* m_neverChanges.m_view = m_debugCam->getMatrixView();
+    m_neverChanges.m_viewInv = m_neverChanges.m_view;
+    m_neverChanges.m_viewInv.invert();
+
+    m_changeOnResize.m_viewProjection = m_neverChanges.m_view * m_changeOnResize.m_projection;
+    m_changeOnResize.m_viewProjectionInv = m_changeOnResize.m_viewProjection;
+    m_changeOnResize.m_viewProjectionInv.invert();
+
+    m_changeEveryFrame.m_worldProj = m_changeEveryFrame.m_world * 
+                                     m_changeOnResize.m_projection;
+    m_changeEveryFrame.m_worldProjInv = m_changeEveryFrame.m_worldProj;
+    m_changeEveryFrame.m_worldProjInv.invert();
+    
+    m_changeEveryFrame.m_worldView = m_changeEveryFrame.m_world * m_neverChanges.m_view;
+    m_changeEveryFrame.m_worldViewInv = m_changeEveryFrame.m_worldView;
+    m_changeEveryFrame.m_worldViewInv.invert();
+    
+    m_changeEveryFrame.m_worldViewProj = m_changeEveryFrame.m_worldView * 
+                                         m_changeOnResize.m_projection;
+    m_changeEveryFrame.m_worldViewProjInv = m_changeEveryFrame.m_worldViewProj;
+    m_changeEveryFrame.m_worldViewProjInv.invert();
+
+    m_changeEveryFrame.m_viewPosition = m_debugCam->getPositionVector();
+
+    g_graphicsApi().updateSubresource(m_neverChangeB, &m_neverChanges);*/
 }
 
 void 
@@ -674,13 +815,15 @@ testApp::imguiDockScreen(){
       {
         if (ImGui::MenuItem("Model")) {
           m_typeResourceToLoad = RESOURCE_TYPE::MODEL;
-          m_fileDialog->SetTypeFilters({ ".fbx.FBX.obj",".fbx",".FBX", ".obj" });
+          //m_fileDialog->SetTypeFilters({ ".fbx.FBX.obj",".fbx",".FBX", ".obj" });
+          m_fileDialog->SetTypeFilters({ ".fbx",".FBX", ".obj" });
           m_fileDialog->Open();
           m_loadingFile = true;
         }
         if (ImGui::MenuItem("Image")) {
           m_typeResourceToLoad = RESOURCE_TYPE::TEXTURE;
-          m_fileDialog->SetTypeFilters({ ".jpg.png.dds",".jpg", ".png", ".dds" });
+          //m_fileDialog->SetTypeFilters({ ".jpg.png.dds",".jpg", ".png", ".dds" });
+          m_fileDialog->SetTypeFilters({ ".jpg", ".png", ".dds" });
           m_fileDialog->Open();
           m_loadingFile = true;
         }
@@ -694,6 +837,8 @@ testApp::imguiDockScreen(){
       ImGui::Checkbox("SceneWindowNativeSize", &m_bSceneWindowNativeSize);
       ImGui::Checkbox("ShowAmbientOptions", &m_bAmbientOptions);
       ImGui::Checkbox("Wireframe", &m_bWireframe);
+      ImGui::Checkbox("CameraInterpolate", &m_cameraInterpolateMenuAtive);
+      ImGui::Checkbox("Deferred", &m_showDeferred);
       if (m_bWireframe)
       {
         g_graphicsApi().setRasterizeState(m_wireframeRasState);
@@ -807,9 +952,15 @@ testApp::imGuiInspectorObject() {
     ImGui::Separator();
     ImGui::Text("Transform");
     CTransform* trans = reinterpret_cast<CTransform*>(component.get());
-    ImGui::DragFloat3("Rotacion", &trans->rotation.x, 0.1f);
+    JDVector3 rot = trans->euler;
+    ImGui::DragFloat3("Rotacion", &rot.x, 0.1f);
     ImGui::DragFloat3("Position", &trans->position.x, 0.1f);
     ImGui::DragFloat3("Scale", &trans->scale.x, 0.1f);
+    if (rot!= trans->euler)
+    {
+      trans->rotation = { Degree(rot.x), Degree(rot.y), Degree(rot.z) };
+      trans->euler = rot;
+    }
   }
   component =
     SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::RENDERMODEL);
@@ -822,6 +973,13 @@ testApp::imGuiInspectorObject() {
   if (nullptr != component)
   {
     showLightComponent();
+  }
+
+  component =
+    SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::CAMERA);
+  if (nullptr != component)
+  {
+    showCameraComponent();
   }
 
   ImGui::Separator();
@@ -928,25 +1086,86 @@ testApp::showLightComponent() {
   auto Model = SceneGraph::instance().selectedObjet.get();
   auto clight =
     reinterpret_cast<CLight*>(Model->getComponent(COMPONENT_TYPE::LIGHT).get());
+  uint32 id = clight->getIdArray();
   String g_OptionPreviw = ResourceManager::instance().m_modelsNames[Model->m_modelOption];
+  JDVector4 dir = clight->getDirection();
   if (ImGui::TreeNode("Light")) {
-    uint32 id = clight->getIdArray();
     ImGui::DragFloat3("LightDirection", 
-                      &m_lights.light[id].m_lightDirection.x,
+                      //&m_lights.light[id].m_lightDirection.x,
+                      &dir.x,
                       0.01f,
                       -1, 
                       1);
     if (ImGui::TreeNode("LightColor")) {
-      ImGui::ColorPicker3("LightColor", &m_lights.light[id].m_lightColor.x);
+      ImGui::ColorPicker3("LightColor", &clight->m_color.x);
       ImGui::TreePop();
     }
-    g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
     ImGui::TreePop();
   }
+  m_lights.light[id].m_lightDirection = dir;
+  m_lights.light[id].m_lightColor = clight->m_color;
+  g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
 }
 
-void testApp::showRenderModelMaterias(CRenderModel* rModel)
-{
+void 
+testApp::showCameraComponent() {
+  ImGui::Separator();
+  auto Model = SceneGraph::instance().selectedObjet.get();
+  auto cCam = (Model->getComponent(COMPONENT_TYPE::CAMERA));
+  SPtr<Camera> CAM(cCam, reinterpret_cast<Camera*>(cCam.get()));
+  if (ImGui::TreeNode("Camera")) {
+    ImGui::Text("Camera: ", CAM->getName().c_str());
+    float _near = CAM->getNear();
+    float _currNear = _near;
+    float _far = CAM->getFar();
+    float _currFar = _far;
+    ImGui::DragFloat("Near",
+                      &_currNear,
+                      0.1f,
+                      0.0001f,
+                      1000000.0f);
+    ImGui::DragFloat("Far",
+                     &_currFar,
+                     1,
+                     0.0001f,
+                     1000000.0f);
+    if (_currFar != _far || _currNear != _near)
+    {
+      CAM->adjustNearAndFar(_currNear, _currFar);
+    }
+    ImGui::TreePop();
+  }
+  changeCameraDataBuffer(CAM);
+  g_graphicsApi().setRenderTarget(m_cameraRT);
+  g_graphicsApi().Clear(m_cameraRT, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().ClearDepthStencil(m_cameraRT);
+  //SceneGraph::instance().m_root->draw();
+  for (auto object : SceneGraph::instance().m_GObjects)
+  {
+    auto component =
+      object->getComponent(COMPONENT_TYPE::TRANSFORM);
+    CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+    m_changeEveryFrame.m_world = trans->getMatrixTransform();
+
+    g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+
+    object->draw();
+  }
+  ImVec2 size = { (float)m_sceneSize.x, (float)m_sceneSize.y+30 };
+  size.x /= 2;
+  size.y /= 2;
+  ImGui::SetNextWindowSize(size);
+  ImGui::Begin("Camera preview",
+               nullptr,
+               ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+  ImVec2 wsize = ImGui::GetWindowSize();
+  wsize.y -= 30;
+  ImGui::Image(m_cameraRT.get()->getRenderTexture(), wsize);
+  ImGui::End();
+}
+
+void 
+testApp::showRenderModelMaterias(CRenderModel* rModel) {
   ImGui::AlignTextToFramePadding();
   String g_OptionPreviw;
   uint32 conter = 0;
@@ -1114,7 +1333,7 @@ testApp::ImGuiAddComponent() {
   ImGui::Begin("Components",&m_showComponentImGui);
   static ImGuiTextFilter filter;
   filter.Draw("Filter");
-  const char* lines[] = { "Transform", "RenderModel","Light"};
+  const char* lines[] = { "Transform", "RenderModel","Light","Camera" };
   for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
   {
     if (filter.PassFilter(lines[i]))
@@ -1131,6 +1350,11 @@ testApp::ImGuiAddComponent() {
           break;
          case 2:
           addLightComponent();
+          break;
+         case 3:
+           m_newCameraName = "camera";
+           m_newCameraName += std::to_string(CameraManager::instance().getNumberOfCameras());
+           m_addigCamera = true;
           break;
          default:
           break;
@@ -1157,6 +1381,39 @@ testApp::addLightComponent() {
   ++m_lightCreated;
   m_lights.light[0].m_numberOfLights = m_lightCreated;
   g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
+}
+
+void 
+testApp::addCameraComponent() {
+  ImGui::Begin("new Camera", &m_addigCamera);
+  ImGui::InputText("Camera Name", m_newCameraName.data(), 25);
+  ImGui::DragFloat("Camera Near",&m_newCamNear);
+  ImGui::DragFloat("Camera Far",&m_newCamFar);
+  auto component =
+    SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
+    CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+  m_newCamEye = trans->worldPosition;
+  m_newCamUp = trans->up;
+  m_newCamAt = m_newCamEye + trans->forward;
+  if (ImGui::Button("Create Camera"))
+  {
+    SPtr<Camera> newC = g_CameraMan().createCamera(m_newCameraName,
+                                                   m_newCamEye,
+                                                   m_newCamUp,
+                                                   m_newCamAt,
+                                                   m_newCamNear,
+                                                   m_newCamFar);
+    m_newCamNear = 0.01f;
+    m_newCamFar = 1000.0f;
+    SPtr<Component> cam =
+      SceneGraph::instance().selectedObjet->addComponent(COMPONENT_TYPE::CAMERA, newC);
+    m_addigCamera = false;
+  }
+  if (ImGui::Button("Cancel"))
+  {
+    m_addigCamera = false;
+  }
+  ImGui::End();
 }
 
 void 
@@ -1217,10 +1474,10 @@ testApp::showAmbientOption() {
 
 void 
 testApp::showModels() {
-  if (!m_windowHasFocus)
-  {
-    return;
-  }
+  //if (!m_windowHasFocus)
+  //{
+  //  return;
+  //}
   ImGui::Begin("Models##30");
   uint32 numModels = (uint32)g_ResourceMan().m_models.size();
   ImVec2 size = ImGui::GetWindowSize();
@@ -1262,10 +1519,10 @@ testApp::showModels() {
 
 void 
 testApp::showTexturesResources() {
-  if (!m_windowHasFocus)
-  {
-    return;
-  }
+  //if (!m_windowHasFocus)
+  //{
+  //  return;
+  //}
   ImGui::Begin("Textures##30");
   uint32 numText = (uint32)g_ResourceMan().m_textures.size();
   ImVec2 size = ImGui::GetWindowSize();
@@ -1307,9 +1564,151 @@ testApp::showTexturesResources() {
 }
 
 void 
+testApp::showCameraInterpolateMenu() {
+  if (!m_cameraInterpolateMenuAtive)
+  {
+    return;
+  }
+  ImGui::Begin("Camera Interpolate Menu", &m_cameraInterpolateMenuAtive);
+  if (nullptr != m_tempCam)
+  {
+    {
+      g_graphicsApi().setRenderTarget(m_cameraInterpolate);
+      g_graphicsApi().Clear(m_cameraInterpolate, 0.2f, 0.2f, 0.2f, 1);
+      g_graphicsApi().ClearDepthStencil(m_cameraInterpolate);
+      changeCameraDataBuffer(m_tempCam);
+      for (auto object : SceneGraph::instance().m_GObjects)
+      {
+        auto component =
+          object->getComponent(COMPONENT_TYPE::TRANSFORM);
+        CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+        m_changeEveryFrame.m_world = trans->getMatrixTransform();
+
+        g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+
+        object->draw();
+      }
+    }
+    ImVec2 size = { (float)m_sceneSize.x, (float)m_sceneSize.y + 30 };
+    size.x /= 2;
+    size.y /= 2;
+    //ImGui::SetNextWindowSize(size);
+    ImGui::Image(m_cameraInterpolate.get()->getRenderTexture(), size);
+  }
+  else
+  {
+    ImVec2 size = { (float)m_sceneSize.x, (float)m_sceneSize.y + 30 };
+    size.x /= 2;
+    size.y /= 2;
+    //ImGui::SetNextWindowSize(size);
+    ImGui::Image(g_ResourceMan().DEFAULT_TEXTURE_BLACK->getTexture(), size);
+  }
+  if (!g_CameraMan().m_interpolating)
+  {
+    String optionPreviw = g_CameraMan().m_camerasName[m_camInterId1];
+    if (ImGui::BeginCombo("Camera 1", optionPreviw.c_str()))
+    {
+      int option = m_camInterId1;
+      optionPreviw = "";
+      ImGui::ListBox("camera 1##1", &option,
+        &g_CameraMan().m_camerasName[0],
+        (int)g_CameraMan().m_camerasName.size());
+      if (option != (int32)m_camInterId1)
+      {
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (option > 0)
+        {
+          m_interpolateCam1 = g_CameraMan().getCamera(g_CameraMan().m_camerasName[option]);
+        }
+        else
+        {
+          m_interpolateCam1 = nullptr;
+        }
+        m_camInterId1 = option;
+      }
+      ImGui::EndCombo();
+    }
+    optionPreviw = g_CameraMan().m_camerasName[m_camInterId2];
+    if (ImGui::BeginCombo("Camera 2", optionPreviw.c_str()))
+    {
+      int option = m_camInterId2;
+      optionPreviw = "";
+      ImGui::ListBox("camera 2##1", &option,
+        &g_CameraMan().m_camerasName[0],
+        (int)g_CameraMan().m_camerasName.size());
+      if (option != (int32)m_camInterId2)
+      {
+        //static String g_UnitOptionPreviw = ResourceManager::instance().m_texturesNames[0];
+        if (option > 0)
+        {
+          m_interpolateCam2 = g_CameraMan().getCamera(g_CameraMan().m_camerasName[option]);
+        }
+        else
+        {
+          m_interpolateCam2 = nullptr;
+        }
+        m_camInterId2 = option;
+      }
+      ImGui::EndCombo();
+    }
+    ImGui::DragFloat("Interpolation Time", &m_interpolationCamerasTime, 1.0f, 1.0f, 1000.0f);
+    if (nullptr != m_interpolateCam1 && nullptr != m_interpolateCam2)
+    {
+      if (ImGui::Button("Play"))
+      {
+        g_CameraMan().m_interpolating = true;
+      }
+    }
+  }
+  ImGui::End();
+}
+
+void 
+testApp::UpdateCameraInterpolate(const float& deltaTime) {
+  if (g_CameraMan().m_interpolating)
+  {
+    m_tempCam = g_CameraMan().interpolateCameras(m_interpolateCam1,
+                                                 m_interpolateCam2,
+                                                 deltaTime,
+                                                 m_interpolationCamerasTime);
+  }
+  
+
+}
+
+void 
 testApp::onDestroy() {
   ImGui_ImplDX11_Shutdown();
   ImGui_ImplWin32_Shutdown();
   ImGui::DestroyContext();
+}
+
+void 
+testApp::changeCameraDataBuffer(WeakSptr<Camera> cam) {
+  SPtr<Camera> camera = cam.lock();
+
+  m_neverChanges.m_view = camera->getMatrixView();
+  m_neverChanges.m_viewInv = m_neverChanges.m_view;
+  m_neverChanges.m_viewInv.invert();
+  
+  m_changeOnResize.m_projection = camera->getMatrixProjection();
+  m_changeOnResize.m_projection.transpose();
+  m_changeOnResize.m_projectionInv = m_changeOnResize.m_projection;
+  m_changeOnResize.m_projectionInv.invert();
+
+  m_changeOnResize.m_viewProjection = m_neverChanges.m_view * m_changeOnResize.m_projection;
+  m_changeOnResize.m_viewProjectionInv = m_changeOnResize.m_viewProjection;
+  m_changeOnResize.m_viewProjectionInv.invert();
+
+  m_changeEveryFrame.m_worldViewProj = m_changeEveryFrame.m_worldView * 
+                                       m_changeOnResize.m_projection;
+  m_changeEveryFrame.m_worldViewProjInv = m_changeEveryFrame.m_worldViewProj;
+  m_changeEveryFrame.m_worldViewProjInv.invert();
+  m_changeEveryFrame.m_viewPosition = camera->getPositionVector();
+
+  g_graphicsApi().updateSubresource(m_neverChangeB, &m_neverChanges);
+  g_graphicsApi().updateSubresource(m_changeOnResizeB, &m_changeOnResize);
+  g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+  g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
 }
 

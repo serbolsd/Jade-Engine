@@ -46,7 +46,7 @@ namespace jdEngineSDK {
       return m_parent;
     }
     SPtr<Component>
-    addComponent(COMPONENT_TYPE::E componentType);
+    addComponent(COMPONENT_TYPE::E componentType, SPtr<Component> component = nullptr);
 
     /*template <typename T>
     SPtr<T> GetComponent();*/

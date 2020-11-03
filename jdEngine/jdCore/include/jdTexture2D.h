@@ -34,7 +34,7 @@ namespace jdEngineSDK {
      * @return pointer to texture
      */
     virtual void*
-    getTexture() { return nullptr; };
+    getTexture(uint32 index = 1) { return nullptr; };
 
     ///**
     // * @brief virtual function to release the texture

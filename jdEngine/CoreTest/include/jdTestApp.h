@@ -115,7 +115,13 @@ class testApp : public BaseApp
    */
   void
   onRender() override;
-  
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  renderDeferred();
+
   /**
    * @brief function to call when the window resized
    * @param width is the new width of client
@@ -191,6 +197,12 @@ class testApp : public BaseApp
   onUpdate(const float& deltaTime) override;
 
   /**
+   * @brief funtion to call back, check the inputs of window
+   */
+  void
+  handleWindownput(const float& deltaTime) override;
+
+  /**
    * @brief init ImGui
    */
   void
@@ -212,6 +224,9 @@ class testApp : public BaseApp
   showLightComponent();
 
   void
+  showCameraComponent();
+
+  void
   showRenderModelMaterias(CRenderModel* rModel);
 
   void
@@ -219,6 +234,9 @@ class testApp : public BaseApp
 
   void
   addLightComponent();
+
+  void
+  addCameraComponent();
 
   void
   imGuiLoadResourceFile();
@@ -231,6 +249,13 @@ class testApp : public BaseApp
 
   void
   showTexturesResources();
+
+  void
+  showCameraInterpolateMenu();
+  
+  void
+  UpdateCameraInterpolate(const float& deltaTime);
+
   /**
    * @brief function to call when the app is being detroyed, after the loop ends
    */
@@ -262,6 +287,9 @@ class testApp : public BaseApp
    */
   SPtr<RenderTargetView> m_rtv = nullptr;
   SPtr<RenderTarget> m_first = nullptr;
+  SPtr<RenderTarget> m_cameraRT = nullptr;
+  SPtr<RenderTarget> m_cameraInterpolate = nullptr;
+  SPtr<RenderTarget> m_deferred = nullptr;
   
   /**
    * @brief shared pointer to a program shader
@@ -272,6 +300,11 @@ class testApp : public BaseApp
    * @brief shared pointer to a program shader
    */
   SPtr<ProgramShader> m_progShaderWF = nullptr;
+
+  /**
+   * @brief shared pointer to a program shader
+   */
+  SPtr<ProgramShader> m_progShaderDeferred = nullptr;
   
   /**
    * @brief elemts of input layout
@@ -331,6 +364,11 @@ class testApp : public BaseApp
   bool m_showComponentImGui = false;
 
   /**
+   * @brief To show the deferredTextures
+   */
+  bool m_showDeferred = false;
+
+  /**
    * @brief To open the load file imgui window
    */
   bool m_loadingFile = false;
@@ -377,4 +415,25 @@ class testApp : public BaseApp
   SPtr<RasterizeState> m_defaultRasState = nullptr;
   SPtr<RasterizeState> m_wireframeRasState = nullptr;
 
+  bool m_addigCamera = false;
+  String m_newCameraName;
+  JDVector3 m_newCamEye;
+  JDVector3 m_newCamUp = { 0,1,0 };
+  JDVector3 m_newCamAt;
+  float m_newCamNear = 0.01f;
+  float m_newCamFar = 10000.0f;
+  CAMERA_PROJECTION_TYPE::E projType = CAMERA_PROJECTION_TYPE::PERSPECTIVE;
+
+  void
+  changeCameraDataBuffer(WeakSptr<Camera> cam);
+
+  bool m_cameraInterpolateMenuAtive = false;
+
+  uint32 m_camInterId1 = 0;
+  uint32 m_camInterId2 = 0;
+
+  SPtr<Camera> m_interpolateCam1 = nullptr;
+  SPtr<Camera> m_interpolateCam2 = nullptr;
+  SPtr<Camera> m_tempCam = nullptr;
+  float m_interpolationCamerasTime = 1.0f;
 };

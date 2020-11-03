@@ -18,7 +18,7 @@
 #include <jdSceneGraph.h>
 #include <jdResourceManager.h>
 #include <jdCameraManager.h>
-
+#include <InputAPI.h>
 using sf::WindowBase;
 using sf::Event;
 using sf::WindowHandle;
@@ -251,6 +251,13 @@ namespace jdEngineSDK {
     void
     handleWindowEvent(Event& wndEvent);
 
+
+    /**
+     * @brief funtion to call back, check the inputs of window
+     */
+    virtual void
+    handleWindownput(const float& deltaTime) {};
+
     /**
      * @brief update
      */
@@ -293,6 +300,8 @@ namespace jdEngineSDK {
      * @brief the window
      */
     WindowBase m_window;
+
+    InputAPI* m_inputAPI;
   };
 
 }

@@ -35,7 +35,7 @@ namespace jdEngineSDK {
     release() {};
 
     virtual void*
-    getRenderTexture() { return nullptr; };
+    getRenderTexture(uint32 /*index*/ = 1) { return nullptr; };
 
     /**
      * @brief virtual function to get the render target ID

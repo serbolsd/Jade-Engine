@@ -150,7 +150,8 @@ namespace jdEngineSDK {
     createRenderTarget(uint32 /*width*/, 
                        uint32 /*height*/, 
                        uint32 /*mipLevels*/ = 1, 
-                       bool /*Depth*/ = false) {
+                       bool /*Depth*/ = false,
+                       uint32 /*numRenderTargets*/ = 1) {
       return nullptr; 
     };
 

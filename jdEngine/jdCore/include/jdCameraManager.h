@@ -115,21 +115,36 @@ namespace jdEngineSDK {
     void
     resizeCameraProjection(int32 width, int32 height);
 
+    uint32 
+    getNumberOfCameras() {
+      return m_numCameras;
+    }
+
+    SPtr<Camera>
+    interpolateCameras(WeakSptr<Camera> cam1, 
+                       WeakSptr<Camera> cam2, 
+                       const float& deltaTime, 
+                       const float& interpolateTime);
+
+
+    bool m_interpolating = false;
+
+    Vector<char*> m_camerasName;
 		private:
     /**
      * @brief the current camera
      */
-    SPtr<Camera> m_currentCamera;
+    SPtr<Camera> m_currentCamera = nullptr;
 
     /**
      * @brief the main camera
      */
-    SPtr<Camera> m_mainCamera;
+    SPtr<Camera> m_mainCamera = nullptr;
 
     /**
      * @brief the debug camera
      */
-    SPtr<Camera> m_debugCamera;
+    SPtr<Camera> m_debugCamera = nullptr;
 
     /**
      * @brief a map with all cameras created
@@ -142,6 +157,11 @@ namespace jdEngineSDK {
      */
     uint32
     createHash(const String& name);
+
+    uint32 m_numCameras = 0;
+
+    float m_elapseTimeForInterpolation = 0.0f;
+    SPtr<Camera> m_cameraInterpolation = nullptr;
 		};
 
   JD_CORE_EXPORT CameraManager&

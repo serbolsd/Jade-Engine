@@ -3,10 +3,11 @@
 #include "jdComponentRenderModel.h"
 #include "jdComponentTransform.h"
 #include "jdComponentLight.h"
+#include "jdCameraManager.h"
 
 namespace jdEngineSDK {
   SPtr<Component>
-  GameObject::addComponent(COMPONENT_TYPE::E componentType) {
+  GameObject::addComponent(COMPONENT_TYPE::E componentType, SPtr<Component> component) {
     //auto newComp = component.lock();
     //auto compT = newComp.get()->getType();
     auto comp = m_components.find(componentType);
@@ -14,6 +15,14 @@ namespace jdEngineSDK {
     {
       //Component alredy exist in this object
       return nullptr;
+    }
+    SPtr<Component> compo = component;
+    if (nullptr != compo)
+    {
+      compo->setGameObject(this);
+      m_components.insert(std::pair <COMPONENT_TYPE::E, SPtr<Component>>(componentType, 
+                                                                         compo));
+      return compo;
     }
     Component* addComponent = nullptr;
     switch (componentType)
@@ -35,6 +44,7 @@ namespace jdEngineSDK {
      case jdEngineSDK::COMPONENT_TYPE::SPRITE:
       break;
      case jdEngineSDK::COMPONENT_TYPE::CAMERA:
+       addComponent = new Camera();
        break;
      case jdEngineSDK::COMPONENT_TYPE::LIGHT:
        addComponent = new CLight;
@@ -45,15 +55,6 @@ namespace jdEngineSDK {
        return nullptr;
       break;
     }
-    //for (uint32 i = 0; i < m_components.size(); ++i)
-    //{
-    //  COMPONENT_TYPE::E compoT = m_components[i]->getType();
-    //  if (newComp.get()->getType() == compoT)
-    //  {
-    //    //Component alredy exist in this object
-    //    return;
-    //  }
-    //}
     if (nullptr == addComponent)
     {
       return nullptr;
@@ -101,16 +102,20 @@ namespace jdEngineSDK {
 
   void
   GameObject::Update(const float& deltaTime) {
-    auto transform = m_components.find(COMPONENT_TYPE::TRANSFORM);
-    if (transform != m_components.end())
+    for (auto compo : m_components)
     {
-      transform->second.get()->Update(deltaTime);
+      compo.second.get()->Update(deltaTime);
     }
-    auto renderModel = m_components.find(COMPONENT_TYPE::RENDERMODEL);
-    if (renderModel != m_components.end())
-    {
-      renderModel->second.get()->Update(deltaTime);
-    }
+    //auto transform = m_components.find(COMPONENT_TYPE::TRANSFORM);
+    //if (transform != m_components.end())
+    //{
+    //  transform->second.get()->Update(deltaTime);
+    //}
+    //auto renderModel = m_components.find(COMPONENT_TYPE::RENDERMODEL);
+    //if (renderModel != m_components.end())
+    //{
+    //  renderModel->second.get()->Update(deltaTime);
+    //}
   }
 
   void

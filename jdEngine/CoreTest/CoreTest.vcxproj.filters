@@ -74,11 +74,11 @@
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="include\jdTestApp.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
     <ClInclude Include="..\dependencies\imgui-sfml\include\imfilebrowser.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdTestApp.h">
+      <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

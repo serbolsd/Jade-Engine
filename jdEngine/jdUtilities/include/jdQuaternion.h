@@ -38,7 +38,9 @@ namespace jdEngineSDK {
      * @param z is the z component of the quaternion
      * @param w is the w component of the quaternion
      */
-    Quaternion(const float& x, const float& y, const float& z, const float& w);
+    Quaternion(const float& x, const float& y, const float& z);
+    Quaternion(const Radian& x, const Radian& y, const Radian& z);
+    Quaternion(const Degree& x, const Degree& y, const Degree& z);
     
     /**
      * @brief Constructor.
@@ -223,6 +225,27 @@ namespace jdEngineSDK {
      */
     Quaternion 
     getInverse() const;
+
+    /**
+     * @brief get to rotate this quaternion.
+     * @return this quaternion rotated
+     */
+    Quaternion&
+    rotate(const float& _x, const float& _y, const float& _z, bool degree);
+
+    /**
+     * @brief get to rotate this quaternion.
+     * @return this quaternion rotated
+     */
+    Quaternion&
+    rotate(Degree _x, Degree _y, Degree _z);
+
+    /**
+     * @brief get to rotate this quaternion.
+     * @return this quaternion rotated
+     */
+    JDVector3
+    getEuler();
 
     JDMatrix4
     getMatrix() const;
