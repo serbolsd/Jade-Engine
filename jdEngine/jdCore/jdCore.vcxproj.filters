@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Archivos de origen">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Archivos de encabezado">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Archivos de recursos">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{beb6fa39-dc44-4035-9183-5611779b44ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Components">
+      <UniqueIdentifier>{7c4475dd-8007-498e-a9e0-0bc3f27842d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Classes%27 Api">
+      <UniqueIdentifier>{50c3bccc-8c55-42df-9feb-6b71481d821e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Resources">
+      <UniqueIdentifier>{245af2af-7a06-4211-b821-f6d831ed3615}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\jdGraphicApi.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdBaseApp.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_demo.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_draw.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdGameObject.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdResourceManager.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdComponentRenderModel.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdComponentTransform.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="include\jdSceneGraph.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="include\jdMesh.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdCamera.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdCameraManager.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdComponentLight.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\jdPrerequisitesCore.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdGraphicApi.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdTexture2D.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdIndexBuffer.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdBaseApp.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imconfig.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_internal.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_rectpack.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_textedit.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdResource.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdGameObject.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdComponent.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdDevice.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdDeviceContext.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdInputLayout.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPixelShader.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdProgramShader.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRenderTarget.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRenderTargetView.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdSampler.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdSwapChain.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdVertexShader.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdViewPort.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdConstantBuffer.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdVertexBuffer.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdMesh.h">
+      <Filter>Archivos de encabezado\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdModel.h">
+      <Filter>Archivos de encabezado\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdResourceManager.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdSceneGraph.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdComponentTransform.h">
+      <Filter>Archivos de encabezado\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdComponentRenderModel.h">
+      <Filter>Archivos de encabezado\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imfilebrowser.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdCamera.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdCameraManager.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdComponentLight.h">
+      <Filter>Archivos de encabezado\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRasterizeState.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Archivos de origen">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Archivos de encabezado">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Archivos de recursos">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Archivos de origen\Math">
+      <UniqueIdentifier>{eff43bf2-0512-48f8-80c8-0b25678d913d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\jdPlatformDefines.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPlatformTypes.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPrerequisitesUtil.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdStdHeaders.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\JdString.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPlatformMath.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdModulo.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdDegree.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdMatrix4.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPoint.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRadian.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdVector2.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdVector3.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdVector4.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdMatrix3.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdWindowsMath.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdMath.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRectangle.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdBox.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdSphere.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRay.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdQuaternion.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdFrustum.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPlane.h">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdMatrix3.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdMatrix4.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdPlatformMath.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdRadian.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdBox.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdSphere.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdDegree.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdRay.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdRectangle.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdQuaternion.cpp">
+      <Filter>Archivos de origen\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="include\jdFrustum.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
