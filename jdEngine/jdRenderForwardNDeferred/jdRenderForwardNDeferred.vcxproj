@@ -20,8 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{6638C06A-CBFD-4953-83D3-381B48CF6375}</ProjectGuid>
-    <RootNamespace>jdCore</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{d2649652-e88d-402d-b2fa-d2617ced1b3a}</ProjectGuid>
+    <RootNamespace>jdRenderForwardNDeferred</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -69,12 +70,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
-    <IntDir>$(SolutionDir)intermediate/$(ProjectName)/$(PlatformShortName)/$(Configuration)/</IntDir>
-    <TargetName>$(ProjectName)d</TargetName>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
@@ -86,56 +81,35 @@
     <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
     <IntDir>$(SolutionDir)intermediate/$(ProjectName)/$(PlatformShortName)/$(Configuration)/</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
+    <IntDir>$(SolutionDir)intermediate/$(ProjectName)/$(PlatformShortName)/$(Configuration)/</IntDir>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
     <IntDir>$(SolutionDir)intermediate/$(ProjectName)/$(PlatformShortName)/$(Configuration)/</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilitiesd.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;assimp-vc142-mtd.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <SupportJustMyCode>false</SupportJustMyCode>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilitiesd.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;assimp-vc142-mtd.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jdUtilitiesd.lib;jdCored.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;ImGuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -145,23 +119,43 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilities.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;assimp-vc142-mt.lib;jdSysInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jdUtilities.lib;jdCore.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;ImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jdUtilitiesd.lib;jdCored.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;ImGuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -171,88 +165,48 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilities.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;assimp-vc142-mt.lib;jdSysInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jdUtilities.lib;jdCore.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;ImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui.cpp" />
-    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_demo.cpp" />
-    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_draw.cpp" />
-    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_widgets.cpp" />
-    <ClCompile Include="include\jdMesh.cpp" />
-    <ClCompile Include="include\jdSceneGraph.cpp" />
-    <ClCompile Include="src\jdBaseApp.cpp" />
-    <ClCompile Include="src\jdCamera.cpp" />
-    <ClCompile Include="src\jdCameraManager.cpp" />
-    <ClCompile Include="src\jdComponentLight.cpp" />
-    <ClCompile Include="src\jdComponentRenderModel.cpp" />
-    <ClCompile Include="src\jdGameObject.cpp" />
-    <ClCompile Include="src\jdGraphicApi.cpp" />
-    <ClCompile Include="src\jdResourceManager.cpp" />
-    <ClCompile Include="src\jdComponentTransform.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\dependencies\imgui-sfml\include\imconfig.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imfilebrowser.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imgui.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_impl_dx10.h" />
+    <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_impl_dx11.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imgui_internal.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_rectpack.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_textedit.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h" />
-    <ClInclude Include="include\jdBaseApp.h" />
-    <ClInclude Include="include\jdCamera.h" />
-    <ClInclude Include="include\jdCameraManager.h" />
-    <ClInclude Include="include\jdComponent.h" />
-    <ClInclude Include="include\jdComponentLight.h" />
-    <ClInclude Include="include\jdComponentRenderModel.h" />
-    <ClInclude Include="include\jdComponentTransform.h" />
-    <ClInclude Include="include\jdConstantBuffer.h" />
-    <ClInclude Include="include\jdDevice.h" />
-    <ClInclude Include="include\jdDeviceContext.h" />
-    <ClInclude Include="include\jdGameObject.h" />
-    <ClInclude Include="include\jdGraphicApi.h" />
-    <ClInclude Include="include\jdIndexBuffer.h" />
-    <ClInclude Include="include\jdInputLayout.h" />
-    <ClInclude Include="include\jdMesh.h" />
-    <ClInclude Include="include\jdModel.h" />
-    <ClInclude Include="include\jdPixelShader.h" />
-    <ClInclude Include="include\jdPrerequisitesCore.h" />
-    <ClInclude Include="include\jdProgramShader.h" />
-    <ClInclude Include="include\jdRasterizeState.h" />
-    <ClInclude Include="include\jdRenderTarget.h" />
-    <ClInclude Include="include\jdRenderTargetView.h" />
-    <ClInclude Include="include\jdResource.h" />
-    <ClInclude Include="include\jdResourceManager.h" />
-    <ClInclude Include="include\jdSampler.h" />
-    <ClInclude Include="include\jdSceneGraph.h" />
-    <ClInclude Include="include\jdSwapChain.h" />
-    <ClInclude Include="include\jdTexture2D.h" />
-    <ClInclude Include="include\jdVertexBuffer.h" />
-    <ClInclude Include="include\jdVertexShader.h" />
-    <ClInclude Include="include\jdViewPort.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="include\jdRenderFND.h" />
+    <ClInclude Include="include\jdRenderFNDPrerequisites.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="jdCore.rc" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_demo.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_draw.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_dx10.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_widgets.cpp" />
+    <ClCompile Include="src\jdRenderFND.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

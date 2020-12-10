@@ -41,7 +41,8 @@ namespace jdEngineSDK {
     {
       //auto tranforms = mesh->getBonesTransform();
 
-      g_graphicsApi().updateSubresource(g_graphicsApi().getConstantBufferBones(), &m_meshBones[meshNum]);
+      g_graphicsApi().updateSubresource(g_graphicsApi().getConstantBufferBones(), 
+                                        &m_meshBones[meshNum]);
 
       g_graphicsApi().PixelShaderSetShaderResources(mesh->getAlbedoTexture(), 0);
       g_graphicsApi().PixelShaderSetShaderResources(mesh->getNormalTexture(), 1);

@@ -30,6 +30,7 @@ using namespace jdEngineSDK;
 
 namespace jdEngineSDK {
 
+
   class DirectX11Api : public GraphicApi
   {
    public:
@@ -120,7 +121,16 @@ namespace jdEngineSDK {
      createRenderTarget(uint32 width, 
                         uint32 height, 
                         uint32 mipLevels = 1, 
-                        bool Depth = false) override;
+                        bool Depth = false,
+                        uint32 numRenderTargets = 1,
+                        float scale = 1) override;
+
+    /**
+     * @brief generate render target´s mipmap
+     * @param renderTarget is the render targe to generate its mipmaps
+     */
+    void
+    generateMipMap(WeakSptr<RenderTarget> renderTarget) override;
 
     /**
      * @brief virtual function to load and save pixel and vertex shade from file
@@ -138,7 +148,8 @@ namespace jdEngineSDK {
                        const char* vertexShaderVersion,
                        const char* pixelFilePath,
                        const char* pixelMainFuntion,
-                       const char* pixeñShaderVersion) override;
+                       const char* pixeñShaderVersion,
+                       SPtr<SHADER_DEFINES> defines = nullptr) override;
 
 
     /**
@@ -151,7 +162,8 @@ namespace jdEngineSDK {
     SPtr<VertexShader>
     loadVertexShaderFromFile(const char* vertexFilePath, 
                              const char* vertexMainFuntion,
-                             const char* shaderVersion) override;
+                             const char* shaderVersion,
+                             SPtr<SHADER_DEFINES> defines = nullptr) override;
 
     /**
      * @brief function to load and save pixel shade from file
@@ -163,7 +175,8 @@ namespace jdEngineSDK {
     SPtr<PixelShader>
     loadPixelShaderFromFile(const char* pixelFilePath, 
                             const char* pixelMainFuntion,
-                            const char* shaderVersion) override;
+                            const char* shaderVersion,
+                            SPtr<SHADER_DEFINES> defines = nullptr) override;
 
     /**
      * @brief set the viewport for the render targets
@@ -385,6 +398,19 @@ namespace jdEngineSDK {
     VertexShaderSetShaderResources(WeakSptr<Texture2D> resource,
                                    int32 ResourceSlot,
                                    uint32 numresources = 1) override;
+
+    /**
+     * @brief virtual function to set Shader Resource in pixel Shader from render target
+     * @param resoure is a Texture 2d with the resourse
+     * @param ResourceSlot is the slot in the shader
+     * @param ResourceRTIndeX is the index of shader resource view in the render target
+     * @param numresources is the number of resources to set
+     */
+    void
+    PixelShaderSetShaderResourcesFromRT(WeakSptr<RenderTarget> resouce,
+                                        int32 ResourceSlot,
+                                        uint32 ResourceRTIndex = 0,
+                                        uint32 numresources = 1) override;
 
     /**
      * @brief function to set Shader Resource in pixel Shader

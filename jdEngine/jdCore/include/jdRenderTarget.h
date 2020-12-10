@@ -35,7 +35,7 @@ namespace jdEngineSDK {
     release() {};
 
     virtual void*
-    getRenderTexture(uint32 /*index*/ = 1) { return nullptr; };
+    getRenderTexture(uint32 /*index*/ = 0) { return nullptr; };
 
     /**
      * @brief virtual function to get the render target ID
@@ -47,5 +47,6 @@ namespace jdEngineSDK {
    protected:
      int32 m_id = 0;
      uint32 m_mipLeve=1;
+     float m_scale;
   };
 }

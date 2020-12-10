@@ -72,9 +72,22 @@ namespace jdEngineSDK {
       ResourceManager::_instance() = resourceMan;
     }
 
+    SPtr<Model>
+    getModel(const char* modelName);
+
+    SPtr<Texture2D>
+    getTexture(const char* textureName);
+
+    void
+    createSAQ();
+
+    void
+    setSAQ();
+
     void
     onStartUp();
 
+    SPtr<Model> m_SAQ = nullptr;
     Vector<SPtr<Model>> m_models;
     Vector<char*> m_modelsNames;
     Vector<SPtr<Texture2D>> m_textures;

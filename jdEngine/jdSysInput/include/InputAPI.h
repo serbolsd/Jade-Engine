@@ -417,7 +417,7 @@ class INPUT_EXPORT InputAPI
 			* @return void.
 			*/
 		virtual void
-		init(unsigned int screenWidth, unsigned int screenHeight, HWND windowHandle = nullptr) {};
+		init(unsigned int /*screenWidth*/, unsigned int /*screenHeight*/, HWND /*windowHandle*/ = nullptr) {};
 
 		/**
 			* @brief Updates input system.
@@ -446,7 +446,7 @@ class INPUT_EXPORT InputAPI
 			* @return void.
 			*/
 		virtual void
-		resize(unsigned int screenWidth, unsigned int screenHeight) {};
+		resize(unsigned int /*screenWidth*/, unsigned int /*screenHeight*/) {};
 
 		/**
 			* @brief Check if given key has been pressed one time.
@@ -454,7 +454,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if is the first time the key has been pressed since last release.
 			*/
 		virtual bool
-		getKeyDown(KEYBOARD::E key) { return false; };
+		getKeyDown(KEYBOARD::E /*key*/) { return false; };
 
 		/**
 			* @brief Check if given key is being pressed.
@@ -462,7 +462,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if the key is currently pressed.
 			*/
 		virtual bool
-		getKey(KEYBOARD::E key) { return false; };
+		getKey(KEYBOARD::E /*key*/) { return false; };
 
 		/**
 			* @brief Check if given key has been released.
@@ -470,7 +470,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if the key has been released.
 			*/
 		virtual bool
-		getKeyUp(KEYBOARD::E key) { return false; };
+		getKeyUp(KEYBOARD::E /*key*/) { return false; };
 
 		/**
 			* @brief Check if given mouse button has been pressed one time.
@@ -478,7 +478,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if is the first time the button has been pressed since last release.
 			*/
 		virtual bool
-		getMouseButtonDown(MOUSE_BUTTON::E mouseButton) { return false; };
+		getMouseButtonDown(MOUSE_BUTTON::E /*mouseButton*/) { return false; };
 
 		/**
 			* @brief Check if given mouse button is being pressed.
@@ -486,7 +486,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if the mouse button is currently pressed.
 			*/
 		virtual bool
-		getMouseButton(MOUSE_BUTTON::E mouseButton) { return false; };
+		getMouseButton(MOUSE_BUTTON::E /*mouseButton*/) { return false; };
 
 		/**
 			* @brief Check if given mouse button has been released.
@@ -494,7 +494,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if the mouse button has been released.
 			*/
 		virtual bool
-		getMouseButtonUp(MOUSE_BUTTON::E mouseButton) { return false; };
+		getMouseButtonUp(MOUSE_BUTTON::E /*mouseButton*/) { return false; };
 
 		/**
 			* @brief gets normalize mouse position in window on given axis.
@@ -502,7 +502,7 @@ class INPUT_EXPORT InputAPI
 			* @return current float normalized position on given axis.
 			*/
 		virtual float
-		getMouseAxis(MOUSE_AXIS::E axis) { return 0.0f; };
+		getMouseAxis(MOUSE_AXIS::E /*axis*/) { return 0.0f; };
 
 		/**
 			* @brief gets cursor's position on X axis in the window.
@@ -524,7 +524,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if is the first time the gamepad button has been pressed since last release.
 			*/
 		virtual bool
-		getGamepadButtonDown(GAMEPAD_BUTTON::E button) { return false; };
+		getGamepadButtonDown(GAMEPAD_BUTTON::E /*button*/) { return false; };
 
 		/**
 			* @brief Check if given gamepad button is being pressed.
@@ -532,7 +532,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if the gamepad button is currently pressed.
 			*/
 		virtual bool
-		getGamepadButton(GAMEPAD_BUTTON::E button) { return false; };
+		getGamepadButton(GAMEPAD_BUTTON::E /*button*/) { return false; };
 
 		/**
 			* @brief Check if given gamepad button has been released.
@@ -540,7 +540,7 @@ class INPUT_EXPORT InputAPI
 			* @return true if the gamepad button has been released.
 			*/
 		virtual bool
-		getGamepadButtonUp(GAMEPAD_BUTTON::E button) { return false; };
+		getGamepadButtonUp(GAMEPAD_BUTTON::E /*button*/) { return false; };
 
 		/**
 			* @brief get axis value of given axis of the gamepad.
@@ -548,7 +548,7 @@ class INPUT_EXPORT InputAPI
 			* @return current float value of the axis.
 			*/
 		virtual float
-		getGamepadAxis(GAMEPAD_AXIS::E axis) { return 0.0f; };
+		getGamepadAxis(GAMEPAD_AXIS::E /*axis*/) { return 0.0f; };
 
  protected:
 

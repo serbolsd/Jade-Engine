@@ -7,8 +7,9 @@ namespace jdEngineSDK {
     return ResourceManager::instance();
   }
 
-  SPtr<Resource> ResourceManager::loadResourceFromFile(const char* path, const RESOURCE_TYPE::E& type)
-  {
+  SPtr<Resource> 
+  ResourceManager::loadResourceFromFile(const char* path, 
+                                        const RESOURCE_TYPE::E& type) {
     uint32 newId = createHash(path);
     if (isLoadedResources(path))
     {
@@ -53,7 +54,87 @@ namespace jdEngineSDK {
     return false;
   }
 
+  SPtr<Model>
+  ResourceManager::getModel(const char* modelName){
+    uint32 id = createHash(modelName);
+    auto found = m_resources.find(id);
+    if (found != m_resources.end())
+    {
+      auto mod = found->second;
+      return SPtr<Model>(mod, reinterpret_cast<Model*>(mod.get()));
+    }
+    return nullptr;
+  }
+
+  SPtr<Texture2D>
+  ResourceManager::getTexture(const char* textureName){
+    uint32 id = createHash(textureName);
+    auto found = m_resources.find(id);
+    if (found != m_resources.end())
+    {
+      auto mod = found->second;
+      return SPtr<Texture2D>(mod, reinterpret_cast<Texture2D*>(mod.get()));
+    }
+    return DEFAULT_TEXTURE_BLACK;
+  }
+
   void 
+  ResourceManager::createSAQ() {
+    m_SAQ;
+    Model* newModel = new Model;
+    Mesh* newMesh = new Mesh;
+    DefaultVertexData* meshVertex = new DefaultVertexData[4];
+    meshVertex[0].Pos = { -1,-1,0,1 };
+    meshVertex[1].Pos = { -1,1,0,1 };
+    meshVertex[2].Pos = { 1,-1,0,1 };
+    meshVertex[3].Pos = { 1,1,0,1 };
+
+    meshVertex[0].Norm = { 0,0,-1,0 };
+    meshVertex[1].Norm = { 0,0,-1,0 };
+    meshVertex[2].Norm = { 0,0,-1,0 };
+    meshVertex[3].Norm = { 0,0,-1,0 };
+
+    meshVertex[0].TexCoord = { 0, 1 };
+    meshVertex[1].TexCoord = { 0, 0 };
+    meshVertex[2].TexCoord = { 1, 1 };
+    meshVertex[3].TexCoord = { 1, 0 };
+
+    uint32* meshIndex = new uint32[2*3];
+    meshIndex[0] = 0;
+    meshIndex[1] = 1;
+    meshIndex[2] = 2;
+    meshIndex[3] = 2;
+    meshIndex[4] = 1;
+    meshIndex[5] = 3;
+
+    SPtr<DefaultVertexData> spVetexData(meshVertex);
+    newMesh->setVertexData(spVetexData);
+
+    newMesh->setVertexBuffer(g_graphicsApi().createVertexBuffer(4,
+                                                                sizeof(DefaultVertexData),
+                                                                meshVertex));
+
+    SPtr<uint32> spIndex(meshIndex);
+    newMesh->setIndex(spIndex);
+    newMesh->setIndexNum(6);
+
+    newMesh->setIndexBuffer(g_graphicsApi().createIndexBuffer(6, meshIndex));
+
+    SPtr<Mesh> meshToAdd(newMesh);
+    newModel->addMesh(meshToAdd);
+    m_SAQ.reset(newModel);
+  }
+
+  void 
+  ResourceManager::setSAQ() {
+    auto mesh = m_SAQ->m_meshes[0];
+    g_graphicsApi().setVertexBuffer(mesh.get()->getVertexBuffer());
+    g_graphicsApi().setIndexBuffer(mesh.get()->getIndenBuffer());
+
+    g_graphicsApi().DrawIndex(mesh.get()->getIndexNum());
+  }
+
+  void
   ResourceManager::onStartUp() {
     DEFAULT_TEXTURE_ERROR = g_graphicsApi().getDefaultTextureError();
     DEFAULT_TEXTURE_TRANSPARENT = g_graphicsApi().getDefaultTextureTransparent();
@@ -63,6 +144,7 @@ namespace jdEngineSDK {
     DEFAULT_TEXTURE_CHESS = g_graphicsApi().getDefaultTextureChess();
     m_modelsNames.push_back((char*)"None");
     m_texturesNames.push_back((char*)"None");
+    createSAQ();
   }
 
   SPtr<Resource> ResourceManager::loadModel(const char* path)

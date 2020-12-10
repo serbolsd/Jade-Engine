@@ -79,6 +79,28 @@ struct CBLights
   lightStruct light[20];
 };
 
+struct CBAO
+{
+  float g_sample_radius = 0.001f;
+  float g_scale = 1.0f;
+  float g_Bias = 0.080f;
+  float g_intensity = 1.0f;
+};
+
+struct CBBright
+{
+  //x = BeightLod y = BloomThreshold;
+  JDVector4 BrightLod_BloomThreshold={1,0.01,0,0};
+};
+
+struct CBMipLevels
+{
+  int32 mipLevel0 = 0;
+  int32 mipLevel1 = 0;
+  int32 mipLevel2 = 0;
+  int32 mipLevel3 = 0;
+};
+
 class testApp : public BaseApp
 {
  public:
@@ -121,6 +143,58 @@ class testApp : public BaseApp
    */
   void
   renderDeferred();
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  geometryPass();
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  lightsPass();
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  LuminancePass();
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  BrightPass();
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  AmbientOculsionPass();
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  ColorWithAmbientOculsionPass();
+
+  /**
+   * @brief function to call to render
+   */
+  void
+  BlurPassAO();
+
+  /**
+   * @brief function to call to add two renderTargets
+   */
+  void
+  AddPass(SPtr<RenderTarget> target, 
+           SPtr<RenderTarget> renderTarget1, 
+           SPtr<RenderTarget> renderTarget2, 
+           uint32 slotOfTarget1 = 0, 
+           uint32 slotOfTarget2 = 0);
 
   /**
    * @brief function to call when the window resized
@@ -243,6 +317,21 @@ class testApp : public BaseApp
 
   void
   showAmbientOption();
+  
+  void
+  showAmbientOclusionOption();
+
+  void
+  showBrightOption();
+
+  void
+  showBlurOption();
+
+  /**
+   * @brief function to call to render
+   */
+  //void
+  //showAmbientOclusionOptions();
  
   void
   showModels();
@@ -281,6 +370,21 @@ class testApp : public BaseApp
    * @brief the data to never change every frame
    */
   CBLights m_lights;
+
+  /**
+   * @brief the data of Ambient Occlusion
+   */
+  CBAO m_AOData;
+
+  /**
+   * @brief the data of bright
+   */
+  CBBright m_BrightData;
+  
+  /**
+   * @brief the data to mips for Blur
+   */
+  CBMipLevels m_mipDataBlur;
   
   /**
    * @brief shared pointer to render target view
@@ -290,6 +394,15 @@ class testApp : public BaseApp
   SPtr<RenderTarget> m_cameraRT = nullptr;
   SPtr<RenderTarget> m_cameraInterpolate = nullptr;
   SPtr<RenderTarget> m_deferred = nullptr;
+  SPtr<RenderTarget> m_RTlights = nullptr;
+  SPtr<RenderTarget> m_ambientOclusion = nullptr;
+  SPtr<RenderTarget> m_ambientOclusionBlured = nullptr;
+  SPtr<RenderTarget> m_RTLuminance = nullptr;
+  SPtr<RenderTarget> m_RTBright = nullptr;
+  SPtr<RenderTarget> m_RTColorAO = nullptr;
+  SPtr<RenderTarget> m_RTBlurH = nullptr;
+  SPtr<RenderTarget> m_RTBlurV = nullptr;
+  //SPtr<RenderTarget> m_RTAdd = nullptr;
   
   /**
    * @brief shared pointer to a program shader
@@ -305,6 +418,14 @@ class testApp : public BaseApp
    * @brief shared pointer to a program shader
    */
   SPtr<ProgramShader> m_progShaderDeferred = nullptr;
+  SPtr<ProgramShader> m_progShaderLights = nullptr;
+  SPtr<ProgramShader> m_progShaderAO = nullptr;
+  SPtr<ProgramShader> m_progSLuminance = nullptr;
+  SPtr<ProgramShader> m_progSBright = nullptr;
+  SPtr<ProgramShader> m_progSBColorAO = nullptr;
+  SPtr<ProgramShader> m_progSBBlurH = nullptr;
+  SPtr<ProgramShader> m_progSBBlurV = nullptr;
+  SPtr<ProgramShader> m_progSBAdd = nullptr;
   
   /**
    * @brief elemts of input layout
@@ -342,9 +463,24 @@ class testApp : public BaseApp
   SPtr<ConstantBuffer> m_changeEveryFrameB = nullptr;
 
   /**
-   * @brief shared ponter to a constant buffer cahnge every fram
+   * @brief shared ponter to a constant buffer with light data
    */
   SPtr<ConstantBuffer> m_lightsB = nullptr;
+
+  /**
+   * @brief shared ponter to a constant buffer with Ambient Oclusion Data
+   */
+  SPtr<ConstantBuffer> m_AOB = nullptr;
+
+  /**
+   * @brief shared ponter to a constant buffer with bright data
+   */
+  SPtr<ConstantBuffer> m_BrightB = nullptr;
+
+  /**
+   * @brief shared ponter to a constant buffer with Blur data
+   */
+  SPtr<ConstantBuffer> m_BlurB = nullptr;
 
   /**
    * @brief number of light created
@@ -367,6 +503,21 @@ class testApp : public BaseApp
    * @brief To show the deferredTextures
    */
   bool m_showDeferred = false;
+
+  /**
+   * @brief To show the Ambient Oclusion Opctions
+   */
+  bool m_showAOOptions = false;
+
+  /**
+   * @brief To show the Bright Opctions
+   */
+  bool m_showBrightOptions = false;
+
+  /**
+   * @brief To show the Bright Options
+   */
+  bool m_showBlurOptions = false;
 
   /**
    * @brief To open the load file imgui window
@@ -404,13 +555,18 @@ class testApp : public BaseApp
    * @brief bool to see ambient options
    */
   bool m_bWireframe = false;
+
   bool m_bWireframeAlreadyActive = false;
+
+  ViewPort m_viewPortScene;
+  ViewPort m_viewPort;
 
   SPtr<Texture2D> m_ambientCubeMap = nullptr;
 
   uint32 m_ambientCubeMapOption = 0;
 
   JDPoint m_sceneSize;
+  bool m_firstFrame = true;
 
   SPtr<RasterizeState> m_defaultRasState = nullptr;
   SPtr<RasterizeState> m_wireframeRasState = nullptr;

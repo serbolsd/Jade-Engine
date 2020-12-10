@@ -15,10 +15,11 @@ Texture2D txDiffuse : register(t0);
 Texture2D txNormal : register(t1);
 Texture2D txSpecularMetal : register(t2);
 Texture2D txRoughness : register(t3);
-//TextureCube cubeMap : register(t4);
-//
-//
+TextureCube cubeMap : register(t4);
+
+
 SamplerState samLinear : register(s0);
+
 struct lightStruct
 {
   float4 lightDirection;
@@ -81,11 +82,7 @@ struct VS_INPUT
 struct PS_INPUT
 {
   float4 Pos : SV_POSITION;
-  float3 worldPos : COLOR0;
-  float3 viewPos : COLOR1;
-  float2 Tex : TEXCOORD0;
-  float3x3 TBN : TEXCOORD1;
-  float4 depth : COLOR2;
+  float depth : TEXCOORD0;
 };
 
 //--------------------------------------------------------------------------------------
@@ -101,60 +98,17 @@ PS_INPUT VS(VS_INPUT input)
   float4 position = mul(input.Pos, boneTrans);
 
   output.Pos = mul(position, World);
-  output.worldPos = output.Pos.xyz;
   output.Pos = mul(output.Pos, View);
-  output.viewPos = output.Pos.xyz;
   output.Pos = mul(output.Pos, Projection);
-
-  matrix boneWV = mul(mul(boneTrans, World), View);
-
-  //tangent
-  output.TBN[0] = normalize(mul(input.Tang, boneWV)).xyz;
-  //normal
-  output.TBN[2] = normalize(mul(input.Norm, boneWV)).xyz;
-  //binormal
-  output.TBN[1] = normalize(cross(output.TBN[2], output.TBN[0]));
-  output.Tex = input.Tex;
-
-  output.depth = distance(viewPosition.xyz, output.Pos.xyz);
+  output.depth = distance(viewPosition, output.Pos);
   return output;
 }
 
-struct PS_OUTPUT
-{
-  float4 Positions : SV_Target0;
-  float4 Normal : SV_Target1;
-  float4 Albedo : SV_Target2;
-  float4 Depth : SV_Target3;
-};
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-PS_OUTPUT PS(PS_INPUT input)
+float4 PS(PS_INPUT input) : SV_Target
 {
-  PS_OUTPUT output = (PS_OUTPUT)0;
-
-  float4 diffuseColor = txDiffuse.Sample(samLinear, input.Tex.xy);
-  float4 normalColor = txNormal.Sample(samLinear, input.Tex.xy);
-  float4 specularColor = txSpecularMetal.Sample(samLinear, input.Tex.xy);
-  float4 roughnessColor = txRoughness.Sample(samLinear, input.Tex.xy);
-
-  float metallic = specularColor.r;
-  float roughness = roughnessColor.r;
-
-  //finalColor.xyz = pow(abs(diffuseColor.xyz), 2.2f);
-
-  float3 normal = 2.0f * normalColor.xyz - 1.0f;
-  normal = normalize(mul(normal, input.TBN));
-
-  //float3 P = mul(input.worldPos, View).xyz;
-  output.Positions = float4(input.viewPos.xyz,1);
-  //output.Positions = float4(input.worldPos.xyz,1);
-  //float3 nomView = normalize((float4(normal.xyz,0), View).xyz);
-  //output.Normal = float4(normal, metallic);
-  output.Normal = float4(normal, 1);
-  output.Albedo = float4(diffuseColor.xyz, roughness);
-  output.Depth = float4(input.depth.xyz, 1);
- 
-  return output;
+  float depth = input.depth;
+  return (depth, depth, depth);
 }

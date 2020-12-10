@@ -31,10 +31,11 @@ namespace jdEngineSDK {
 
     /**
      * @brief get pointer to texture
+     * Qparam index is the index of texture
      * @return pointer to texture
      */
     virtual void*
-    getTexture(uint32 index = 1) { return nullptr; };
+    getTexture(uint32 /*index*/ = 0) { return nullptr; };
 
     ///**
     // * @brief virtual function to release the texture

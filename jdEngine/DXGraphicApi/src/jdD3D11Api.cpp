@@ -110,7 +110,7 @@ namespace jdEngineSDK {
     m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(0, 0, 0);
 
     // Release all outstanding references to the swap chain's buffers.
-    SAFE_RELEASE(m_RTV.get()->m_pRT.m_pRenderTarget);
+    SAFE_RELEASE(m_RTV.get()->m_pRT.m_pRenderTarget[0]);
     SAFE_RELEASE(m_RTV.get()->m_pRT.m_texture);
     SAFE_RELEASE(m_RTV.get()->m_pDepthStencil);
 
@@ -128,7 +128,9 @@ namespace jdEngineSDK {
     if (FAILED(hr))
       return;
 
-    hr = m_device.m_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_RTV->m_pRT.m_pRenderTarget);
+    hr = m_device.m_pd3dDevice->CreateRenderTargetView(pBackBuffer, 
+                                                       NULL, 
+                                                       &m_RTV->m_pRT.m_pRenderTarget[0]);
     pBackBuffer->Release();
     if (FAILED(hr))
       return;
@@ -177,62 +179,67 @@ namespace jdEngineSDK {
         depth = true;
       }
       rtResize->release();
-      CD3D11_TEXTURE2D_DESC textureDesc;
-      CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-      CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-      
-      ///////////////////////// Map's Texture
-      // Initialize the  texture description.
-      ZeroMemory(&textureDesc, sizeof(textureDesc));
-      
-      // Setup the texture description.
-      // We will have our map be a square
-      // We will need to have this texture bound as a render target AND a shader resource
-      textureDesc.Width = width;
-      textureDesc.Height = height;
-      textureDesc.MipLevels = rtResize->m_mipLeve;
-      textureDesc.ArraySize = 1;
-      //textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-      textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-      textureDesc.SampleDesc.Count = 1;
-      textureDesc.Usage = D3D11_USAGE_DEFAULT;
-      textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-      textureDesc.CPUAccessFlags = 0;
-      textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-      
-      // Create the texture
-      m_device.m_pd3dDevice->CreateTexture2D(&textureDesc, NULL, &rtResize->m_pRT.m_texture);
-      
-      /////////////////////// Map's Render Target
-      // Setup the description of the render target view.
-      renderTargetViewDesc.Format = textureDesc.Format;
-      renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-      renderTargetViewDesc.Texture2D.MipSlice = 0;
-      
-      // Create the render target view.
-      m_device.m_pd3dDevice->CreateRenderTargetView(rtResize->m_pRT.m_texture,
-                                                    &renderTargetViewDesc, 
-                                                    &rtResize->m_pRT.m_pRenderTarget);
-      
-      /////////////////////// Map's Shader Resource View
-      // Setup the description of the shader resource view.
-      shaderResourceViewDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-      shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-      shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-      shaderResourceViewDesc.Texture2D.MipLevels = rtResize->m_mipLeve;
-      
+      uint32 numRenderTargets = rtResize->m_pRT.m_pRenderTarget.size();
       rtResize->m_pRT.m_ppSRV.clear();
-      rtResize->m_pRT.m_ppSRV.resize(rtResize->m_mipLeve);
-      // Create the shader resource view.
-      m_device.m_pd3dDevice->CreateShaderResourceView(rtResize->m_pRT.m_texture,
-                                                      &shaderResourceViewDesc, 
-                                                      &rtResize->m_pRT.m_ppSRV[0]);
+      rtResize->m_pRT.m_ppSRV.resize(numRenderTargets);
+      for (uint32 j = 0; j < numRenderTargets; ++j)
+      {
+        CD3D11_TEXTURE2D_DESC textureDesc;
+        CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+        CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+        
+        ///////////////////////// Map's Texture
+        // Initialize the  texture description.
+        ZeroMemory(&textureDesc, sizeof(textureDesc));
+        
+        // Setup the texture description.
+        // We will have our map be a square
+        // We will need to have this texture bound as a render target AND a shader resource
+        textureDesc.Width = (width * rtResize->m_scale);
+        textureDesc.Height = (height * rtResize->m_scale);
+        textureDesc.MipLevels = rtResize->m_mipLeve;
+        textureDesc.ArraySize = 1;
+        //textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+        textureDesc.SampleDesc.Count = 1;
+        textureDesc.Usage = D3D11_USAGE_DEFAULT;
+        textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+        textureDesc.CPUAccessFlags = 0;
+        textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+        
+        // Create the texture
+        m_device.m_pd3dDevice->CreateTexture2D(&textureDesc, NULL, &rtResize->m_pRT.m_texture);
+        
+        /////////////////////// Map's Render Target
+        // Setup the description of the render target view.
+        renderTargetViewDesc.Format = textureDesc.Format;
+        renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+        renderTargetViewDesc.Texture2D.MipSlice = 0;
+        
+        // Create the render target view.
+        m_device.m_pd3dDevice->CreateRenderTargetView(rtResize->m_pRT.m_texture,
+                                                      &renderTargetViewDesc, 
+                                                      &rtResize->m_pRT.m_pRenderTarget[j]);
+        
+        /////////////////////// Map's Shader Resource View
+        // Setup the description of the shader resource view.
+        shaderResourceViewDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+        shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+        shaderResourceViewDesc.Texture2D.MipLevels = rtResize->m_mipLeve;
+        
+        
+        // Create the shader resource view.
+        m_device.m_pd3dDevice->CreateShaderResourceView(rtResize->m_pRT.m_texture,
+                                                        &shaderResourceViewDesc, 
+                                                        &rtResize->m_pRT.m_ppSRV[j]);
+      }
       if (depth)
       {
         //CD3D11_TEXTURE2D_DESC descDepth;
         ZeroMemory(&descDepth, sizeof(descDepth));
-        descDepth.Width = width;
-        descDepth.Height = height;
+        descDepth.Width = (width * rtResize->m_scale);
+        descDepth.Height = (height * rtResize->m_scale);
         descDepth.MipLevels = rtResize->m_mipLeve;
         descDepth.ArraySize = 1;
         descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -280,11 +287,15 @@ namespace jdEngineSDK {
     // Create a render target view
 
     ID3D11Texture2D* pBackBuffer = NULL;
-    HRESULT hr = m_swapChain.m_pdxgSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+    HRESULT hr = m_swapChain.m_pdxgSwapChain->GetBuffer(0, 
+                                                        __uuidof(ID3D11Texture2D), 
+                                                        (LPVOID*)&pBackBuffer);
     if (FAILED(hr))
       return false;
-
-    hr = m_device.m_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_RTV->m_pRT.m_pRenderTarget);
+    m_RTV->m_pRT.m_pRenderTarget.resize(1);
+    hr = m_device.m_pd3dDevice->CreateRenderTargetView(pBackBuffer, 
+                                                       NULL, 
+                                                       &m_RTV->m_pRT.m_pRenderTarget[0]);
     pBackBuffer->Release();
     if (FAILED(hr))
       return false;
@@ -324,7 +335,7 @@ namespace jdEngineSDK {
       return false;
 
     m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(1, 
-                                                            &m_RTV->m_pRT.m_pRenderTarget,
+                                                            &m_RTV->m_pRT.m_pRenderTarget[0],
                                                             m_RTV->m_pDepthStencil);
 
     return true;
@@ -334,66 +345,79 @@ namespace jdEngineSDK {
   DirectX11Api::createRenderTarget(uint32 width, 
                                    uint32 height, 
                                    uint32 mipLevels, 
-                                   bool Depth) {
+                                   bool Depth,
+                                   uint32 numRenderTargets,
+                                   float scale) {
+    if (0 >= numRenderTargets)
+    {
+      numRenderTargets = 1;
+    }
     D3D11RenderTarget* newRender = new D3D11RenderTarget;
-    CD3D11_TEXTURE2D_DESC textureDesc;
-    CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-    CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+    newRender->m_pRT.m_ppSRV.resize(numRenderTargets);
+    newRender->m_pRT.m_pRenderTarget.resize(numRenderTargets);
+    newRender->m_scale = scale;
+    for (uint32 i = 0; i < numRenderTargets; ++i)
+    {
+      CD3D11_TEXTURE2D_DESC textureDesc;
+      CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+      CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+      
+      ///////////////////////// Map's Texture
+      // Initialize the  texture description.
+      ZeroMemory(&textureDesc, sizeof(textureDesc));
+      
+      // Setup the texture description.
+      // We will have our map be a square
+      // We will need to have this texture bound as a render target AND a shader resource
+      textureDesc.Width = (uint32)(width * scale);
+      textureDesc.Height = (uint32)(height * scale);
+      textureDesc.MipLevels = mipLevels;
+      textureDesc.ArraySize = 1;
+      //textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+      textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+      textureDesc.SampleDesc.Count = 1;
+      textureDesc.Usage = D3D11_USAGE_DEFAULT;
+      textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+      textureDesc.CPUAccessFlags = 0;
+      textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+      
+      newRender->m_mipLeve = mipLevels;
+      // Create the texture
+      m_device.m_pd3dDevice->CreateTexture2D(&textureDesc, NULL, &newRender->m_pRT.m_texture);
+      
+      /////////////////////// Map's Render Target
+      // Setup the description of the render target view.
+      renderTargetViewDesc.Format = textureDesc.Format;
+      renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+      renderTargetViewDesc.Texture2D.MipSlice = 0;
+      
+      // Create the render target view.
+      m_device.m_pd3dDevice->CreateRenderTargetView(newRender->m_pRT.m_texture, 
+                                                    &renderTargetViewDesc, 
+                                                    &newRender->m_pRT.m_pRenderTarget[i]);
+      
+      /////////////////////// Map's Shader Resource View
+      // Setup the description of the shader resource view.
+      shaderResourceViewDesc.Format = textureDesc.Format;
+      shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+      shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+      shaderResourceViewDesc.Texture2D.MipLevels = mipLevels;
+      // Create the shader resource view.
+      //ID3D11ShaderResourceView* srv;
+      m_device.m_pd3dDevice->CreateShaderResourceView(newRender->m_pRT.m_texture, 
+                                                      &shaderResourceViewDesc, 
+                                                      &newRender->m_pRT.m_ppSRV[i]);
+      
+    }
 
-    ///////////////////////// Map's Texture
-    // Initialize the  texture description.
-    ZeroMemory(&textureDesc, sizeof(textureDesc));
-
-    // Setup the texture description.
-    // We will have our map be a square
-    // We will need to have this texture bound as a render target AND a shader resource
-    textureDesc.Width = width;
-    textureDesc.Height = height;
-    textureDesc.MipLevels = mipLevels;
-    textureDesc.ArraySize = 1;
-    //textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-    textureDesc.SampleDesc.Count = 1;
-    textureDesc.Usage = D3D11_USAGE_DEFAULT;
-    textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-    textureDesc.CPUAccessFlags = 0;
-    textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-    newRender->m_mipLeve = mipLevels;
-    // Create the texture
-    m_device.m_pd3dDevice->CreateTexture2D(&textureDesc, NULL, &newRender->m_pRT.m_texture);
-
-    /////////////////////// Map's Render Target
-    // Setup the description of the render target view.
-    renderTargetViewDesc.Format = textureDesc.Format;
-    renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-    renderTargetViewDesc.Texture2D.MipSlice = 0;
-
-    // Create the render target view.
-    m_device.m_pd3dDevice->CreateRenderTargetView(newRender->m_pRT.m_texture, 
-                                                  &renderTargetViewDesc, 
-                                                  &newRender->m_pRT.m_pRenderTarget);
-
-    /////////////////////// Map's Shader Resource View
-    // Setup the description of the shader resource view.
-    shaderResourceViewDesc.Format = textureDesc.Format;
-    shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-    shaderResourceViewDesc.Texture2D.MipLevels = mipLevels;
-    newRender->m_pRT.m_ppSRV.resize(mipLevels);
-    // Create the shader resource view.
-    //ID3D11ShaderResourceView* srv;
-    m_device.m_pd3dDevice->CreateShaderResourceView(newRender->m_pRT.m_texture, 
-                                                    &shaderResourceViewDesc, 
-                                                    &newRender->m_pRT.m_ppSRV[0]);
     //SPtr<ID3D11ShaderResourceView> SRV(srv);
     //newRender->m_pRT.m_ppSRV.push_back(srv);
     if (Depth)
     {
       CD3D11_TEXTURE2D_DESC descDepth;
       ZeroMemory(&descDepth, sizeof(descDepth));
-      descDepth.Width = width;
-      descDepth.Height = height;
+      descDepth.Width = width * scale;
+      descDepth.Height = height * scale;
       descDepth.MipLevels = mipLevels;
       descDepth.ArraySize = 1;
       descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -403,7 +427,7 @@ namespace jdEngineSDK {
       descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
       descDepth.CPUAccessFlags = 0;
       descDepth.MiscFlags = 0;
-
+      
       m_device.m_pd3dDevice->CreateTexture2D(&descDepth, 
                                              NULL, 
                                              &newRender->m_pRT.m_textureForDepthStencil);
@@ -422,24 +446,37 @@ namespace jdEngineSDK {
     return newRT;
   }
 
+  void 
+  DirectX11Api::generateMipMap(WeakSptr<RenderTarget> renderTarget) {
+    D3D11RenderTarget* ret = reinterpret_cast<D3D11RenderTarget*>(renderTarget.lock().get());
+    uint32 numRt = ret->m_pRT.m_ppSRV.size();
+    for (uint32 i = 0; i < numRt; i++)
+    {
+      m_deviceContext.m_pd3dDeviceContext->GenerateMips(ret->m_pRT.m_ppSRV[i]);
+    }
+  }
+
   SPtr<ProgramShader>
   DirectX11Api::loadShaderFromFile(const char* vertexFilePath, 
                                    const char* vertexMainFuntion, 
                                    const char* vertexShaderVersion,
                                    const char* pixelFilePath, 
                                    const char* pixelMainFuntion, 
-                                   const char* pixelShaderVersion) {
+                                   const char* pixelShaderVersion,
+                                   SPtr<SHADER_DEFINES> defines) {
 
     D3D11ProgramShader* newProg = new D3D11ProgramShader();
     SPtr<VertexShader> vs(loadVertexShaderFromFile(vertexFilePath,
                           vertexMainFuntion, 
-                          vertexShaderVersion));
+                          vertexShaderVersion,
+                          defines));
     SPtr<D3D11VertexShader> dvs(vs, reinterpret_cast<D3D11VertexShader*>(vs.get()));
     newProg->m_VS = dvs;
 
     SPtr<PixelShader> ps(loadPixelShaderFromFile(pixelFilePath,
                          pixelMainFuntion,
-                         pixelShaderVersion));
+                         pixelShaderVersion, 
+                         defines));
     SPtr<D3D11PixelShader> dps(ps, reinterpret_cast<D3D11PixelShader*>(ps.get()));
     newProg->m_PS = dps;
     SPtr<ProgramShader> np(newProg);
@@ -449,7 +486,8 @@ namespace jdEngineSDK {
   SPtr<VertexShader> 
   DirectX11Api::loadVertexShaderFromFile(const char* vertexFilePath,
                                          const char* vertexMainFuntion,
-                                         const char* shaderVersion) {
+                                         const char* shaderVersion,
+                                         SPtr<SHADER_DEFINES> defines) {
     D3D11VertexShader* tmpS = new D3D11VertexShader();
     ID3D10Blob* pErroMsg = nullptr;//for messages errors
     // Create the shaders
@@ -483,20 +521,33 @@ namespace jdEngineSDK {
       return nullptr;
     }
     auto vertexShader = VertexShaderCode;
+    Vector<D3D10_SHADER_MACRO> macros;
+    if (defines != nullptr)
+    {
+      uint32 numObjects = defines->m_defines.size();
+      macros.resize(numObjects+1);
 
-    D3DCompile(vertexShader.c_str(),
-      vertexShader.length(),
-      nullptr,
-      nullptr,
-      nullptr,
-      vertexMainFuntion,
-      shaderVersion,
-      D3DCOMPILE_ENABLE_STRICTNESS,
-      0,
-      &tmpS->m_pVBlob,
-      &pErroMsg);
+      for (uint32 i = 0; i < numObjects; ++i)
+      {
+        macros[i].Definition = defines->m_defines[i].c_str();
+        macros[i].Name = defines->m_defines[i].c_str();
+      }
+      macros[numObjects].Definition = nullptr;
+      macros[numObjects].Name = nullptr;
+    }
+    HRESULT hr = D3DCompile(vertexShader.c_str(),
+                            vertexShader.length(),
+                            nullptr,
+                            macros.data(),
+                            nullptr,
+                            vertexMainFuntion,
+                            shaderVersion,
+                            D3DCOMPILE_ENABLE_STRICTNESS,
+                            0,
+                            &tmpS->m_pVBlob,
+                            &pErroMsg);
     size_t foundErrorVertex;
-    if (pErroMsg)
+    if (NULL != pErroMsg)
     {
       SIZE_T msgSize = pErroMsg->GetBufferSize();
       std::string msg;
@@ -533,7 +584,8 @@ namespace jdEngineSDK {
   SPtr<PixelShader> 
   DirectX11Api::loadPixelShaderFromFile(const char* pixelFilePath, 
                                         const char* pixelMainFuntion, 
-                                        const char* shaderVersion) {
+                                        const char* shaderVersion,
+                                        SPtr<SHADER_DEFINES> defines) {
     D3D11PixelShader* tmpS = new D3D11PixelShader();
     ID3D10Blob* pErroMsg = nullptr;//for messages errors
 
@@ -569,18 +621,32 @@ namespace jdEngineSDK {
       return nullptr;
     }
     auto FrameShader = FragmentShaderCode;
+    Vector<D3D10_SHADER_MACRO> macros;
+    if (defines != nullptr)
+    {
+      uint32 numObjects = defines->m_defines.size();
+      macros.resize(numObjects + 1);
+
+      for (uint32 i = 0; i < numObjects; ++i)
+      {
+        macros[i].Definition = defines->m_defines[i].c_str();
+        macros[i].Name = defines->m_defines[i].c_str();
+      }
+      macros[numObjects].Definition = nullptr;
+      macros[numObjects].Name = nullptr;
+    }
     //Microsoft::WRL::ComPtr<ID3DBlob> blob;
     D3DCompile(FragmentShaderCode.c_str(),
-      FragmentShaderCode.length(),
-      nullptr,
-      nullptr,
-      nullptr,
-      pixelMainFuntion,
-      shaderVersion,
-      D3DCOMPILE_ENABLE_STRICTNESS,
-      0,
-      &tmpS->m_pPBlob,
-      &pErroMsg);
+               FragmentShaderCode.length(),
+               nullptr,
+               macros.data(),
+               nullptr,
+               pixelMainFuntion,
+               shaderVersion,
+               D3DCOMPILE_ENABLE_STRICTNESS,
+               0,
+               &tmpS->m_pPBlob,
+               &pErroMsg);
     if (pErroMsg)
     {
       SIZE_T msgSize = pErroMsg->GetBufferSize();
@@ -1013,14 +1079,14 @@ namespace jdEngineSDK {
 
     if (nullptr==ret->m_pDepthStencil)
     {
-      m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(1,
-                                                              &ret->m_pRT.m_pRenderTarget,
+      m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(ret->m_pRT.m_pRenderTarget.size(),
+                                                              &ret->m_pRT.m_pRenderTarget[0],
                                                               NULL);
     }
     else
     {
-      m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(1,
-                                                              &ret->m_pRT.m_pRenderTarget,
+      m_deviceContext.m_pd3dDeviceContext->OMSetRenderTargets(ret->m_pRT.m_pRenderTarget.size(),
+                                                              &ret->m_pRT.m_pRenderTarget[0],
                                                               ret->m_pDepthStencil);
     }
   }
@@ -1032,9 +1098,13 @@ namespace jdEngineSDK {
                       const float& b, 
                       const float& a) {
     float color[4] = { r,g,b,a };
-    D3D11RenderTarget* tmpS = reinterpret_cast<D3D11RenderTarget*>(rt.lock().get());
-    m_deviceContext.m_pd3dDeviceContext->ClearRenderTargetView(tmpS->m_pRT.m_pRenderTarget, 
-                                                               color);
+    D3D11RenderTarget* tmpRT = reinterpret_cast<D3D11RenderTarget*>(rt.lock().get());
+    uint32 numOfTargets = tmpRT->m_pRT.m_pRenderTarget.size();
+    for (uint32 i = 0; i < numOfTargets; ++i)
+    {
+      m_deviceContext.m_pd3dDeviceContext->ClearRenderTargetView(tmpRT->m_pRT.m_pRenderTarget[i],
+                                                                 color);
+    }
   }
 
   void 
@@ -1186,6 +1256,17 @@ namespace jdEngineSDK {
   }
 
   void 
+  DirectX11Api::PixelShaderSetShaderResourcesFromRT(WeakSptr<RenderTarget> resouce,
+                                                    int32 ResourceSlot,
+                                                    uint32 ResourceRTIndex,
+                                                    uint32 numresources) {
+    D3D11RenderTarget* t = reinterpret_cast<D3D11RenderTarget*>(resouce.lock().get());
+    m_deviceContext.m_pd3dDeviceContext->PSSetShaderResources(ResourceSlot, 
+                                                              numresources, 
+                                                              &t->m_pRT.m_ppSRV[ResourceRTIndex]);
+  }
+
+  void
   DirectX11Api::PixelShaderSetShaderResources(WeakSptr<Texture2D> resource,
                                               int32 ResourceSlot, 
                                               uint32 numresources) {

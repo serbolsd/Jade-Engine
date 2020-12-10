@@ -38,7 +38,13 @@ namespace jdEngineSDK {
      * @brief function to release
      */
     void*
-    getRenderTexture() override { return m_pRT.m_ppSRV[0]; };
+    getRenderTexture(uint32 index = 0) override {
+      if (index>= m_pRT.m_ppSRV.size() || 0 > index)
+      {
+        return m_pRT.m_ppSRV[0];
+      }
+      return m_pRT.m_ppSRV[index];
+    };
     void
     release() override {
       m_pRT.release();

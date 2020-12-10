@@ -23,24 +23,64 @@ testApp::testApp(const JDPoint& winPos,
 
 void 
 testApp::onCreate() {
+  m_debugCam = g_CameraMan().getDebugCamera();
+  return;
   m_rtv = g_graphicsApi().getRenderTargetView();
 
-  m_first = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 2, true);
-  m_cameraRT = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 2, true);
+  m_first = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 5, true);
+  m_cameraRT = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 5, true);
   m_cameraInterpolate = g_graphicsApi().createRenderTarget(m_clientSize.x, 
                                                            m_clientSize.y, 
-                                                           2, 
+                                                           5, 
                                                            true);
-  m_deferred = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 2, true, 2);
+  m_deferred = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 5, true, 4);
+  m_RTlights = g_graphicsApi().createRenderTarget(m_clientSize.x, m_clientSize.y, 5, true, 4);
+  m_ambientOclusion = g_graphicsApi().createRenderTarget(m_clientSize.x, 
+                                                         m_clientSize.y, 
+                                                         5, 
+                                                         false, 
+                                                         1);
+  m_ambientOclusionBlured = g_graphicsApi().createRenderTarget(m_clientSize.x, 
+                                                               m_clientSize.y, 
+                                                               5, 
+                                                               false, 
+                                                               1);
+  m_RTLuminance = g_graphicsApi().createRenderTarget(m_clientSize.x, 
+                                                     m_clientSize.y, 
+                                                     5, 
+                                                     false, 
+                                                     1);
+  m_RTBright = g_graphicsApi().createRenderTarget(m_clientSize.x, 
+                                                  m_clientSize.y, 
+                                                  5, 
+                                                  false, 
+                                                  1);
+  m_RTColorAO = g_graphicsApi().createRenderTarget(m_clientSize.x, 
+                                                   m_clientSize.y, 
+                                                   5, 
+                                                   false, 
+                                                   1);
+  m_RTBlurH = g_graphicsApi().createRenderTarget((uint32)(m_clientSize.x), 
+                                                 (uint32)(m_clientSize.y), 
+                                                 5, 
+                                                 false, 
+                                                 1,
+                                                 0.5);
+  m_RTBlurV = g_graphicsApi().createRenderTarget((uint32)(m_clientSize.x), 
+                                                 (uint32)(m_clientSize.y), 
+                                                 5, 
+                                                 false, 
+                                                 1,
+                                                 0.5);
 
-  ViewPort vp;
-  vp.Width = (float)m_clientSize.x;
-  vp.Height = (float)m_clientSize.y;
-  vp.MinDepth = 0.0f;
-  vp.MaxDepth = 1.0f;
-  vp.m_topLeftX = 0;
-  vp.m_topLeftY = 0;
-  g_graphicsApi().setViewPort(vp);
+  m_viewPort.Width = (float)m_clientSize.x;
+  m_viewPort.Height = (float)m_clientSize.y;
+  m_viewPort.MinDepth = 0.0f;
+  m_viewPort.MaxDepth = 1.0f;
+  m_viewPort.m_topLeftX = 0;
+  m_viewPort.m_topLeftY = 0;
+  m_viewPortScene = m_viewPort;
+  g_graphicsApi().setViewPort(m_viewPort);
 
   g_graphicsApi().setRenderTarget(m_rtv);
   //TestDeferred
@@ -50,18 +90,76 @@ testApp::onCreate() {
                                                     "data/shader/TestCubeMapMultiLight.fx",
                                                     "PS",
                                                     "ps_5_0");
+  
   m_progShaderWF = g_graphicsApi().loadShaderFromFile("data/shader/wireFrameShader.fx",
                                                       "VS",
                                                       "vs_5_0",
                                                       "data/shader/wireFrameShader.fx",
                                                       "PS",
                                                       "ps_5_0");
+
   m_progShaderDeferred = g_graphicsApi().loadShaderFromFile("data/shader/TestDeferred.fx",
                                                             "VS",
                                                             "vs_5_0",
                                                             "data/shader/TestDeferred.fx",
                                                             "PS",
                                                             "ps_5_0");
+
+  m_progShaderLights = g_graphicsApi().loadShaderFromFile("data/shader/LightsPass.fx",
+                                                          "VS",
+                                                          "vs_5_0",
+                                                          "data/shader/LightsPass.fx",
+                                                          "PS",
+                                                          "ps_5_0");
+  
+  m_progShaderAO = g_graphicsApi().loadShaderFromFile("data/shader/TestAmbientOclusion.fx",
+                                                      "VS",
+                                                      "vs_5_0",
+                                                      "data/shader/TestAmbientOclusion.fx",
+                                                      "PS",
+                                                      "ps_5_0");
+
+  m_progSLuminance = g_graphicsApi().loadShaderFromFile("data/shader/Luminance.fx",
+                                                        "VS",
+                                                        "vs_5_0",
+                                                        "data/shader/Luminance.fx",
+                                                        "PS",
+                                                        "ps_5_0");
+  
+  m_progSBright = g_graphicsApi().loadShaderFromFile("data/shader/Birght.fx",
+                                                      "VS",
+                                                      "vs_5_0",
+                                                      "data/shader/Birght.fx",
+                                                      "PS",
+                                                      "ps_5_0"); 
+
+  m_progSBColorAO = g_graphicsApi().loadShaderFromFile("data/shader/ColorWithAO.fx",
+                                                       "VS",
+                                                       "vs_5_0",
+                                                       "data/shader/ColorWithAO.fx",
+                                                       "PS",
+                                                       "ps_5_0");
+
+  SPtr<SHADER_DEFINES> Sdefines(new SHADER_DEFINES);
+  Sdefines->addDefine("HORIZONTAL");
+  m_progSBBlurH = g_graphicsApi().loadShaderFromFile("data/shader/BlurAndAdd.fx",
+                                                     "VS",
+                                                     "vs_5_0",
+                                                     "data/shader/BlurAndAdd.fx",
+                                                     "Blur",
+                                                     "ps_5_0", Sdefines);
+  m_progSBBlurV = g_graphicsApi().loadShaderFromFile("data/shader/BlurAndAdd.fx",
+                                                     "VS",
+                                                     "vs_5_0",
+                                                     "data/shader/BlurAndAdd.fx",
+                                                     "Blur",
+                                                     "ps_5_0");
+  m_progSBAdd = g_graphicsApi().loadShaderFromFile("data/shader/BlurAndAdd.fx",
+                                                   "VS",
+                                                   "vs_5_0",
+                                                   "data/shader/BlurAndAdd.fx",
+                                                   "Add",
+                                                   "ps_5_0");
   g_graphicsApi().setProgramShader(m_progShader);
 
   m_inLayoutElements.resize(2);
@@ -155,6 +253,9 @@ testApp::onCreate() {
   m_changeEveryFrameB = g_graphicsApi().CreateConstantBuffer(sizeof(CBChangesEveryFrame));
 
   m_lightsB = g_graphicsApi().CreateConstantBuffer(sizeof(CBLights));
+  m_AOB = g_graphicsApi().CreateConstantBuffer(sizeof(CBAO));
+  m_BrightB = g_graphicsApi().CreateConstantBuffer(sizeof(CBBright));
+  m_BlurB = g_graphicsApi().CreateConstantBuffer(sizeof(CBMipLevels));
 
   m_lights.light[0].m_lightColor = { 1,1,1,1 };
   m_lights.light[0].m_lightDirection = { -1,0,1 };
@@ -218,6 +319,9 @@ testApp::onCreate() {
   g_graphicsApi().updateSubresource(m_changeOnResizeB, &m_changeOnResize);
   g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
   g_graphicsApi().updateSubresource(m_lightsB, &m_lights);
+  g_graphicsApi().updateSubresource(m_AOB, &m_AOData);
+  g_graphicsApi().updateSubresource(m_BrightB, &m_BrightData);
+  g_graphicsApi().updateSubresource(m_BlurB, &m_mipDataBlur);
 
   //g_graphicsApi().setConstanBuffer(neverChangeB,0);
   g_graphicsApi().VertexShaderSetConstanBuffer(m_neverChangeB, 0);
@@ -249,61 +353,75 @@ testApp::onCreate() {
   m_ambientCubeMap = cubeMap;
   m_ambientCubeMapOption = 3;
   //load spidergwen
-  g_ResourceMan().loadResourceFromFile("data/models/Happy Idle.fbx",
-                                       RESOURCE_TYPE::MODEL);
-  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMap.jpg",
-                                       RESOURCE_TYPE::TEXTURE);
-  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMapV2.jpg",
-                                       RESOURCE_TYPE::TEXTURE);
-  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyNormalMap.jpg",
-                                       RESOURCE_TYPE::TEXTURE);
-  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacySpecularMap.jpg",
-                                       RESOURCE_TYPE::TEXTURE);
-  g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyMetallnessMap.jpg",
-                                       RESOURCE_TYPE::TEXTURE);
-  //
-  //
-  ////load noivern
-  //g_ResourceMan().loadResourceFromFile("data/models/Noivern.fbx",
+  //g_ResourceMan().loadResourceFromFile("data/models/Happy Idle.fbx",
+  //g_ResourceMan().loadResourceFromFile("data/models/Dancing.fbx",
   //                                     RESOURCE_TYPE::MODEL);
-  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_albedo.png",
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMap.jpg",
   //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_normals.png",
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyDifuselMapV2.jpg",
   //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_occlusion.png",
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyNormalMap.jpg",
   //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/noivern_roughness.png",
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacySpecularMap.jpg",
   //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_albedo.png",
+  //g_ResourceMan().loadResourceFromFile("data/textures/GwenStacyMetallnessMap.jpg",
   //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_normals.png",
-  //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_metallic.png",
-  //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_occlusion.png",
-  //                                     RESOURCE_TYPE::TEXTURE);
-  //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_roughness.png",
-  //                                     RESOURCE_TYPE::TEXTURE);
+  
+  
+  //load noivern
+  g_ResourceMan().loadResourceFromFile("data/models/Noivern.fbx",
+                                       RESOURCE_TYPE::MODEL);
+  g_ResourceMan().loadResourceFromFile("data/textures/noivern_albedo.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/noivern_normals.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/noivern_occlusion.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/noivern_roughness.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/pedestal_albedo.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/pedestal_normals.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/pedestal_metallic.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/pedestal_occlusion.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  g_ResourceMan().loadResourceFromFile("data/textures/pedestal_roughness.png",
+                                       RESOURCE_TYPE::TEXTURE);
+  SPtr<GameObject> tmp = SceneGraph::instance().createGameObject();
+  tmp->addComponent(COMPONENT_TYPE::RENDERMODEL);
+  auto rModel =
+    reinterpret_cast<CRenderModel*>(tmp->getComponent(COMPONENT_TYPE::RENDERMODEL).get());
+  rModel->setModel(g_ResourceMan().getModel("data/models/Noivern.fbx"));
+  rModel->m_model->m_meshes[0]->setAlbedoTexture(g_ResourceMan().getTexture("data/textures/noivern_albedo.png"));
+  rModel->m_model->m_meshes[0]->setNormalTexture(g_ResourceMan().getTexture("data/textures/noivern_normals.png"));
+  rModel->m_model->m_meshes[0]->setSpecularTexture(g_ResourceMan().getTexture("data/textures/black.png"));
+  rModel->m_model->m_meshes[0]->setRoughnessTexture(g_ResourceMan().getTexture("data/textures/noivern_roughness.png"));
+  rModel->m_model->m_meshes[1]->setAlbedoTexture(g_ResourceMan().getTexture("data/textures/pedestal_albedo.png"));
+  rModel->m_model->m_meshes[1]->setNormalTexture(g_ResourceMan().getTexture("data/textures/pedestal_normals.png"));
+  rModel->m_model->m_meshes[1]->setSpecularTexture(g_ResourceMan().getTexture("data/textures/pedestal_metallic.png"));
+  rModel->m_model->m_meshes[1]->setRoughnessTexture(g_ResourceMan().getTexture("data/textures/pedestal_roughness.png"));
 
   //load cyberWarrior
-  //g_ResourceMan().loadResourceFromFile("data/models/cyberWarrior.fbx",
-  //                                     RESOURCE_TYPE::MODEL);
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/TM.png",
-  //                                     RESOURCE_TYPE::TEXTURE);                         
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/NM.png",
-  //                                     RESOURCE_TYPE::TEXTURE);                         
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/Metal.png",
-  //                                     RESOURCE_TYPE::TEXTURE);                         
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/Rough.png",
-  //                                     RESOURCE_TYPE::TEXTURE);                         
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Base_Color.png",
-  //                                     RESOURCE_TYPE::TEXTURE);                         
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Normal_DirectX.png",
-  //                                     RESOURCE_TYPE::TEXTURE);                         
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Metallic.png",
-  //                                     RESOURCE_TYPE::TEXTURE);                         
-  //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Roughness.png",
-  //                                     RESOURCE_TYPE::TEXTURE);  
+  g_ResourceMan().loadResourceFromFile("data/models/cyberWarrior.fbx",
+                                       RESOURCE_TYPE::MODEL);
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/TM.png",
+                                       RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/NM.png",
+                                       RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/Metal.png",
+                                       RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/Rough.png",
+                                       RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Base_Color.png",
+                                       RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Normal_DirectX.png",
+                                       RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Metallic.png",
+                                       RESOURCE_TYPE::TEXTURE);                         
+  g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Roughness.png",
+                                       RESOURCE_TYPE::TEXTURE);  
 
   //Load Trooper
   //g_ResourceMan().loadResourceFromFile("data/models/trooper.fbx",
@@ -333,6 +451,7 @@ testApp::onCreate() {
   //g_ResourceMan().loadResourceFromFile("data/textures/Trooper/UpperBody.001_Roughness.jpg",
   //                                     RESOURCE_TYPE::TEXTURE);
 
+
   g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
 
   //Rasterize states
@@ -357,6 +476,8 @@ testApp::onCreate() {
 
 void 
 testApp::onRender() {  
+  g_Render().onRender();
+  return;
   imguiDockScreen();
   if (m_bSceneWindowNativeSize)
   {
@@ -366,7 +487,6 @@ testApp::onRender() {
   ImGui::CloseCurrentPopup();
   imGuiShowObject("child", SceneGraph::instance().m_root);
   ImGui::End();
-  //ImGui::ShowDemoWindow();
   imGuiInspectorObject();
 
   if (m_addigCamera)
@@ -379,6 +499,11 @@ testApp::onRender() {
   showModels();
 
   showAmbientOption();
+  
+  showAmbientOclusionOption();
+
+  showBrightOption();
+  showBlurOption();
 
   showCameraInterpolateMenu();
 
@@ -389,9 +514,11 @@ testApp::onRender() {
 
   {
     g_graphicsApi().setRenderTarget(m_first);
+    g_graphicsApi().setViewPort(m_viewPortScene);
     g_graphicsApi().Clear(m_first, 0.2f, 0.2f, 0.2f, 1);
     g_graphicsApi().ClearDepthStencil(m_first);
     changeCameraDataBuffer(m_debugCam);
+    g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
     for (auto object : SceneGraph::instance().m_GObjects)
     {
       auto component =
@@ -408,6 +535,7 @@ testApp::onRender() {
   renderDeferred();
 
   g_graphicsApi().setRenderTarget(m_rtv);
+  g_graphicsApi().setViewPort(m_viewPort);
   g_graphicsApi().Clear(m_rtv, 0, 0, 0, 1);
   g_graphicsApi().ClearDepthStencil(m_rtv);
   ImGui::Begin("Scene Window",
@@ -416,6 +544,11 @@ testApp::onRender() {
   ImVec2 wsize = ImGui::GetWindowSize();
   wsize.y -= 30;
   JDPoint size = { (int32)wsize.x, (int32)wsize.y };
+  if (m_firstFrame)
+  {
+    onResizeSceneWindow(size.x, size.y);
+    m_sceneSize = size;
+  }
   if (m_sceneSize != size)
   {
     onResizeSceneWindow(size.x, size.y);
@@ -436,23 +569,53 @@ testApp::renderDeferred() {
     {
       return;
     }
-    g_graphicsApi().setRenderTarget(m_deferred);
-    g_graphicsApi().Clear(m_deferred, 0.2f, 0.2f, 0.2f, 1);
-    g_graphicsApi().ClearDepthStencil(m_deferred);
-    g_graphicsApi().setRasterizeState(m_defaultRasState);
-    g_graphicsApi().setProgramShader(m_progShaderDeferred);
-    changeCameraDataBuffer(m_debugCam);
-    for (auto object : SceneGraph::instance().m_GObjects)
-    {
-      auto component =
-        object->getComponent(COMPONENT_TYPE::TRANSFORM);
-      CTransform* trans = reinterpret_cast<CTransform*>(component.get());
-      m_changeEveryFrame.m_world = trans->getMatrixTransform();
+    
+    geometryPass();
+    lightsPass();
+    LuminancePass();
+    BrightPass();
+    AmbientOculsionPass();
+    BlurPassAO();
 
-      g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+    ImGui::Begin("Deferred",
+                 &m_showDeferred);
+    ImVec2 wsize = { (float)m_sceneSize.x,(float)m_sceneSize.y};
+    ImGui::Text("Postions");
+    ImGui::Image(m_deferred.get()->getRenderTexture(0), wsize);
+    ImGui::Text("Normals");
+    ImGui::Image(m_deferred.get()->getRenderTexture(1), wsize);
+    ImGui::Text("Albedo");
+    ImGui::Image(m_deferred.get()->getRenderTexture(2), wsize);
+    ImGui::Text("Depth");
+    ImGui::Image(m_deferred.get()->getRenderTexture(3), wsize);
+    ImGui::Text("Diffuse");
+    ImGui::Image(m_RTlights.get()->getRenderTexture(0), wsize);
+    ImGui::Text("Specular");
+    ImGui::Image(m_RTlights.get()->getRenderTexture(1), wsize);
+    ImGui::Text("Ambient");
+    ImGui::Image(m_RTlights.get()->getRenderTexture(2), wsize);
+    ImGui::Text("Addition");
+    ImGui::Image(m_RTlights.get()->getRenderTexture(3), wsize);
+    ImGui::Text("Luminance");
+    ImGui::Image(m_RTLuminance.get()->getRenderTexture(0), wsize);
+    ImGui::Text("Bright");
+    ImGui::Image(m_RTBright.get()->getRenderTexture(0), wsize);
+    ImGui::Text("AmbientOculsionBeforeBlur");
+    ImGui::Image(m_ambientOclusion->getRenderTexture(0), wsize);
+    ImGui::Text("BlurH");
+    ImGui::Image(m_RTBlurH->getRenderTexture(), wsize);
+    ImGui::Text("BlurV");
+    ImGui::Image(m_RTBlurV->getRenderTexture(), wsize);
 
-      object->draw();
-    }
+    AddPass(m_ambientOclusionBlured, m_RTBlurH, m_RTBlurV);
+    ColorWithAmbientOculsionPass();
+    
+    ImGui::Text("AmbientOculsionAfterBlur");
+    ImGui::Image(m_ambientOclusionBlured->getRenderTexture(0), wsize);
+    ImGui::Text("Light Color AO");
+    ImGui::Image(m_RTColorAO->getRenderTexture(0), wsize);
+    ImGui::End();
+
     if (m_bWireframe)
     {
       g_graphicsApi().setRasterizeState(m_wireframeRasState);
@@ -463,25 +626,167 @@ testApp::renderDeferred() {
       g_graphicsApi().setRasterizeState(m_defaultRasState);
       g_graphicsApi().setProgramShader(m_progShader);
     }
-    ImGui::Begin("Deferred",
-                 &m_showDeferred,
-                 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-    ImVec2 wsize = { (float)m_sceneSize.x / 3,(float)m_sceneSize.y / 3 };
-    ImGui::Image(m_deferred.get()->getRenderTexture(0), wsize);
-    ImGui::SameLine();
-    ImGui::Image(m_deferred.get()->getRenderTexture(1), wsize);
-    ImGui::End();
   }
 }
 
 void 
+testApp::geometryPass() {
+  g_graphicsApi().setRenderTarget(m_deferred);
+  g_graphicsApi().Clear(m_deferred, 0, 0, 0, 1);
+  g_graphicsApi().ClearDepthStencil(m_deferred);
+  g_graphicsApi().setProgramShader(m_progShaderDeferred);
+  changeCameraDataBuffer(m_debugCam);
+  g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
+  for (auto object : SceneGraph::instance().m_GObjects)
+  {
+    auto component =
+      object->getComponent(COMPONENT_TYPE::TRANSFORM);
+    CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+    m_changeEveryFrame.m_world = trans->getMatrixTransform();
+
+    g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+
+    object->draw();
+  }
+  g_graphicsApi().generateMipMap(m_deferred);
+}
+
+void 
+testApp::lightsPass() {
+  g_graphicsApi().setRenderTarget(m_RTlights);
+  g_graphicsApi().Clear(m_RTlights, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().ClearDepthStencil(m_RTlights);
+  g_graphicsApi().setProgramShader(m_progShaderLights);
+  changeCameraDataBuffer(m_debugCam);
+  g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
+  for (auto object : SceneGraph::instance().m_GObjects)
+  {
+    auto component =
+      object->getComponent(COMPONENT_TYPE::TRANSFORM);
+    CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+    m_changeEveryFrame.m_world = trans->getMatrixTransform();
+
+    g_graphicsApi().updateSubresource(m_changeEveryFrameB, &m_changeEveryFrame);
+
+    object->draw();
+  }
+  g_graphicsApi().generateMipMap(m_RTlights);
+}
+
+void 
+testApp::LuminancePass() {
+  g_graphicsApi().setProgramShader(m_progSLuminance);
+  g_graphicsApi().setRenderTarget(m_RTLuminance);
+  g_graphicsApi().Clear(m_RTLuminance, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 0, 0);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 1, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 2, 2);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 3, 3);
+  g_ResourceMan().setSAQ();
+  g_graphicsApi().generateMipMap(m_RTLuminance);
+}
+
+void 
+testApp::BrightPass() {
+  g_graphicsApi().setProgramShader(m_progSBright);
+  g_graphicsApi().setRenderTarget(m_RTBright);
+  g_graphicsApi().Clear(m_RTBright, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 0, 0);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 1, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 2, 2);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTLuminance, 3, 0);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 4, 3);
+  g_graphicsApi().PixelShaderSetConstanBuffer(m_BrightB, 6);
+  g_ResourceMan().setSAQ();
+  g_graphicsApi().generateMipMap(m_RTBright);
+}
+
+void 
+testApp::AmbientOculsionPass() {
+  g_graphicsApi().setProgramShader(m_progShaderAO);
+  g_graphicsApi().setRenderTarget(m_ambientOclusion);
+  g_graphicsApi().Clear(m_ambientOclusion, 1, 1, 1, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_deferred, 0, 0);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_deferred, 1, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_deferred, 2, 3);
+  g_graphicsApi().PixelShaderSetConstanBuffer(m_AOB, 5);
+  g_ResourceMan().setSAQ();
+  g_graphicsApi().generateMipMap(m_ambientOclusion);
+}
+
+void 
+testApp::ColorWithAmbientOculsionPass() {
+  g_graphicsApi().setProgramShader(m_progSBColorAO);
+  g_graphicsApi().setRenderTarget(m_RTColorAO);
+  g_graphicsApi().Clear(m_RTColorAO, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 0, 0);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 1, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 2, 2);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_ambientOclusionBlured, 3, 0);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTlights, 4, 3);
+  g_ResourceMan().setSAQ();
+  g_graphicsApi().generateMipMap(m_RTColorAO);
+}
+
+void 
+testApp::BlurPassAO() {
+
+  g_graphicsApi().setProgramShader(m_progSBBlurH);
+  g_graphicsApi().PixelShaderSetConstanBuffer(m_BlurB,7);
+  g_graphicsApi().setRenderTarget(m_RTBlurH);
+  //viewport escalado
+  ViewPort tmp = m_viewPortScene;
+  tmp.Height = m_viewPortScene.Height * 0.5;
+  tmp.Width = m_viewPortScene.Width * 0.5;
+  g_graphicsApi().setViewPort(tmp);
+  g_graphicsApi().Clear(m_RTBlurH, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_ambientOclusion, 0, 0);
+  g_ResourceMan().setSAQ();
+  g_graphicsApi().generateMipMap(m_RTBlurH);
+
+  g_graphicsApi().setProgramShader(m_progSBBlurV);
+  g_graphicsApi().PixelShaderSetConstanBuffer(m_BlurB,7);
+  g_graphicsApi().setRenderTarget(m_RTBlurV);
+  g_graphicsApi().Clear(m_RTBlurV, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_ambientOclusion, 0, 0);
+  g_ResourceMan().setSAQ();
+  g_graphicsApi().generateMipMap(m_RTBlurV);
+  //
+  //viewport normal
+  g_graphicsApi().setViewPort(m_viewPortScene);
+}
+
+void 
+testApp::AddPass(SPtr<RenderTarget> target, 
+                 SPtr<RenderTarget> renderTarget1, 
+                 SPtr<RenderTarget> renderTarget2, 
+                 uint32 slotOfTarget1, 
+                 uint32 slotOfTarget2) {
+
+  g_graphicsApi().setProgramShader(m_progSBAdd);
+  g_graphicsApi().PixelShaderSetConstanBuffer(m_BlurB,7);
+  g_graphicsApi().setRenderTarget(target);
+  g_graphicsApi().Clear(target, 0.2f, 0.2f, 0.2f, 1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(renderTarget1, 0, slotOfTarget1);
+  g_graphicsApi().PixelShaderSetShaderResourcesFromRT(renderTarget2, 1, slotOfTarget2);
+  g_ResourceMan().setSAQ();
+  g_graphicsApi().generateMipMap(target);
+}
+
+void
 testApp::onResize(int32 width, int32 height) {
   if (!m_windowHasFocus)
   {
     return;
   }
-  ImGui::GetIO().DisplaySize = ImVec2((float)width, (float)height);
-  ImGui::GetIO().DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+  g_Render().onResize(width,height);
+  //ImGui::GetIO().DisplaySize = ImVec2((float)width, (float)height);
+  //ImGui::GetIO().DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+  //m_viewPort.Width = (float)width;
+  //m_viewPort.Height = (float)height;
+  //m_viewPort.MinDepth = 0.0f;
+  //m_viewPort.MaxDepth = 1.0f;
+  //m_viewPortScene = m_viewPort;
   g_graphicsApi().resizeSwapChain(width, height);
 }
 
@@ -509,10 +814,14 @@ testApp::onResizeSceneWindow(uint32 width, uint32 height) {
   m_changeOnResize.m_projectionInv.invert();
   g_graphicsApi().updateSubresource(m_changeOnResizeB, &m_changeOnResize);
   m_inputAPI->resize(width, height);
+  //m_viewPortScene.Width = width;
+  //m_viewPortScene.Height = height;
 }
 
 void 
-testApp::onMouseButtonPressed(int32 button, int32 /*x*/, int32 /*y*/) {
+testApp::onMouseButtonPressed(int32 button, int32 x, int32 y) {
+  g_Render().onMouseButtonPressed(button, x, y);
+  return;
   ImGuiIO& io = ImGui::GetIO();
   if (!ImGui::IsAnyMouseDown() && nullptr == ::GetCapture())
   {
@@ -523,17 +832,20 @@ testApp::onMouseButtonPressed(int32 button, int32 /*x*/, int32 /*y*/) {
 
 void 
 testApp::onTextEnterd(UNICHAR unicode) {
+  g_Render().onTextEnterd(unicode);
+  return;
   ImGuiIO& io = ImGui::GetIO();
   io.AddInputCharacterUTF16((unsigned short) unicode);
 }
 
 void
-testApp::onKeyPressed(int32 code, bool /*alt*/, bool /*control*/, bool /*shift*/, bool /*system*/) {
-  ImGuiIO& io = ImGui::GetIO();
-  if (code >= 0)
-  {
-    io.KeysDown[static_cast<int32>(code)] = true;
-  }
+testApp::onKeyPressed(int32 code, bool alt, bool control, bool shift, bool system) {
+  g_Render().onKeyPressed(code,alt,control, shift, system);
+  //ImGuiIO& io = ImGui::GetIO();
+  //if (code >= 0)
+  //{
+  //  io.KeysDown[static_cast<int32>(code)] = true;
+  //}
   //if (code == sf::Keyboard::W || 
   //    code == sf::Keyboard::S || 
   //    code == sf::Keyboard::A || 
@@ -613,27 +925,31 @@ testApp::onKeyPressed(int32 code, bool /*alt*/, bool /*control*/, bool /*shift*/
 }
 
 void
-testApp::onKeyReleased(int32 code, bool /*alt*/, bool /*control*/, bool /*shift*/, bool /*system*/) {
-  ImGuiIO& io = ImGui::GetIO();
-  if (code >= 0)
-  {
-    io.KeysDown[static_cast<int32>(code)] = false;
-  }
+testApp::onKeyReleased(int32 code, bool alt, bool control, bool shift, bool system) {
+  g_Render().onKeyReleased(code, alt, control, shift, system);
+  //ImGuiIO& io = ImGui::GetIO();
+  //if (code >= 0)
+  //{
+  //  io.KeysDown[static_cast<int32>(code)] = false;
+  //}
 }
 
-void 
-testApp::onMouseButtonReleased(int32 button, int32 /*x*/, int32 /*y*/) {
-  ImGuiIO& io = ImGui::GetIO();
-  if (!ImGui::IsAnyMouseDown() && ::GetCapture() == m_window.getSystemHandle())
-  {
-    ::ReleaseCapture();
-  }
-  io.MouseDown[static_cast<int32>(button)] = false;
+void
+testApp::onMouseButtonReleased(int32 button, int32 x, int32 y) {
+  g_Render().onMouseButtonReleased(button, x, y);
+  //ImGuiIO& io = ImGui::GetIO();
+  //if (!ImGui::IsAnyMouseDown() && ::GetCapture() == m_window.getSystemHandle())
+  //{
+  //  ::ReleaseCapture();
+  //}
+  //io.MouseDown[static_cast<int32>(button)] = false;
 }
 
 void
 testApp::onUpdate(const float& deltaTime) {
   SceneGraph::instance().onUpdate(deltaTime);
+  g_Render().onUpdate(deltaTime);
+  return;
   UpdateCameraInterpolate(deltaTime);
   ImGui_ImplDX11_NewFrame();
   ImGui_ImplWin32_NewFrame();
@@ -643,11 +959,11 @@ testApp::onUpdate(const float& deltaTime) {
 void 
 testApp::handleWindownput(const float& deltaTime) {
 
-  if (m_inputAPI->getKeyUp(KEYBOARD::kKeyA))
-  {
-    m_debugCam->rotate(Degree(-25 * deltaTime), 0);
-    changeCameraDataBuffer(m_debugCam);
-  }
+  //if (m_inputAPI->getKeyUp(KEYBOARD::kKeyA))
+  //{
+  //  m_debugCam->rotate(Degree(-25 * deltaTime), 0);
+  //  changeCameraDataBuffer(m_debugCam);
+  //}
   //if (m_inputAPI->getKey(KEYBOARD::kKeyW) ||
   //  m_inputAPI->getGamepadAxis(GAMEPAD_AXIS::kPadButtonLeftStickY) > 0 ||
   //  m_inputAPI->getKey(KEYBOARD::kKeyS) ||
@@ -659,6 +975,13 @@ testApp::handleWindownput(const float& deltaTime) {
   //  m_inputAPI->getKey(KEYBOARD::kKeyLeft) ||
   //  m_inputAPI->getKey(KEYBOARD::kKeyUp) ||
   //  m_inputAPI->getKey(KEYBOARD::kKeyDown)) {
+  //}
+//  m_inputAPI->getGamepadButtonDown(GAMEPAD_BUTTON::kPadButton18);
+  m_inputAPI->getGamepadAxis(GAMEPAD_AXIS::kPadButtonLeftStickX);
+  //if (m_inputAPI->getMouseButtonDown(MOUSE_BUTTON::kMouseButtonLeft))
+  //{
+  //  m_debugCam->rotate(Degree(-25 * deltaTime), 0);
+  //  changeCameraDataBuffer(m_debugCam);
   //}
   if (m_inputAPI->getKey(KEYBOARD::kKeyW) || 
       m_inputAPI->getGamepadAxis(GAMEPAD_AXIS::kPadButtonLeftStickY) > 0) {
@@ -839,6 +1162,9 @@ testApp::imguiDockScreen(){
       ImGui::Checkbox("Wireframe", &m_bWireframe);
       ImGui::Checkbox("CameraInterpolate", &m_cameraInterpolateMenuAtive);
       ImGui::Checkbox("Deferred", &m_showDeferred);
+      ImGui::Checkbox("AO options", &m_showAOOptions);
+      ImGui::Checkbox("Bright options", &m_showBrightOptions);
+      ImGui::Checkbox("Blur options", &m_showBlurOptions);
       if (m_bWireframe)
       {
         g_graphicsApi().setRasterizeState(m_wireframeRasState);
@@ -1473,6 +1799,55 @@ testApp::showAmbientOption() {
 }
 
 void 
+testApp::showAmbientOclusionOption() {
+  if (!m_showAOOptions)
+  {
+    return;
+  }
+  if (ImGui::Begin("AmbientOption", &m_showAOOptions))
+  {
+    ImGui::DragFloat("Sample Radius", &m_AOData.g_sample_radius, 0.001f, 0, 0, "%.5f");
+    ImGui::DragFloat("Scale", &m_AOData.g_scale, 0.001f, 0, 0, "%.5f");
+    ImGui::DragFloat("Bias",&m_AOData.g_Bias, 0.001f, 0, 0, "%.5f");
+    ImGui::DragFloat("Intensity", &m_AOData.g_intensity, 0.001f, 0, 0, "%.5f");
+    g_graphicsApi().updateSubresource(m_AOB, &m_AOData);
+    ImGui::End();
+  }
+}
+
+void 
+testApp::showBrightOption() {
+  if (!m_showBrightOptions)
+  {
+    return;
+  }
+  if (ImGui::Begin("Birght Options", &m_showBrightOptions))
+  {
+    ImGui::DragFloat("BrightLod", &m_BrightData.BrightLod_BloomThreshold.x, 1, 0, 0, "%.0f");
+    ImGui::DragFloat("BloomThreshold", &m_BrightData.BrightLod_BloomThreshold.y, 0.01f, 0, 0, "%.3f");
+    g_graphicsApi().updateSubresource(m_BrightB, &m_BrightData);
+    ImGui::End();
+  }
+}
+
+void 
+testApp::showBlurOption() {
+  if (!m_showBlurOptions)
+  {
+    return;
+  }
+  if (ImGui::Begin("Blur Options", &m_showBlurOptions))
+  {
+    ImGui::DragInt("Mip Level 0",&m_mipDataBlur.mipLevel0);
+    ImGui::DragInt("Mip Level 1",&m_mipDataBlur.mipLevel1);
+    ImGui::DragInt("Mip Level 2",&m_mipDataBlur.mipLevel2);
+    ImGui::DragInt("Mip Level 3",&m_mipDataBlur.mipLevel3);
+    g_graphicsApi().updateSubresource(m_BlurB, &m_mipDataBlur);
+    ImGui::End();
+  }
+}
+
+void 
 testApp::showModels() {
   //if (!m_windowHasFocus)
   //{
@@ -1678,13 +2053,14 @@ testApp::UpdateCameraInterpolate(const float& deltaTime) {
 
 void 
 testApp::onDestroy() {
-  ImGui_ImplDX11_Shutdown();
-  ImGui_ImplWin32_Shutdown();
-  ImGui::DestroyContext();
+  //ImGui_ImplDX11_Shutdown();
+  //ImGui_ImplWin32_Shutdown();
+  //ImGui::DestroyContext();
 }
 
 void 
 testApp::changeCameraDataBuffer(WeakSptr<Camera> cam) {
+  return;
   SPtr<Camera> camera = cam.lock();
 
   m_neverChanges.m_view = camera->getMatrixView();

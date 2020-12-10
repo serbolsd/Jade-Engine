@@ -86,8 +86,8 @@ namespace jdEngineSDK {
     HINSTANCE m_inputHInstance;
     //input api
 #ifdef _DEBUG
-    //m_inputHInstance = LoadLibraryExA("sysInput_Gainputd.dll",
-    m_inputHInstance = LoadLibraryExA("SysInput_OISd.dll",
+    m_inputHInstance = LoadLibraryExA("sysInput_Gainputd.dll",
+    //m_inputHInstance = LoadLibraryExA("SysInput_OISd.dll",
                                       nullptr,
                                       LOAD_WITH_ALTERED_SEARCH_PATH);
 #else
@@ -140,10 +140,36 @@ namespace jdEngineSDK {
     ResourceManager::startUp();
     SceneGraph::startUp();
     
+    HINSTANCE ren;
+#ifdef _DEBUG
+    ren = LoadLibraryExA("jdRenderForwardNDeferredd.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+#else
+    ren = LoadLibraryExA("jdRenderForwardNDeferred.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+#endif
+
+
+    if (!ren)
+    {
+      return;
+    }
+
+    auto createRenderApi = reinterpret_cast<RenApi>(GetProcAddress(ren, "createRenderAPI"));
+    if (!createRenderApi)
+    {
+      return;
+    }
+    RenderApi::startUp();
+    RenderApi* rendApi = createRenderApi();
+    g_Render().setObject(rendApi);
+
+    g_Render().init(m_window.getSystemHandle(), m_clientSize);
+    g_Render().m_windowHasFocus = &m_windowHasFocus;
+
   }
 
   void 
   BaseApp::destroySystems() {
+    RenderApi::shutDown;
     SceneGraph::instance().release();
     SceneGraph::shutDown();
     ResourceManager::instance().release();

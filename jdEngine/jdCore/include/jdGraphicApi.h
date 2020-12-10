@@ -63,6 +63,15 @@ namespace jdEngineSDK {
     uint32 InstanceDataStepRate;
   };
 
+  
+  class SHADER_DEFINES {
+   public:
+    void addDefine(String define) {
+      m_defines.push_back(std::move(define));
+    };
+    
+    Vector<String> m_defines;
+  };
 
   class JD_CORE_EXPORT GraphicApi : public Module<GraphicApi>
   {
@@ -144,6 +153,10 @@ namespace jdEngineSDK {
      * @brief create swap chain
      * @param width is width to depth stencil
      * @param height is is height to depth stencil
+     * @param mipLevels is the number of mip map to create with
+     * @param Depth to creat with depth or not
+     * @param numRenderTargets number Of renderTarget to create in thepointer
+     * @param scale the scale relative to the current window's client size
      * @return false if couldn´t create
      */
     virtual SPtr<RenderTarget>
@@ -151,9 +164,17 @@ namespace jdEngineSDK {
                        uint32 /*height*/, 
                        uint32 /*mipLevels*/ = 1, 
                        bool /*Depth*/ = false,
-                       uint32 /*numRenderTargets*/ = 1) {
+                       uint32 /*numRenderTargets*/ = 1,
+                       float scale = 1) {
       return nullptr; 
     };
+
+    /**
+     * @brief generate render target´s mipmap
+     * @param renderTarget is the render targe to generate its mipmaps
+     */
+    virtual void
+    generateMipMap(WeakSptr<RenderTarget> renderTarget) {};
 
     /**
      * @brief virtual function to load and save pixel and vertex shade from file
@@ -171,7 +192,8 @@ namespace jdEngineSDK {
                        const char* /*vertexShaderVersio*/, 
                        const char* /*pixelFilePath*/, 
                        const char* /*pixelMainFuntion*/,
-                       const char* /*pixelShaderVersion*/) { return nullptr; };
+                       const char* /*pixelShaderVersion*/,
+                       SPtr<SHADER_DEFINES> defines = nullptr) { return nullptr; };
 
     /**
      * @brief virtual function to load and save vertex shade from file
@@ -183,7 +205,8 @@ namespace jdEngineSDK {
     virtual SPtr<VertexShader>
     loadVertexShaderFromFile(const char* /*vertexFilePath*/, 
                              const char* /*vertexMainFuntion*/,
-                             const char* /*shaderVersion*/) { return nullptr; };
+                             const char* /*shaderVersion*/,
+                             SPtr<SHADER_DEFINES> defines = nullptr) { return nullptr; };
 
     /**
      * @brief virtual function to load and save pixel shade from file
@@ -195,7 +218,8 @@ namespace jdEngineSDK {
     virtual SPtr<PixelShader>
     loadPixelShaderFromFile(const char* /*pixelFilePath*/, 
                             const char* /*pixelMainFuntion*/,
-                            const char* /*shaderVersion*/) { return nullptr; };
+                            const char* /*shaderVersion*/,
+                            SPtr<SHADER_DEFINES> defines = nullptr) { return nullptr; };
 
     /**
      * @brief set the viewport for the render targets
@@ -430,6 +454,19 @@ namespace jdEngineSDK {
     PixelShaderSetShaderResources(WeakSptr<Texture2D> /*resoure*/,
                                   int32 /*ResourceSlot*/,
                                   uint32 /*numresources*/ = 1) {};
+
+    /**
+     * @brief virtual function to set Shader Resource in pixel Shader from render target
+     * @param resoure is a Texture 2d with the resourse
+     * @param ResourceSlot is the slot in the shader
+     * @param ResourceRTIndeX is the index of shader resource view in the render target
+     * @param numresources is the number of resources to set
+     */
+    virtual void
+    PixelShaderSetShaderResourcesFromRT(WeakSptr<RenderTarget> /*resouce*/,
+                                        int32 /*ResourceSlot*/,
+                                        uint32 /*ResourceRTIndex*/ = 0,
+                                        uint32 /*numresources*/ = 1) {};
 
     /**
      * @brief virtual function to set Sampler in pixel and vertex Shader

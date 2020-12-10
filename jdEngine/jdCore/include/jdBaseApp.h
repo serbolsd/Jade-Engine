@@ -19,10 +19,12 @@
 #include <jdResourceManager.h>
 #include <jdCameraManager.h>
 #include <InputAPI.h>
+#include <jdRender.h>
 using sf::WindowBase;
 using sf::Event;
 using sf::WindowHandle;
 using graphApi = jdEngineSDK::GraphicApi * (*)();
+using RenApi = jdEngineSDK::RenderApi* (*)();
 
 namespace jdEngineSDK {
 

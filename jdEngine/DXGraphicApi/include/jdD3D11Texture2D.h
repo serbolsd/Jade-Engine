@@ -40,7 +40,11 @@ namespace jdEngineSDK {
     void
     release() override {
       SAFE_RELEASE(m_texture);
-      SAFE_RELEASE(m_pRenderTarget);
+      uint32 numOfTargets = m_pRenderTarget.size();
+      for (uint32 i = 0; i < numOfTargets; ++i)
+      {
+        SAFE_RELEASE(m_pRenderTarget[i]);
+      }
       SAFE_RELEASE(m_textureForDepthStencil);
       for (size_t i = 0; i < m_ppSRV.size(); i++)
       {
@@ -53,8 +57,12 @@ namespace jdEngineSDK {
     };
 
     void*
-    getTexture() override {
-      return m_ppSRV[0];
+    getTexture(uint32 index = 0) override {
+      if (index>= m_ppSRV.size() || 0 > index)
+      { 
+        return m_ppSRV[0];
+      }
+      return m_ppSRV[index];
     }
 
    protected:
@@ -64,7 +72,7 @@ namespace jdEngineSDK {
     /**
      * @brief pointer to direct 11 texture2D class
      */
-    ID3D11Texture2D* m_texture = nullptr;
+    ID3D11Texture2D* m_texture;
 
     /**
      * @brief pointer to direct 11 texture2D class
@@ -74,7 +82,7 @@ namespace jdEngineSDK {
     /**
      * @brief pointer to direct 11 RenderTargetView class
      */
-    ID3D11RenderTargetView* m_pRenderTarget=nullptr;
+    Vector<ID3D11RenderTargetView*> m_pRenderTarget;
 
     /**
      * @brief vector of pointer to direct 11 ShaderResourceView class
