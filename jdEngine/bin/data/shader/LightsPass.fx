@@ -16,6 +16,7 @@ Texture2D txNormal : register(t1);
 Texture2D txSpecularMetal : register(t2);
 Texture2D txRoughness : register(t3);
 TextureCube cubeMap : register(t4);
+Texture2D txshadowMap : register(t5);
 
 
 SamplerState samLinear : register(s0);
@@ -53,6 +54,7 @@ cbuffer cbChangesEveryFrame : register(b2)
   matrix WorldProjInv;
   matrix WorldViewProj;
   matrix WorldViewProjInv;
+  matrix depthMVP;
   float4 viewPosition;
   float4 vMeshColor;
 };
@@ -85,6 +87,7 @@ struct PS_INPUT
   float3 PosWorld : TEXCOORD0;
   float2 Tex : TEXCOORD1;
   float3x3 TBN : TEXCOORD2;
+  float4 shcrd : COLOR0;
 };
 
 float Lamber_Diffuse(in float3 lightDir, in float3 surfNormal)
@@ -97,6 +100,13 @@ float Lamber_Diffuse(in float3 lightDir, in float3 surfNormal)
 //--------------------------------------------------------------------------------------
 PS_INPUT VS(VS_INPUT input)
 {
+  matrix biasMatrix = {
+    0.5, 0.0, 0.0, 0.0,
+    0.0, 0.5, 0.0, 0.0,
+    0.0, 0.0, 0.5, 0.0,
+    0.5, 0.5, 0.5, 1.0
+  };
+
   PS_INPUT output = (PS_INPUT)0;
   matrix boneTrans = boneTransform[input.BonesIDs[0]] * input.Weights[0];
   boneTrans += boneTransform[input.BonesIDs[1]] * input.Weights[1];
@@ -104,16 +114,23 @@ PS_INPUT VS(VS_INPUT input)
   boneTrans += boneTransform[input.BonesIDs[3]] * input.Weights[3];
   float4 position = mul(input.Pos, boneTrans);
 
-  output.PosWorld = mul(position, World).xyz;
   output.Pos = mul(position, World);
+  //output.worldPos = output.Pos.xyz;
+  matrix depthBias = mul(biasMatrix, depthMVP);
+  output.shcrd = mul(output.Pos, depthBias);
   output.Pos = mul(output.Pos, View);
   output.Pos = mul(output.Pos, Projection);
-  output.TBN[0] = normalize(mul(input.Tang, boneTrans)).xyz;
-  output.TBN[0] = normalize(mul(float4(output.TBN[0], 0), World)).xyz;
-  output.TBN[2] = normalize(mul(input.Norm, boneTrans)).xyz;
-  output.TBN[2] = normalize(mul(float4(output.TBN[2], 0), World)).xyz;
-  output.TBN[1] = normalize(cross(output.TBN[0], output.TBN[2]));
+
+  matrix boneW = mul(boneTrans, World);
+
+  //tangent
+  output.TBN[0] = normalize(mul(input.Tang, boneW)).xyz;
+  //normal
+  output.TBN[2] = normalize(mul(input.Norm, boneW)).xyz;
+  //binormal
+  output.TBN[1] = normalize(cross(output.TBN[2], output.TBN[0]));
   output.Tex = input.Tex;
+
   return output;
 }
 
@@ -165,7 +182,11 @@ PS_OUTPUT PS(PS_INPUT input) : SV_Target
   float4 normalColor = txNormal.Sample(samLinear, input.Tex.xy);
   float4 specularColor = txSpecularMetal.Sample(samLinear, input.Tex.xy);
   float4 roughnessColor = txRoughness.Sample(samLinear, input.Tex.xy);
-
+  float4 shadowMap = txshadowMap.Sample(samLinear, input.shcrd.xy);
+  float visibility = 1.0;
+  if (shadowMap.z< input.shcrd.z) {
+    visibility = 0.2f;
+  }
   float metallic = specularColor.r;
   float roughness = roughnessColor.r;
   //absortion factor
@@ -225,10 +246,10 @@ PS_OUTPUT PS(PS_INPUT input) : SV_Target
       ambientLightingWColor = (cube * metallic * F0) + (kd_a * finalColor);
       ambientLighting = (cube * metallic * F0);
     }
-    output.Diffuse = float4 (pow(diffuseBRDF.xyz * NdL, 1.0f / 2.2f).xyz,1.0f);
-    output.Specular = float4 (pow(specularBRDF.xyz * NdL, 1.0f / 2.2f).xyz, 1.0f);
-    output.Ambient = float4 (pow(ambientLighting.xyz * NdL, 1.0f / 2.2f).xyz, 1.0f);
-    result += pow(abs(diffuseBRDF.xyz + specularBRDF + ambientLighting) * NdL, 1.0f / 2.2f);
+    output.Diffuse = float4 (pow(diffuseBRDF.xyz * visibility * NdL, 1.0f / 2.2f).xyz,1.0f);
+    output.Specular = float4 (pow(specularBRDF.xyz * visibility * NdL, 1.0f / 2.2f).xyz, 1.0f);
+    output.Ambient = float4 (pow(ambientLighting.xyz* visibility * NdL, 1.0f / 2.2f).xyz, 1.0f);
+    result += pow(abs((diffuseBRDF.xyz * visibility)+ (specularBRDF * visibility) + (ambientLighting* visibility)) * NdL, 1.0f / 2.2f);
   }
   output.Addition = float4(result, finalColor.w);
   //result /= lights[0].numberOfLights;

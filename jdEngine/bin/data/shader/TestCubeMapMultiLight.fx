@@ -53,6 +53,7 @@ cbuffer cbChangesEveryFrame : register(b2)
   matrix WorldProjInv;
   matrix WorldViewProj;
   matrix WorldViewProjInv;
+  matrix depthMVP;
   float4 viewPosition;
   float4 vMeshColor;
 };

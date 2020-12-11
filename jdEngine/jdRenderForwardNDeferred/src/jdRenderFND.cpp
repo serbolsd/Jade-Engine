@@ -231,9 +231,15 @@ namespace jdEngineSDK {
                                                        (uint32)(m_clientSize.y), 
                                                        5, 
                                                        false, 
-                                                       1);
+                                                       1); 
     //Create ToneMap render target
     m_RTToneMap = g_graphicsApi().createRenderTarget((uint32)(m_clientSize.x),
+                                                       (uint32)(m_clientSize.y), 
+                                                       5, 
+                                                       false, 
+                                                       1);
+    //Create ToneMap render target
+    m_RTShadowMap = g_graphicsApi().createRenderTarget((uint32)(m_clientSize.x),
                                                        (uint32)(m_clientSize.y), 
                                                        5, 
                                                        false, 
@@ -342,6 +348,15 @@ namespace jdEngineSDK {
                                                  "data/shader/BlurAndAdd.fx",
                                                  "Add",
                                                  "ps_5_0");
+
+    //Load Addition Shader
+    m_PSShadowMap = g_graphicsApi().loadShaderFromFile("data/shader/shadowMap.fx",
+                                                       "VS",
+                                                       "vs_5_0",
+                                                       "data/shader/shadowMap.fx",
+                                                       "ShadowMap",
+                                                       "ps_5_0");
+
     //Set forward Shader
     g_graphicsApi().setProgramShader(m_PSForward);
 
@@ -557,6 +572,7 @@ namespace jdEngineSDK {
       g_graphicsApi().createRasterizeState(RASTERIZER_FILL_MODE::D3D11_FILL_WIREFRAME);
 
     SPtr<GameObject> light = SceneGraph::instance().createGameObject();
+    m_slight = light;
     light->setName("mainLight");
     SPtr<Component> mainLight = light->addComponent(COMPONENT_TYPE::LIGHT);
     CLight* ml = reinterpret_cast<CLight*>(mainLight.get());
@@ -1541,6 +1557,7 @@ namespace jdEngineSDK {
     }
 
     geometryPass();
+    shadowPass();
     lightsPass();
     AmbientOculsionPass();
     BlurPass(m_RTAmbientOclusion);
@@ -1564,6 +1581,8 @@ namespace jdEngineSDK {
     ImGui::Image(m_RTLights.get()->getRenderTexture(2), wsize);
     ImGui::Text("Addition");
     ImGui::Image(m_RTLights.get()->getRenderTexture(3), wsize);
+    ImGui::Text("Shado Map");
+    ImGui::Image(m_RTShadowMap.get()->getRenderTexture(0), wsize);
     ImGui::Text("AmbientOculsionBeforeBlur");
     ImGui::Image(m_RTAmbientOclusion->getRenderTexture(0), wsize);
 
@@ -1613,6 +1632,46 @@ namespace jdEngineSDK {
   }
 
   void 
+  RenderFNDApi::shadowPass() {
+    JDMatrix4 depthProj = createProjectionOrthographicMatrix(-500, 500, -500, 500, -200, 800);
+    //JDMatrix4 depthProj = createProjectionPerspectiveMatrix(Math::HALF_PI / 2, float(1000 / 1000),3, 10000.0f);
+    auto component = m_slight->getComponent(COMPONENT_TYPE::TRANSFORM);
+    if (nullptr == component) {
+      return;
+    }
+    CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+    JDVector4 eye = m_DLights.light[0].m_lightPosition;
+    JDVector4 at = eye + m_DLights.light[0].m_lightDirection;
+    JDMatrix4 depthView = createViewMatrix(trans->position, 
+                                           trans->position + trans->forward,
+                                           trans->up);
+    depthView.transpose();
+    depthProj.transpose();
+    m_DChangeEveryFrame.m_depthWVP = depthProj * depthView;
+    //m_DChangeEveryFrame.m_depthWVP = m_DChangeOnResize.m_projection* m_DNeverChanges.m_view;
+
+    g_graphicsApi().updateSubresource(m_CBchangeEveryFrame, &m_DChangeEveryFrame);
+
+    g_graphicsApi().setRenderTarget(m_RTShadowMap);
+    g_graphicsApi().Clear(m_RTShadowMap, 1, 1, 1, 1);
+    g_graphicsApi().ClearDepthStencil(m_RTShadowMap);
+    g_graphicsApi().setProgramShader(m_PSShadowMap);
+    for (auto object : SceneGraph::instance().m_GObjects)
+    {
+      auto component =
+        object->getComponent(COMPONENT_TYPE::TRANSFORM);
+      CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+      m_DChangeEveryFrame.m_world = trans->getMatrixTransform();
+
+      g_graphicsApi().updateSubresource(m_CBchangeEveryFrame, &m_DChangeEveryFrame);
+
+      object->draw();
+    }
+    g_graphicsApi().generateMipMap(m_RTShadowMap);
+
+  }
+
+  void 
   RenderFNDApi::geometryPass() {
     g_graphicsApi().setRenderTarget(m_RTGeometry);
     g_graphicsApi().Clear(m_RTGeometry, 0, 0, 0, 1);
@@ -1642,6 +1701,7 @@ namespace jdEngineSDK {
     g_graphicsApi().setProgramShader(m_PSLights);
     changeCameraDataBuffer(m_debugCam);
     g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
+    g_graphicsApi().PixelShaderSetShaderResourcesFromRT(m_RTShadowMap, 5, 0);
     for (auto object : SceneGraph::instance().m_GObjects)
     {
       auto component =

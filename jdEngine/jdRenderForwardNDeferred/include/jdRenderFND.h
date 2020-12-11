@@ -66,6 +66,7 @@ namespace jdEngineSDK {
     JDMatrix4 m_worldProjInv;
     JDMatrix4 m_worldViewProj;
     JDMatrix4 m_worldViewProjInv;
+    JDMatrix4 m_depthWVP;
     JDVector4 m_viewPosition;
     JDVector4 vMeshColor;
   };
@@ -368,6 +369,13 @@ namespace jdEngineSDK {
      */
     void
     renderDeferred();
+
+    /**
+     * @brief function to call to render
+     */
+    void
+    shadowPass();
+    SPtr<GameObject> m_slight;
     
     /**
      * @brief function to call to render
@@ -526,6 +534,11 @@ namespace jdEngineSDK {
      */
     SPtr<RenderTarget> m_RTToneMap = nullptr;
 
+    /**
+     * @brief shared pointer to ShadoMap render target to shado map
+     */
+    SPtr<RenderTarget> m_RTShadowMap = nullptr;
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Shaders
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -588,6 +601,11 @@ namespace jdEngineSDK {
      * @brief shared pointer to a program shader to ToneMap
      */
     SPtr<ProgramShader> m_PSToneMap = nullptr;
+
+    /**
+     * @brief shared pointer to a program shader to shadowMap
+     */
+    SPtr<ProgramShader> m_PSShadowMap = nullptr;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Constant Buffers
