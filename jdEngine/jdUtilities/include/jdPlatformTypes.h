@@ -2,8 +2,8 @@
 
 //includes
 
-#include <cstdint>//inclusiones externas con<>
-#include "jdPlatformDefines.h"//inclusiones de esta libreria ""
+#include <cstdint> //inclusiones externas con<>
+#include "jdPlatformDefines.h" //inclusiones de esta libreria ""
 
 namespace jdEngineSDK {
   using std::uint8_t;
@@ -49,6 +49,7 @@ namespace jdEngineSDK {
   using UNICHAR = WCHAR;  //UNICODE character type
 
   using BYTE = char;
+  using UCHAR = unsigned char;
 /*****************************************************************************/
 /**
  * NULL data type
@@ -62,5 +63,4 @@ namespace jdEngineSDK {
  */
 /*****************************************************************************/
   using SIZE_T = size_t;
-
 }

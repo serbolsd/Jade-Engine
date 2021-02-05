@@ -15,8 +15,9 @@ namespace jdEngineSDK {
 
     initSystems();
 
+    g_Profiler().start();
     onCreate();
-
+    g_Profiler().toc("onCreate Function");
     //Main loop
     //float time = 0.0f;
     bool shoudClose = false;
@@ -43,9 +44,13 @@ namespace jdEngineSDK {
         break;
       }
       handleWindownput(elapsed.asSeconds());
+      g_Profiler().toc("Inputs");
+
       update(elapsed.asSeconds());
+      g_Profiler().toc("Update fucntion");
 
       render();
+      g_Profiler().toc("Render funtion");
     }
 
     onDestroy();
@@ -139,7 +144,11 @@ namespace jdEngineSDK {
     CameraManager::startUp();
     ResourceManager::startUp();
     SceneGraph::startUp();
-    
+
+
+    Logger::startUp();
+    Profiler::startUp();
+
     HINSTANCE ren;
 #ifdef _DEBUG
     ren = LoadLibraryExA("jdRenderForwardNDeferredd.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
@@ -164,11 +173,12 @@ namespace jdEngineSDK {
 
     g_Render().init(m_window.getSystemHandle(), m_clientSize);
     g_Render().m_windowHasFocus = &m_windowHasFocus;
-
   }
 
   void 
   BaseApp::destroySystems() {
+    Profiler::shutDown();
+    Logger::shutDown();
     RenderApi::shutDown;
     SceneGraph::instance().release();
     SceneGraph::shutDown();

@@ -54,6 +54,9 @@
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h">
       <Filter>ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="..\dependencies\stb_image\stb_image.h">
+      <Filter>Archivos de recursos</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\jdRenderFND.cpp">

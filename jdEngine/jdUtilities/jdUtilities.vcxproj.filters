@@ -90,6 +90,15 @@
     <ClInclude Include="include\jdPlane.h">
       <Filter>Archivos de origen\Math</Filter>
     </ClInclude>
+    <ClInclude Include="include\jdHeap.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRandom.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdTime.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -126,6 +135,9 @@
       <Filter>Archivos de origen\Math</Filter>
     </ClCompile>
     <ClCompile Include="include\jdFrustum.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdHeap.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>

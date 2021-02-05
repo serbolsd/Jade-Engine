@@ -3,6 +3,11 @@
 #include <jdComponentRenderModel.h>
 #include <jdComponentLight.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include <CL/cl.h>
+using std::cout;
+using std::endl;
 namespace jdEngineSDK {
   RenderFNDApi::RenderFNDApi() {
   }
@@ -16,7 +21,12 @@ namespace jdEngineSDK {
     m_wndHandle = wndHandle;
     m_clientSize = clientSize;
     onCreate();
+    LoadHistogram();
     //initImGui();
+    g_Logger().Log("TODO CHIDO");
+    float num1, num2;
+    Random::RandomBoxMuller(num1, num2, 5, 10);
+    g_Logger().Log("Number 1 is : %d Number 12 is : % d",num1,num2);
   }
 
   void RenderFNDApi::onUpdate(const float& deltaTime) {
@@ -42,6 +52,7 @@ namespace jdEngineSDK {
     showBrightOption();
     showBlurOption();
     showCameraInterpolateMenu();
+    showHistorgramOption();
 
     if (m_loadingFile)
     {
@@ -620,7 +631,388 @@ namespace jdEngineSDK {
 
   }
 
+#define errOut(x) if (0 != x) {std::cout<<"Error de salida: "<< x << std::endl; return x; }
+  int 
+  RenderFNDApi::LoadHistogram() {
+    cl_uint num_platforms = 0;
+    errOut(clGetPlatformIDs(0, nullptr, &num_platforms));
+
+    Vector<cl_platform_id> all_platforms;
+    all_platforms.resize(num_platforms);
+
+    errOut(clGetPlatformIDs(num_platforms, &all_platforms[0], &num_platforms));
+
+    String platform_version;
+    String platform_name;
+    String platform_vendor;
+    String platform_extensions;
+    platform_version.resize(255, '\0');
+    platform_name.resize(255, '\0');
+    platform_vendor.resize(255, '\0');
+    platform_extensions.resize(1024, '\0');
+
+    for (auto& platform : all_platforms) {
+      clGetPlatformInfo(platform, CL_PLATFORM_VERSION, 255, &platform_version[0], nullptr);
+      clGetPlatformInfo(platform, CL_PLATFORM_NAME, 255, &platform_name[0], nullptr);
+      clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, 255, &platform_vendor[0], nullptr);
+      clGetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS, 1024, &platform_extensions[0], nullptr);
+      cout << "Platform version: " << platform_version << endl;
+      cout << "Platform name: " << platform_name << endl;
+      cout << "Platform vendor: " << platform_vendor << endl;
+      cout << "Platform extentions: " << platform_extensions << endl;
+    }
+    cl_platform_id selected_platform = all_platforms[0];
+
+    cl_uint numDevices = 0;
+    errOut(clGetDeviceIDs(selected_platform, CL_DEVICE_TYPE_ALL, 0, nullptr, &numDevices));
+
+    Vector<cl_device_id> all_devices;
+    all_devices.resize(numDevices);
+
+    errOut(clGetDeviceIDs(selected_platform,
+      CL_DEVICE_TYPE_ALL,
+      numDevices,
+      &all_devices[0],
+      nullptr));
+
+    String device_name;
+    String device_vendor;
+    String driver_version;
+    String device_profile;
+    String device_version;
+    String device_extensions;
+    String device_platform;
+    String device_double_fp_config;
+    device_name.resize(255, '\0');
+    device_vendor.resize(255, '\0');
+    driver_version.resize(255, '\0');
+    device_profile.resize(255, '\0');
+    device_version.resize(255, '\0');
+    device_extensions.resize(1024, '\0');
+    device_platform.resize(1024, '\0');
+    device_double_fp_config.resize(1024, '\0');
+
+    for (auto& device : all_devices) {
+      clGetDeviceInfo(device, CL_DEVICE_NAME, 255, &device_name[0], nullptr);
+      clGetDeviceInfo(device, CL_DEVICE_VENDOR, 255, &device_vendor[0], nullptr);
+      clGetDeviceInfo(device, CL_DRIVER_VERSION, 255, &driver_version[0], nullptr);
+      clGetDeviceInfo(device, CL_DEVICE_PROFILE, 255, &device_profile[0], nullptr);
+      clGetDeviceInfo(device, CL_DEVICE_VERSION, 255, &device_version[0], nullptr);
+      clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 1024, &device_extensions[0], nullptr);
+      clGetDeviceInfo(device, CL_DEVICE_PLATFORM, 1024, &device_platform[0], nullptr);
+      clGetDeviceInfo(device, CL_DEVICE_DOUBLE_FP_CONFIG, 1024, &device_double_fp_config[0], nullptr);
+      cout << "Device name: " << device_name << endl;
+      cout << "Device vendor: " << device_vendor << endl;
+      cout << "Driver version: " << driver_version << endl;
+      cout << "Device profile: " << device_profile << endl;
+      cout << "Device version: " << device_version << endl;
+      cout << "Device extensions: " << device_extensions << endl;
+      cout << "Device platform: " << device_platform << endl;
+      cout << "Device doble fp config: " << device_double_fp_config << endl;
+    }
+
+    cl_device_id selected_device = all_devices[0];
+
+    cl_int error;
+    cl_context context = clCreateContext(nullptr, 
+                                         1, 
+                                         &selected_device, 
+                                         nullptr, 
+                                         nullptr, 
+                                         &error);
+    errOut(error);
+    String kernel_code2 = "void kernel Histogram(global const int* RED,"
+                                                "global const int* GREEN,"
+                                                "global const int* BLUE,"
+                                                "global const int* ALPHA,"
+                                                "global int* oRED,"
+                                                "global int* oGREEN,"
+                                                "global int* oBLUE,"
+                                                "global int* oALPHA) {"
+                                                  "int id = get_global_id(0);"
+                                                  "atomic_add(&oRED[RED[id]],1);"
+                                                  "atomic_add(&oGREEN[GREEN[id]],1);"
+                                                  "atomic_add(&oBLUE[BLUE[id]],1);"
+                                                  "atomic_add(&oALPHA[ALPHA[id]],1);"
+                                                "};";
+    const char** code2 = (const char**)new char[1];
+    code2[0] = kernel_code2.c_str();
+
+    size_t codeSize = kernel_code2.size();
+
+    cl_program program2 = clCreateProgramWithSource(context, 1, code2, &codeSize, &error);
+    errOut(error);
+
+    errOut(clBuildProgram(program2, 1, &selected_device, nullptr, nullptr, nullptr));
+
+    cl_command_queue command_queue2 = clCreateCommandQueue(context, 
+                                                           selected_device, 
+                                                           0, 
+                                                           &error);
+    errOut(error);
+
+    cl_kernel Histogram = clCreateKernel(program2, "Histogram", &error);
+    errOut(error);
+
+    int width, height, channels;
+    unsigned char* img = stbi_load("cartoon-building.png", &width, &height, &channels, 4);
+    int pixelSize = width * height;
+    //Input
+    cl_mem buffer_red = clCreateBuffer(context, 
+                                       CL_MEM_READ_WRITE, 
+                                       sizeof(int) * pixelSize, 
+                                       nullptr, 
+                                       &error);
+    errOut(error);
+    cl_mem buffer_green = clCreateBuffer(context, 
+                                         CL_MEM_READ_WRITE, 
+                                         sizeof(int) * pixelSize, 
+                                         nullptr, 
+                                         &error);
+    errOut(error);
+    cl_mem buffer_blue = clCreateBuffer(context, 
+                                        CL_MEM_READ_WRITE, 
+                                        sizeof(int) * 
+                                        pixelSize, 
+                                        nullptr, 
+                                        &error);
+    errOut(error);
+    cl_mem buffer_alpha = clCreateBuffer(context, 
+                                         CL_MEM_READ_WRITE, 
+                                         sizeof(int) * 
+                                         pixelSize, 
+                                         nullptr,
+                                         &error);
+    errOut(error);
+    //Ouput
+    cl_mem buffer_oRed = clCreateBuffer(context, 
+                                        CL_MEM_READ_WRITE, 
+                                        sizeof(int) * 256, 
+                                        nullptr, 
+                                        &error);
+    errOut(error);
+    cl_mem buffer_oGreen = clCreateBuffer(context, 
+                                          CL_MEM_READ_WRITE, 
+                                          sizeof(int) * 256, 
+                                          nullptr, 
+                                          &error);
+    errOut(error);
+    cl_mem buffer_oBlue = clCreateBuffer(context, 
+                                         CL_MEM_READ_WRITE, 
+                                         sizeof(int) * 256, 
+                                         nullptr, 
+                                         &error);
+    errOut(error);
+    cl_mem buffer_oAlpha = clCreateBuffer(context, 
+                                          CL_MEM_READ_WRITE, 
+                                          sizeof(int) * 256, 
+                                          nullptr, 
+                                          &error);
+    errOut(error);
+
+    Vector<int> red;
+    red.resize(pixelSize);
+    m_redHisto.resize(pixelSize);
+
+    Vector<int>  green;
+    green.resize(pixelSize);
+    m_greenHisto.resize(pixelSize);
+
+    Vector<int>  blue;
+    blue.resize(pixelSize);
+    m_blueHisto.resize(pixelSize);
+
+    Vector<int>  Alpha;
+    Alpha.resize(pixelSize);
+    int size = pixelSize * 3;
+    int currentPixel = 0;
+    for (int j = 0; j < height; j++)
+    {
+      for (int i = 0; i < width; i++)
+      {
+        unsigned char* pixelOffset = img + (i + height * j) * channels;
+        red[currentPixel] = pixelOffset[0];
+        green[currentPixel] = channels >= 2 ? pixelOffset[1] : 0;
+        blue[currentPixel] = channels >= 3 ? pixelOffset[2] : 0;
+        Alpha[currentPixel] = channels >= 4 ? pixelOffset[3] : 255;
+        ++currentPixel;
+      }
+    }
+
+    int oRed[256] = { 0 };
+    int oGreen[256] = { 0 };
+    int oBlue[256] = { 0 };
+    int oAlpha[256] = { 0 };
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_red, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * pixelSize, 
+                         red.data(), 
+                         0, 
+                         nullptr, 
+                         nullptr);
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_green, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * pixelSize, 
+                         green.data(), 
+                         0, 
+                         nullptr, 
+                         nullptr);
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_blue, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * pixelSize, 
+                         blue.data(),
+                         0,
+                         nullptr, 
+                         nullptr);
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_alpha, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * pixelSize, 
+                         Alpha.data(), 0, nullptr, nullptr);
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_oRed, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * 256, 
+                         oRed, 
+                         0, 
+                         nullptr, 
+                         nullptr);
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_oGreen, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * 256, 
+                         oGreen, 
+                         0, 
+                         nullptr, 
+                         nullptr);
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_oBlue, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * 256, 
+                         oBlue,
+                         0, 
+                         nullptr, 
+                         nullptr);
+    clEnqueueWriteBuffer(command_queue2, 
+                         buffer_oAlpha, 
+                         CL_TRUE, 
+                         0, 
+                         sizeof(int) * 256, 
+                         oAlpha, 
+                         0, 
+                         nullptr, 
+                         nullptr);
+
+    errOut(clSetKernelArg(Histogram, 0, sizeof(cl_mem), (void*)&buffer_red));
+    errOut(clSetKernelArg(Histogram, 1, sizeof(cl_mem), (void*)&buffer_green));
+    errOut(clSetKernelArg(Histogram, 2, sizeof(cl_mem), (void*)&buffer_blue));
+    errOut(clSetKernelArg(Histogram, 3, sizeof(cl_mem), (void*)&buffer_alpha));
+    errOut(clSetKernelArg(Histogram, 4, sizeof(cl_mem), (void*)&buffer_oRed));
+    errOut(clSetKernelArg(Histogram, 5, sizeof(cl_mem), (void*)&buffer_oGreen));
+    errOut(clSetKernelArg(Histogram, 6, sizeof(cl_mem), (void*)&buffer_oBlue));
+    errOut(clSetKernelArg(Histogram, 7, sizeof(cl_mem), (void*)&buffer_oAlpha));
+
+    size_t globalWorkSize = pixelSize;
+    clEnqueueNDRangeKernel(command_queue2, 
+                           Histogram, 
+                           1, 
+                           nullptr, 
+                           &globalWorkSize, 
+                           nullptr, 
+                           0, 
+                           nullptr, 
+                           nullptr);
+
+    errOut(clFinish(command_queue2));
+
+    clEnqueueReadBuffer(command_queue2, 
+                        buffer_oRed, 
+                        CL_TRUE, 
+                        0, 
+                        sizeof(int) * 256, 
+                        oRed, 
+                        0, 
+                        nullptr, 
+                        nullptr);
+    clEnqueueReadBuffer(command_queue2, 
+                        buffer_oGreen, 
+                        CL_TRUE, 
+                        0, 
+                        sizeof(int) * 256, 
+                        oGreen, 
+                        0, 
+                        nullptr, 
+                        nullptr);
+    clEnqueueReadBuffer(command_queue2, 
+                        buffer_oBlue, 
+                        CL_TRUE, 
+                        0, 
+                        sizeof(int) * 256, 
+                        oBlue, 
+                        0, 
+                        nullptr, 
+                        nullptr);
+    clEnqueueReadBuffer(command_queue2, 
+                        buffer_oAlpha, 
+                        CL_TRUE, 
+                        0, 
+                        sizeof(int) * 256, 
+                        oAlpha, 
+                        0, 
+                        nullptr, 
+                        nullptr);
+    for (int i = 0; i < 256; ++i) {
+      m_redHisto[i] = (float)oRed[i];
+      m_greenHisto[i] = (float)oGreen[i];
+      m_blueHisto[i] = (float)oBlue[i];
+    }
+  }
+
   void 
+  RenderFNDApi::showHistorgramOption() {
+    if (!m_showHistogram) {
+      return;
+    }
+    if (ImGui::Begin("Histogram", &m_showHistogram)) {
+      ImGui::PlotHistogram("red", 
+                           m_redHisto.data(), 
+                           256, 
+                           0, 
+                           0, 
+                           3.402823466e+38F, 
+                           3.402823466e+38F, 
+                           ImVec2(400, 100));
+      ImGui::PlotHistogram("green",
+                           m_greenHisto.data(), 
+                           256, 
+                           0, 
+                           0, 
+                           3.402823466e+38F, 
+                           3.402823466e+38F, 
+                           ImVec2(400, 100));
+      ImGui::PlotHistogram("blue", 
+                           m_blueHisto.data(), 
+                           256, 
+                           0, 
+                           0, 
+                           3.402823466e+38F, 
+                           3.402823466e+38F, 
+                           ImVec2(400, 100));
+      ImGui::End();
+    }
+  }
+
+  void
   RenderFNDApi::UpdateCameraInterpolate(const float& deltaTime) {
     if (g_CameraMan().m_interpolating)
     {
@@ -765,6 +1157,7 @@ namespace jdEngineSDK {
         ImGui::Checkbox("AO options", &m_showAOOptions);
         ImGui::Checkbox("Bright options", &m_showBrightOptions);
         ImGui::Checkbox("Blur options", &m_showBlurOptions);
+        ImGui::Checkbox("Histogram", &m_showHistogram);
         if (m_bWireframe)
         {
           g_graphicsApi().setRasterizeState(m_wireframeRasState);
@@ -1587,7 +1980,7 @@ namespace jdEngineSDK {
     ImGui::Image(m_RTAmbientOclusion->getRenderTexture(0), wsize);
 
     AddPass(m_RTAOclusionBlured, m_RTBlurH, m_RTBlurV);
-    for (uint32 i = 0; i < m_bluredAOPassesNum; i++)
+    for (uint32 i = 0; i < (uint32)m_bluredAOPassesNum; i++)
     {
       BlurPass(m_RTAOclusionBlured);
       AddPass(m_RTAOclusionBlured, m_RTBlurH, m_RTBlurV);
@@ -1658,10 +2051,10 @@ namespace jdEngineSDK {
     g_graphicsApi().setProgramShader(m_PSShadowMap);
     for (auto object : SceneGraph::instance().m_GObjects)
     {
-      auto component =
+      auto component2 =
         object->getComponent(COMPONENT_TYPE::TRANSFORM);
-      CTransform* trans = reinterpret_cast<CTransform*>(component.get());
-      m_DChangeEveryFrame.m_world = trans->getMatrixTransform();
+      CTransform* trans2 = reinterpret_cast<CTransform*>(component2.get());
+      m_DChangeEveryFrame.m_world = trans2->getMatrixTransform();
 
       g_graphicsApi().updateSubresource(m_CBchangeEveryFrame, &m_DChangeEveryFrame);
 
@@ -1779,8 +2172,8 @@ namespace jdEngineSDK {
     g_graphicsApi().setRenderTarget(m_RTBlurH);
     //viewport escalado
     ViewPort tmp = m_viewPortScene;
-    tmp.Height = m_viewPortScene.Height * 0.5;
-    tmp.Width = m_viewPortScene.Width * 0.5;
+    tmp.Height = m_viewPortScene.Height * 0.5f;
+    tmp.Width = m_viewPortScene.Width * 0.5f;
     g_graphicsApi().setViewPort(tmp);
     g_graphicsApi().Clear(m_RTBlurH, 0.2f, 0.2f, 0.2f, 1);
     g_graphicsApi().PixelShaderSetShaderResourcesFromRT(rtToBlur, 0, 0);

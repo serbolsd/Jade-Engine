@@ -14,7 +14,7 @@
 
 #include "jdPrerequisitesUtil.h"
 #include "jdVector3.h"
-#include  "jdRadian.h"
+#include "jdRadian.h"
 
 #include <math.h>
 #include <iomanip>

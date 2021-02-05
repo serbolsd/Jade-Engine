@@ -18,6 +18,8 @@
 #include <jdSceneGraph.h>
 #include <jdResourceManager.h>
 #include <jdPoint.h>
+#include <jdLogger.h>
+#include <jdRandom.h>
 
 
 namespace jdEngineSDK {

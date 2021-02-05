@@ -229,6 +229,32 @@ namespace jdEngineSDK {
     initImGui();
 
     /**
+      * @brief the data to never change buffer
+      */
+    int LoadHistogram();
+
+    /**
+     * @brief Histogram RED data
+     */
+    Vector<float> m_redHisto;
+
+    /**
+     * @brief Histogram GREEN data
+     */
+    Vector<float> m_greenHisto;
+
+    /**
+     * @brief Histogram BLUE data
+     */
+    Vector<float> m_blueHisto;
+
+    /**
+     * @brief function to show Histogram window
+     */
+    void
+    showHistorgramOption();
+
+    /**
      * @brief function to update the camera interpolate
      */
     void 
@@ -860,6 +886,11 @@ namespace jdEngineSDK {
      * @brief To show the Bright Options
      */
     bool m_showBlurOptions = false;
+
+    /**
+     * @brief To show the Bright Options
+     */
+    bool m_showHistogram = false;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Rasterize states

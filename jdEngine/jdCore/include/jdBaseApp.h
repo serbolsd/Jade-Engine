@@ -12,14 +12,18 @@
 /*****************************************************************************/
 #pragma once
 #include <SFML/Window.hpp>
-#include <jdGraphicApi.h>
 #include <jdPoint.h>
 #include <imgui.h>
-#include <jdSceneGraph.h>
-#include <jdResourceManager.h>
-#include <jdCameraManager.h>
-#include <InputAPI.h>
-#include <jdRender.h>
+
+#include "jdGraphicApi.h""
+#include "jdSceneGraph.h"
+#include "jdResourceManager.h"
+#include "jdCameraManager.h"
+#include "InputAPI.h"
+#include "jdRender.h"
+#include "jdLogger.h"
+#include "jdProfiler.h"
+
 using sf::WindowBase;
 using sf::Event;
 using sf::WindowHandle;

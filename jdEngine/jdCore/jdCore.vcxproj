@@ -206,6 +206,8 @@
     <ClCompile Include="src\jdComponentRenderModel.cpp" />
     <ClCompile Include="src\jdGameObject.cpp" />
     <ClCompile Include="src\jdGraphicApi.cpp" />
+    <ClCompile Include="src\jdLogger.cpp" />
+    <ClCompile Include="src\jdProfiler.cpp" />
     <ClCompile Include="src\jdResourceManager.cpp" />
     <ClCompile Include="src\jdComponentTransform.cpp" />
   </ItemGroup>
@@ -232,10 +234,12 @@
     <ClInclude Include="include\jdGraphicApi.h" />
     <ClInclude Include="include\jdIndexBuffer.h" />
     <ClInclude Include="include\jdInputLayout.h" />
+    <ClInclude Include="include\jdLogger.h" />
     <ClInclude Include="include\jdMesh.h" />
     <ClInclude Include="include\jdModel.h" />
     <ClInclude Include="include\jdPixelShader.h" />
     <ClInclude Include="include\jdPrerequisitesCore.h" />
+    <ClInclude Include="include\jdProfiler.h" />
     <ClInclude Include="include\jdProgramShader.h" />
     <ClInclude Include="include\jdRasterizeState.h" />
     <ClInclude Include="include\jdRenderTarget.h" />

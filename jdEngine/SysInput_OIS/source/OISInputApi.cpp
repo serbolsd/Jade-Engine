@@ -1,5 +1,7 @@
 #include "OISInputApi.h"
 #include <sstream>
+#include <iostream>
+using namespace GAMEPAD_BUTTON;
 
 IOSApi::IOSApi() {
 
@@ -41,14 +43,16 @@ IOSApi::init(unsigned int screenWidth, unsigned int screenHeight, HWND windowHan
 
   //m_pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
   m_inputManager = InputManager::createInputSystem((size_t)windowHandle);
-  //m_mouse = static_cast<OIS::Mouse*>(m_inputManager->createInputObject(OIS::OISMouse, false));
+  m_mouse = static_cast<OIS::Mouse*>(m_inputManager->createInputObject(OIS::OISMouse, false));
   m_keyboard = static_cast<OIS::Keyboard*>(m_inputManager->createInputObject(OIS::OISKeyboard,
     false));
-  //m_joystick = static_cast<OIS::JoyStick*>(m_inputManager->createInputObject(OIS::OISJoyStick, 
-  //                                                                           false));
+  m_mouse->getMouseState().width = screenWidth;
+  m_mouse->getMouseState().height = screenHeight;
+  m_joystick = static_cast<OIS::JoyStick*>(m_inputManager->createInputObject(OIS::OISJoyStick, 
+                                                                             false));
   //mapInput input;
   //input.key = OIS::KC_A;
-  //input.pressed = OIS::KC_A;
+  //input.m_pressed = OIS::KC_A;
   m_keyboardMap.insert(std::pair <KEYBOARD::E, mapInput>(KEYBOARD::kKeyEscape,
     mapInput(KC_ESCAPE)));
   m_keyboardMap.insert(std::pair <KEYBOARD::E, mapInput>(KEYBOARD::kKey1, mapInput(KC_1)));
@@ -264,26 +268,83 @@ IOSApi::init(unsigned int screenWidth, unsigned int screenHeight, HWND windowHan
   //here will go KC_MYCOMPUTER
   //here will go KC_MAIL
   //here will go KC_MEDIASELECT
+
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton0,
+                                                               mapInputMouse(MB_Left)));
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton1,
+                                                               mapInputMouse(MB_Right)));
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton2,
+                                                               mapInputMouse(MB_Middle)));
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton3, 
+                                                               mapInputMouse(MB_Button3)));
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton4, 
+                                                               mapInputMouse(MB_Button4)));
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton5, 
+                                                               mapInputMouse(MB_Button5)));
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton6, 
+                                                               mapInputMouse(MB_Button6)));
+  m_mouseMap.insert(std::pair <MOUSE_BUTTON::E, mapInputMouse>(MOUSE_BUTTON::kMouseButton7, 
+                                                               mapInputMouse(MB_Button7)));
+
+  //JoyStick Map for Xbox One controller
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonStart,
+                                                                   mapJoystick(0)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonSelect,
+                                                                   mapJoystick(1)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonL3,
+                                                                   mapJoystick(2)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonR3,
+                                                                   mapJoystick(3)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonL1,
+                                                                   mapJoystick(4)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonR1,
+                                                                   mapJoystick(5))); 
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonA,
+                                                                   mapJoystick(8)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonB,
+                                                                   mapJoystick(9)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonX,
+                                                                   mapJoystick(10)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonY,
+                                                                   mapJoystick(10)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonUp,
+                                                                   mapJoystick(-1)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonDown,
+                                                                   mapJoystick(-1)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonLeft,
+                                                                   mapJoystick(-1)));
+  m_joyStickdMap.insert(std::pair <GAMEPAD_BUTTON::E, mapJoystick>(kPadButtonRight,
+                                                                   mapJoystick(-1)));
+
 }
 
 void 
 IOSApi::update() {
   m_keyboard->capture();
-  //m_mouse->capture();
-  //m_joystick->capture();
+  m_mouse->capture();
+  m_joystick->capture();
 }
 
-bool 
+void 
+IOSApi::resize(unsigned int screenWidth, unsigned int screenHeight) {
+  if (nullptr != m_mouse)
+  {
+    m_mouse->getMouseState().height = screenHeight;
+    m_mouse->getMouseState().height = screenWidth;
+  }
+}
+
+bool
 IOSApi::getKeyDown(KEYBOARD::E key) {
   //if (m_keyboard->isKeyDown(OIS::KC_ESCAPE) && key == KEYBOARD::kKeyW)
   //  return true;
   auto found = m_keyboardMap.find(key);
   if (found != m_keyboardMap.end())
   {
-    if (!found->second.pressed && m_keyboard->isKeyDown(found->second.key))
+    if (!found->second.m_pressed && m_keyboard->isKeyDown(found->second.m_key))
     {
-      found->second.pressed = true;
-      return found->second.pressed;
+      found->second.m_pressed = true;
+      return found->second.m_pressed;
     }
   }
   return false;
@@ -295,11 +356,11 @@ IOSApi::getKey(KEYBOARD::E key) {
   auto found = m_keyboardMap.find(key);
   if (found != m_keyboardMap.end())
   { 
-    if (!m_keyboard->isKeyDown(found->second.key))
+    if (!m_keyboard->isKeyDown(found->second.m_key))
     {
       return false;
     }
-    return found->second.pressed;
+    return found->second.m_pressed;
   }
   return false;
 }
@@ -309,9 +370,9 @@ IOSApi::getKeyUp(KEYBOARD::E key) {
   auto found = m_keyboardMap.find(key);
   if (found != m_keyboardMap.end())
   {
-    if (found->second.pressed && !m_keyboard->isKeyDown(found->second.key))
+    if (found->second.m_pressed && !m_keyboard->isKeyDown(found->second.m_key))
     {
-      found->second.pressed = false;
+      found->second.m_pressed = false;
       return true;
     }
   }
@@ -320,50 +381,339 @@ IOSApi::getKeyUp(KEYBOARD::E key) {
 
 bool 
 IOSApi::getMouseButtonDown(MOUSE_BUTTON::E mouseButton) {
+  //OIS::MouseState& s =
+  auto found = m_mouseMap.find(mouseButton);
+  if (found != m_mouseMap.end())
+  {
+    if (!found->second.m_pressed && m_mouse->getMouseState().buttonDown(found->second.m_key))
+    {
+      found->second.m_pressed = true;
+      return found->second.m_pressed;
+    }
+  }
   return false;
 }
 
 bool 
 IOSApi::getMouseButton(MOUSE_BUTTON::E mouseButton) {
+  getMouseButtonDown(mouseButton);
+  auto found = m_mouseMap.find(mouseButton);
+  if (found != m_mouseMap.end())
+  {
+    if (!m_mouse->getMouseState().buttonDown(found->second.m_key))
+    {
+      return false;
+    }
+    return found->second.m_pressed;
+  }
   return false;
 }
 
 bool 
 IOSApi::getMouseButtonUp(MOUSE_BUTTON::E mouseButton) {
+  auto found = m_mouseMap.find(mouseButton);
+  if (found != m_mouseMap.end())
+  {
+    if (found->second.m_pressed && !m_mouse->getMouseState().buttonDown(found->second.m_key))
+    {
+      found->second.m_pressed = false;
+      return true;
+    }
+  }
   return false;
 }
 
 float 
 IOSApi::getMouseAxis(MOUSE_AXIS::E axis) {
+  switch (axis)
+  {
+  case MOUSE_AXIS::kMouseAxisX:
+    return (float)m_mouse->getMouseState().X.abs;
+    break;
+  case MOUSE_AXIS::kMouseAxisY:
+    return (float)m_mouse->getMouseState().Y.abs;
+    break;
+  default:
+    break;
+  }
   return 0.0f;
 }
 
 unsigned int 
 IOSApi::getCursorPositionX() {
+  return (float)m_mouse->getMouseState().X.abs;
   return 0;
 }
 
 unsigned int 
 IOSApi::getCursorPositionY() {
+  return (float)m_mouse->getMouseState().Y.abs;
   return 0;
 }
 
 bool 
 IOSApi::getGamepadButtonDown(GAMEPAD_BUTTON::E button) {
+  
+  //auto state = m_joystick->getJoyStickState();
+  //m_joystick.
+  //int buttonsSize = state.mButtons.size();
+  //for (int i = 0; i < buttonsSize; i++)
+  //{
+  //  if (state.mButtons[i])
+  //  {
+  //    std::cout << i<<std::endl;
+  //  }
+  //}
+
+  auto found = m_joyStickdMap.find(button);
+  if (found == m_joyStickdMap.end()) {
+    return false;
+  }
+  if (button == kPadButtonLeft)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (!found->second.m_pressed &&
+       (dir == m_joystick->getJoyStickState().mPOV->NorthWest ||
+        dir == m_joystick->getJoyStickState().mPOV->West ||
+        dir == m_joystick->getJoyStickState().mPOV->SouthWest)) {
+      found->second.m_pressed = true;
+      return true;
+    }
+    
+  }
+  if (button == kPadButtonRight)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (!found->second.m_pressed &&
+       (dir == m_joystick->getJoyStickState().mPOV->East ||
+        dir == m_joystick->getJoyStickState().mPOV->NorthEast ||
+        dir == m_joystick->getJoyStickState().mPOV->SouthEast)) {
+      found->second.m_pressed = true;
+      return true;
+    }
+  }
+  if (button == kPadButtonUp)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (!found->second.m_pressed &&
+       (dir == m_joystick->getJoyStickState().mPOV->North ||
+        dir == m_joystick->getJoyStickState().mPOV->NorthEast ||
+        dir == m_joystick->getJoyStickState().mPOV->NorthWest)) {
+      found->second.m_pressed = true;
+      return true;
+    }
+  }
+  if (button == kPadButtonDown)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (!found->second.m_pressed &&
+       (dir == m_joystick->getJoyStickState().mPOV->South ||
+        dir == m_joystick->getJoyStickState().mPOV->SouthEast ||
+        dir == m_joystick->getJoyStickState().mPOV->SouthWest)) {
+      found->second.m_pressed = true;
+      return true;
+    }
+  }
+ 
+  if (found->second.m_button <0)
+  {
+    return false;
+  }
+  if (!found->second.m_pressed && 
+      m_joystick->getJoyStickState().mButtons[found->second.m_button]) {
+    found->second.m_pressed = true;
+    return true;
+  }
   return false;
 }
 
 bool 
 IOSApi::getGamepadButton(GAMEPAD_BUTTON::E button) {
+
+  auto found = m_joyStickdMap.find(button);
+  if (found == m_joyStickdMap.end()) {
+    return false;
+  }
+  if (found->second.m_button < 0)
+  {
+    return false;
+  }
+  if (found->second.m_pressed) {
+    return true;
+  }
   return false;
 }
 
 bool 
 IOSApi::getGamepadButtonUp(GAMEPAD_BUTTON::E button) {
+  auto found = m_joyStickdMap.find(button);
+  if (found == m_joyStickdMap.end()) {
+    return false;
+  }
+  if (button == kPadButtonLeft)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (found->second.m_pressed &&
+       (dir != m_joystick->getJoyStickState().mPOV->NorthWest ||
+        dir != m_joystick->getJoyStickState().mPOV->West ||
+        dir != m_joystick->getJoyStickState().mPOV->SouthWest)) {
+      found->second.m_pressed = false;
+      return true;
+    }
+
+  }
+  if (button == kPadButtonRight)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (found->second.m_pressed &&
+       (dir != m_joystick->getJoyStickState().mPOV->East ||
+        dir != m_joystick->getJoyStickState().mPOV->NorthEast ||
+        dir != m_joystick->getJoyStickState().mPOV->SouthEast)) {
+      found->second.m_pressed = false;
+      return true;
+    }
+  }
+  if (button == kPadButtonUp)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (found->second.m_pressed &&
+       (dir != m_joystick->getJoyStickState().mPOV->North ||
+        dir != m_joystick->getJoyStickState().mPOV->NorthEast ||
+        dir != m_joystick->getJoyStickState().mPOV->NorthWest)) {
+      found->second.m_pressed = false;
+      return true;
+    }
+  }
+  if (button == kPadButtonDown)
+  {
+    int dir = m_joystick->getJoyStickState().mPOV->direction;
+    if (found->second.m_pressed &&
+       (dir != m_joystick->getJoyStickState().mPOV->South ||
+        dir != m_joystick->getJoyStickState().mPOV->SouthEast ||
+        dir != m_joystick->getJoyStickState().mPOV->SouthWest)) {
+      found->second.m_pressed = false;
+      return true;
+    }
+  }
+  if (found->second.m_button < 0)
+  {
+    return false;
+  }
+  if (found->second.m_pressed &&
+    !m_joystick->getJoyStickState().mButtons[found->second.m_button]) {
+    found->second.m_pressed = false;
+    return true;
+  }
   return false;
 }
 
 float 
 IOSApi::getGamepadAxis(GAMEPAD_AXIS::E axis) {
+  //switch (axis)
+  //{
+  //case GAMEPAD_AXIS::kPadButtonLeftStickX:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonLeftStickY:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonRightStickX:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonRightStickY:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis4:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis5:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis6:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis7:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis8:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis9:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis10:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis11:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis12:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis13:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis14:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis15:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis16:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis17:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis18:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis19:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis20:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis21:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis22:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis23:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis24:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis25:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis26:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis27:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis28:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis29:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis30:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAxis31:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAccelerationX:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAccelerationY:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonAccelerationZ:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonGravityX:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonGravityY:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonGravityZ:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonGyroscopeX:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonGyroscopeY:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonGyroscopeZ:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonMagneticFieldX:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonMagneticFieldY:
+  //  break;
+  //case GAMEPAD_AXIS::kPadButtonMagneticFieldZ:
+  //  break;
+  //case GAMEPAD_AXIS::kCount:
+  //  break;
+  //default:
+  //  break;
+  //}
+  //m_joystick->getJoyStickState().mAxes.
+  auto state = m_joystick->getJoyStickState();
+  //m_joystick.
+  int axesSize = state.mAxes.size();
+  for (int i = 0; i < axesSize; i++)
+  {
+    if (state.mAxes[i].abs != 0)
+    {
+      std::cout << i << "--"<< state.mAxes[i].abs <<std::endl;
+    }
+  }
   return 0.0f;
 }

@@ -22,6 +22,7 @@
     <ClInclude Include="include\jdBox.h" />
     <ClInclude Include="include\jdDegree.h" />
     <ClInclude Include="include\jdFrustum.h" />
+    <ClInclude Include="include\jdHeap.h" />
     <ClInclude Include="include\jdMath.h" />
     <ClInclude Include="include\jdMatrix3.h" />
     <ClInclude Include="include\jdMatrix4.h" />
@@ -39,15 +40,18 @@
     <ClInclude Include="include\jdSphere.h" />
     <ClInclude Include="include\jdStdHeaders.h" />
     <ClInclude Include="include\JdString.h" />
+    <ClInclude Include="include\jdTime.h" />
     <ClInclude Include="include\jdVector2.h" />
     <ClInclude Include="include\jdVector3.h" />
     <ClInclude Include="include\jdVector4.h" />
     <ClInclude Include="include\jdWindowsMath.h" />
+    <ClInclude Include="include\jdRandom.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\jdFrustum.cpp" />
     <ClCompile Include="src\jdBox.cpp" />
     <ClCompile Include="src\jdDegree.cpp" />
+    <ClCompile Include="src\jdHeap.cpp" />
     <ClCompile Include="src\jdPlatformMath.cpp" />
     <ClCompile Include="src\jdMatrix3.cpp" />
     <ClCompile Include="src\jdMatrix4.cpp" />

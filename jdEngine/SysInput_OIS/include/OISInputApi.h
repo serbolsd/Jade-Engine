@@ -33,13 +33,30 @@ using namespace OIS;
 
 struct mapInput {
   mapInput(KeyCode _key, bool _pressed = false) {
-    key = _key;
-    pressed = _pressed;
+    m_key = _key;
+    m_pressed = _pressed;
   };
-  KeyCode key;
-  bool pressed;
+  KeyCode m_key;
+  bool m_pressed;
 };
 
+struct mapInputMouse {
+  mapInputMouse(MouseButtonID _key, bool _pressed = false) {
+    m_key = _key;
+    m_pressed = _pressed;
+  };
+  MouseButtonID m_key;
+  bool m_pressed;
+};
+
+struct mapJoystick {
+  mapJoystick(int button, bool _pressed = false) {
+    m_button = button;
+    m_pressed = _pressed;
+  };
+  int m_button;
+  bool m_pressed;
+};
 
 class IOSApi : public InputAPI
 {
@@ -87,7 +104,7 @@ class IOSApi : public InputAPI
    * @return void.
    */
   void 
-  resize(unsigned int screenWidth, unsigned int screenHeight) override {};
+  resize(unsigned int screenWidth, unsigned int screenHeight) override;
 
   /**
    * @brief Check if given key has been pressed one time.
@@ -202,7 +219,8 @@ class IOSApi : public InputAPI
   JoyStick* m_joystick = nullptr;
   ParamList m_pl;
   std::map<KEYBOARD::E, mapInput> m_keyboardMap;
-  std::map<KEYBOARD::E, mapInput> m_lastKeyboardMap;
+  std::map<MOUSE_BUTTON::E, mapInputMouse> m_mouseMap;
+  std::map<GAMEPAD_BUTTON::E, mapJoystick> m_joyStickdMap;
 };
 
 
