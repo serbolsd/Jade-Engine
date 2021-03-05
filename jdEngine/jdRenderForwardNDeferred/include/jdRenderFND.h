@@ -113,6 +113,12 @@ namespace jdEngineSDK {
     int32 mipLevel3 = 0;
   };
 
+  struct ParticleData
+  {
+    JDVector4 m_pos = {0, 0, 0, 0};
+    JDVector2 m_size = {0, 0};
+  };
+
   class RenderFNDApi : public RenderApi {
    public:
     /**
@@ -565,6 +571,11 @@ namespace jdEngineSDK {
      */
     SPtr<RenderTarget> m_RTShadowMap = nullptr;
 
+    /**
+     * @brief shared pointer to Final render target
+     */
+    SPtr<RenderTarget> m_RTFinal = nullptr;
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Shaders
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -632,6 +643,12 @@ namespace jdEngineSDK {
      * @brief shared pointer to a program shader to shadowMap
      */
     SPtr<ProgramShader> m_PSShadowMap = nullptr;
+
+    /**
+     * @brief shared pointer to a program shader to shadowMap
+     */
+    SPtr<ProgramShader> m_PSBillboard = nullptr;
+    SPtr<GeometryShader> m_GSBillboard = nullptr;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Constant Buffers
@@ -746,6 +763,12 @@ namespace jdEngineSDK {
      * @brief shared ponter to a input layout
      */
     SPtr<InputLayout> m_inLayOut = nullptr;
+
+    /**
+     * @brief shared ponter to a input layout
+     */
+    SPtr<InputLayout> m_inLayOutBillBoard = nullptr;
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Cameras
@@ -944,6 +967,9 @@ namespace jdEngineSDK {
      * @brief to know is the first frae
      */
     bool m_firstFrame = true;
+
+    ParticleData m_tempParticle;
+    SPtr<VertexBuffer> m_particleVB;
 
   };
   

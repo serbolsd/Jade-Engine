@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -124,7 +124,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -147,7 +147,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -172,7 +172,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdUtilities/Include/;$(SolutionDir)jdCore/include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/stb_image/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -202,6 +202,7 @@
     <ClInclude Include="include\jdD3D11Device.h" />
     <ClInclude Include="include\jdD3D11DeviceContext.h" />
     <ClInclude Include="include\jdD3D11GameObject.h" />
+    <ClInclude Include="include\jdD3D11GeometryShader.h" />
     <ClInclude Include="include\jdD3D11IndexBuffer.h" />
     <ClInclude Include="include\jdD3D11InputLayout.h" />
     <ClInclude Include="include\jdD3D11PixelShader.h" />

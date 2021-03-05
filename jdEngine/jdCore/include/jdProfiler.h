@@ -1,4 +1,3 @@
-#pragma once
 /*****************************************************************************/
 /**
  * @file    jdProfiler.h
@@ -11,6 +10,7 @@
  * @bug     No known bugs.
  */
  /***************************************************************************/
+#pragma once
 
 #include "jdPrerequisitesCore.h"
 
@@ -37,33 +37,40 @@ namespace jdEngineSDK {
     /**
      * @brief Function to start the counting
      */
-    void start();
+    void 
+    start();
+    
     /**
      * @brief Function to stop and start again the counting
      */
-    void toc();
+    void 
+    toc();
 
     /**
      * @brief Function to stop and start again the counting and write a message
      * @param message is the message to write
      */
-    void toc(std::string message);
+    void 
+    toc(std::string message);
 
     /**
      * @brief Function to stop the counting
      */
-    void stop();
+    void 
+    stop();
 
     /**
      * @brief Function to stop the counting and write a message
      * @param message is the message to write
      */
-    void stop(std::string message);
+    void 
+    stop(std::string message);
 
     /**
      * @brief Function to write the profiler file in the temp profiler file of vcs.
      */
-    void dump();
+    void
+    dump();
 
    private:
      /**

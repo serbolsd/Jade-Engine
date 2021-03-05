@@ -89,5 +89,8 @@
     <ClInclude Include="include\jdD3D11RasterizeState.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="include\jdD3D11GeometryShader.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -18,6 +18,7 @@
 #include "jdSwapChain.h"
 #include "jdViewPort.h"
 #include "jdProgramShader.h"
+#include "jdGeometryShader.h"
 #include "jdVertexBuffer.h"
 #include "jdIndexBuffer.h"
 #include "jdConstantBuffer.h"
@@ -222,6 +223,19 @@ namespace jdEngineSDK {
                             SPtr<SHADER_DEFINES> defines = nullptr) { return nullptr; };
 
     /**
+     * @brief virtual function to load and save Geometry shade from file
+     * @param GeometryFilePath is the path to the file of Pixel Shader
+     * @param GeometryMainFuntion is the name of the main function of the Pixel Shader
+     * @param shaderVersion is the version of Shader
+     * @return a shared ptr with the geometry shader created
+     */
+    virtual SPtr<GeometryShader>
+    loadGeometryShaderFromFile(const char* /*GeometryFilePath*/, 
+                               const char* /*GeometryMainFuntion*/,
+                               const char* /*shaderVersion*/,
+                               SPtr<SHADER_DEFINES> defines = nullptr) { return nullptr; };
+
+    /**
      * @brief set the viewport for the render targets
      * @param vp is a struct with the data
      */
@@ -387,6 +401,19 @@ namespace jdEngineSDK {
     setPixelShader(WeakSptr<PixelShader> /*pixelS*/) {};
 
     /**
+     * @brief virtual function to set GeometryShader
+     * @param geometryS is the Geometry shader to set
+     */
+    virtual void
+    setGeometryShader(WeakSptr<GeometryShader> /*geometryS*/) {};
+
+    /**
+     * @brief virtual function to remove GeometryShader
+     */
+    virtual void
+    removeGeometryShader() {};
+
+    /**
      * @brief virtual function to set Constan Buffer in pixel and vertex Shader
      * @param buffer is the buffer to set
      * @param bufferSlot is the slot in the shader
@@ -418,6 +445,17 @@ namespace jdEngineSDK {
     PixelShaderSetConstanBuffer(WeakSptr<ConstantBuffer> /*buffer*/,
                                  int32 /*bufferSlot*/, 
                                  uint32 /*numBuffers*/ = 1) {};
+
+    /**
+     * @brief virtual function to set Constan Buffer in geometry Shader
+     * @param buffer is the buffer to set
+     * @param bufferSlot is the slot in the shader
+     * @param numBuffers is the number of buffers to set
+     */
+    virtual void
+    GeometryShaderSetConstanBuffer(WeakSptr<ConstantBuffer> /*buffer*/,
+                                   int32 /*bufferSlot*/, 
+                                   uint32 /*numBuffers*/ = 1) {};
 
     virtual void
     SetBonesConstanBuffer() {};
@@ -507,6 +545,19 @@ namespace jdEngineSDK {
      */
     virtual void
     DrawIndex(uint32 /*numIdex*/) {};
+
+    /**
+     * @brief virtual function to draw the vertx buffer per instance
+     * @param VertexCountPerInstance is the number of vertex per instance
+     * @param InstanceCount is the number of instances
+     * @param StartVertexLocation is the start vertec index
+     * @param StartInstanceLocation is the start instance 
+     */
+    virtual void
+    DrawInstanced(uint32 /*VertexCountPerInstance*/,
+                  uint32 /*InstanceCount*/,
+                  uint32 /*StartVertexLocation*/ = 0,
+                  uint32 /*StartInstanceLocation*/ = 0) {};
 
     /**
      * @brief virtual function to do present to the window

@@ -33,7 +33,7 @@ namespace jdEngineSDK {
 		Logger& 
 		Logger::operator<<(const String& sMessage)	{
 				//ADD TIME HERE
-				m_Logfile << "\n" << Time::CurrentDateTime() << ":\t";
+				m_Logfile << "\n" << g_time().CurrentDateTime() << ":\t";
 				m_Logfile << sMessage << "\n";
 				return *this;
 		}

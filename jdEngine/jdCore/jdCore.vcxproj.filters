@@ -81,6 +81,9 @@
     <ClCompile Include="src\jdProfiler.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="src\jdCompute.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\jdPrerequisitesCore.h">
@@ -208,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="include\jdProfiler.h">
       <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdCompute.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdGeometryShader.h">
+      <Filter>Archivos de encabezado\Classes%27 Api</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

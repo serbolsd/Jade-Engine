@@ -1,4 +1,3 @@
-#pragma once
 /*****************************************************************************/
 /**
  * @file    jdLogger.h
@@ -11,6 +10,7 @@
  * @bug     No known bugs.
  */
 /*****************************************************************************/
+#pragma once
 
 #include "jdPrerequisitesCore.h"
 
@@ -21,7 +21,7 @@
 namespace jdEngineSDK {
 		class JD_CORE_EXPORT Logger : public Module<Logger>
 		{
-  public:
+   public:
     /**
     *  @brief  Default constructor for the Logger class.
     */

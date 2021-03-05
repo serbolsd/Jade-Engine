@@ -11,64 +11,64 @@
  */
 /*****************************************************************************/
 #pragma once
-#include "jdD3D11Prerequisites.h"
+#include "jdD3D12Prerequisites.h"
 
 #include <jdModulo.h>
 #include <jdGraphicApi.h>
 #include <SFML/Window.hpp>
 
-#include "jdD3D11Device.h"
-#include "jdD3D11DeviceContext.h"
-#include "jdD3D11SwapChain.h"
-#include "jdD3D11RenderTarget.h"
-#include "jdD3D11RenderTargetView.h"
-#include "jdD3D11VertexBuffer.h"
-#include "jdD3D11IndexBuffer.h"
-#include "jdRasterizeState.h"
+//#include "jdD3D11Device.h"
+//#include "jdD3D11DeviceContext.h"
+//#include "jdD3D11SwapChain.h"
+//#include "jdD3D11RenderTarget.h"
+//#include "jdD3D11RenderTargetView.h"
+//#include "jdD3D11VertexBuffer.h"
+//#include "jdD3D11IndexBuffer.h"
+//#include "jdRasterizeState.h"
 
 using namespace jdEngineSDK;
 
 namespace jdEngineSDK {
 
 
-  class DirectX11Api : public GraphicApi
+  class DirectX12Api : public GraphicApi
   {
    public:
     /**
      * @brief Default constructor
      */
-    DirectX11Api() = default;
+    DirectX12Api() = default;
 
     /**
      * @brief Default destructor
      */
-    ~DirectX11Api() override { release(); };
+    ~DirectX12Api() override { release(); };
 
     /**
      * @brief get ptr to device
      * @return share ptr to device
      */
     void*
-    getDevice() override {
-
-      return m_device.m_pd3dDevice;
-    };
+    getDevice() override; //{
+//
+//      return m_device.m_pd3dDevice;
+//    };
 
     /**
      * @brief get ptr to device context
      * @return share ptr to device context
      */
     void*
-    getDeviceContex() override {
-      return m_deviceContext.m_pd3dDeviceContext;
-    };
+    getDeviceContex() override; //{
+//      return m_deviceContext.m_pd3dDeviceContext;
+//    };
 
     /**
      * @brief get ptr to device Swap Chain
      * @return share ptr to device Swap Chain
      */
-    //SPtr<SwapChain>
-    //getSwapChain() const override {
+/////SPtr<SwapChain>
+/////getSwapChain() const override; ///{
     //  return nullptr;
     //};
 
@@ -521,10 +521,10 @@ namespace jdEngineSDK {
      * @brief get render target view
      * @return a shared_ptr with the render target view
      */
-    SPtr<RenderTargetView>
-    getRenderTargetView() override {
-      return SPtr<RenderTargetView>(m_RTV, reinterpret_cast<RenderTargetView*>(m_RTV.get()));
-    };
+    //SPtr<RenderTargetView>
+    //getRenderTargetView() override {
+    //  return SPtr<RenderTargetView>(m_RTV, reinterpret_cast<RenderTargetView*>(m_RTV.get()));
+    //};
 
     SPtr<ConstantBuffer>
     createConstantBufferBones() override;
@@ -570,31 +570,38 @@ namespace jdEngineSDK {
      * @brief Gernerate the input layout elemets with the vertex shader signature data
      * @return fail if couldn't create
      */
-    HRESULT 
-    CreateInputLayoutDescFromVertexShaderSignature(ID3DBlob* pShaderBlob, 
-                                                   ID3D11Device* pD3DDevice, 
-                                                   ID3D11InputLayout** pInputLayout);
+    //HRESULT 
+    //CreateInputLayoutDescFromVertexShaderSignature(ID3DBlob* pShaderBlob, 
+    //                                               ID3D12Device* pD3DDevice, 
+    //                                               ID3D12InputLayout** pInputLayout);
 
     /**
      * @brief release device, device context, swapchain, render target view
      */
     void
     release();
+     //ID3D12DEV
+    /**
+     * @brief member device
+     */
+    SPtr<ID3D12Debug> m_debugController;
+    SPtr<IDXGIFactory4> m_dxgiFactory;
+    SPtr<IDXGIAdapter1> m_adapter;
 
     /**
      * @brief member device
      */
-    D3D11Device m_device;
+    //ID3D12DEVICE m_device;
 
     /**
      * @brief member device context
      */
-    D3D11DeviceContext m_deviceContext;
+    //D3D11DeviceContext m_deviceContext;
 
     /**
      * @brief member swap chain
      */
-    D3D11SwapChain m_swapChain;
+    //D3D11SwapChain m_swapChain;
 
     /**
      * @brief bool to check if the render target view already created
@@ -604,7 +611,7 @@ namespace jdEngineSDK {
     /**
      * @brief member Render Target View
      */
-    SPtr<D3D11RenderTargetView> m_RTV = nullptr;
+    //SPtr<D3D11RenderTargetView> m_RTV = nullptr;
 
     Vector<SPtr<RenderTarget>> m_renderTargets;
 
@@ -623,7 +630,7 @@ namespace jdEngineSDK {
 
   extern "C" JD_PLUGIN_EXPORT GraphicApi *
   createGraphicAPI() {
-    DirectX11Api* pDX = new DirectX11Api();
+    DirectX12Api* pDX = new DirectX12Api();
     return pDX;
 
   }

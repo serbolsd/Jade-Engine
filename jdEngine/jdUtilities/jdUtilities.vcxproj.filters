@@ -66,9 +66,6 @@
     <ClInclude Include="include\jdWindowsMath.h">
       <Filter>Archivos de origen</Filter>
     </ClInclude>
-    <ClInclude Include="include\jdMath.h">
-      <Filter>Archivos de origen</Filter>
-    </ClInclude>
     <ClInclude Include="include\jdRectangle.h">
       <Filter>Archivos de origen\Math</Filter>
     </ClInclude>
@@ -97,6 +94,15 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="include\jdTime.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdTimer.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdMath.h">
+      <Filter>Archivos de origen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdRTTIPrerequisites.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
@@ -138,6 +144,12 @@
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="src\jdHeap.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdTimer.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jdTime.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>

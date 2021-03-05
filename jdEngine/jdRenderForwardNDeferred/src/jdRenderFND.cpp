@@ -21,7 +21,7 @@ namespace jdEngineSDK {
     m_wndHandle = wndHandle;
     m_clientSize = clientSize;
     onCreate();
-    LoadHistogram();
+    //LoadHistogram();
     //initImGui();
     g_Logger().Log("TODO CHIDO");
     float num1, num2;
@@ -256,6 +256,13 @@ namespace jdEngineSDK {
                                                        false, 
                                                        1);
 
+    //Create ToneMap Final target
+    m_RTFinal = g_graphicsApi().createRenderTarget((uint32)(m_clientSize.x),
+                                                    (uint32)(m_clientSize.y), 
+                                                    5, 
+                                                    false, 
+                                                    1);
+
     // Set ViewPort data
     m_viewPort.Width = (float)m_clientSize.x;
     m_viewPort.Height = (float)m_clientSize.y;
@@ -368,11 +375,27 @@ namespace jdEngineSDK {
                                                        "ShadowMap",
                                                        "ps_5_0");
 
+    //Load geomtry Shader
+    m_PSBillboard = g_graphicsApi().loadShaderFromFile("data/shader/BillBoard.fx",
+                                                       "VS_Billboard",
+                                                       "vs_5_0",
+                                                       "data/shader/BillBoard.fx",
+                                                       "PS_Billboard",
+                                                       "ps_5_0");
+
+    m_GSBillboard = g_graphicsApi().loadGeometryShaderFromFile("data/shader/BillBoard.fx",
+                                                               "GS_Billboard",
+                                                               "gs_5_0");
+
+
+
     //Set forward Shader
     g_graphicsApi().setProgramShader(m_PSForward);
 
     //Create an Input Layout with a reflect of Forware Shader
     m_inLayOut = g_graphicsApi().reflectInputLayout(m_PSForward.get()->getVertexShader());
+    m_inLayOutBillBoard = g_graphicsApi().reflectInputLayout(m_PSBillboard->getVertexShader());
+
     //Set the Input Layout
     g_graphicsApi().setInputLayout(m_inLayOut);
 
@@ -594,6 +617,12 @@ namespace jdEngineSDK {
     mainCam->setName("mainCamera");
     SPtr<Component> cam = g_CameraMan().getMainCamera();
     mainCam->addComponent(COMPONENT_TYPE::CAMERA, cam);
+
+    m_tempParticle.m_pos = { 0,0,0,0 };
+    m_tempParticle.m_size = { 1000,1000 };
+    m_particleVB = g_graphicsApi().createVertexBuffer(1, 
+                                                      sizeof(ParticleData), 
+                                                      &m_tempParticle);
 
     initImGui();
   }
@@ -1929,6 +1958,7 @@ namespace jdEngineSDK {
     g_graphicsApi().setViewPort(m_viewPortScene);
     g_graphicsApi().Clear(rt, 0.2f, 0.2f, 0.2f, 1);
     g_graphicsApi().ClearDepthStencil(rt);
+    g_graphicsApi().setProgramShader(m_PSForward);
     g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
     for (auto object : SceneGraph::instance().m_GObjects) {
       auto component =
@@ -1939,7 +1969,25 @@ namespace jdEngineSDK {
       g_graphicsApi().updateSubresource(m_CBchangeEveryFrame, &m_DChangeEveryFrame);
 
       object->draw();
-    }
+    }   
+
+    g_graphicsApi().setPrimitiveTopology(PRIMITIVE_TOPOLOGY_FORMAT::POINTLIST);
+    g_graphicsApi().setInputLayout(m_inLayOutBillBoard);
+
+    g_graphicsApi().setProgramShader(m_PSBillboard);
+    g_graphicsApi().setGeometryShader(m_GSBillboard);
+    g_graphicsApi().GeometryShaderSetConstanBuffer(m_CBneverChange, 0);
+    g_graphicsApi().GeometryShaderSetConstanBuffer(m_CBchangeOnResize, 1);
+    g_graphicsApi().GeometryShaderSetConstanBuffer(m_CBchangeEveryFrame, 2);
+    //g_graphicsApi().updateSubresource(m_CBchangeEveryFrame, &m_DChangeEveryFrame);
+
+    g_graphicsApi().setVertexBuffer(m_particleVB);
+    g_graphicsApi().DrawInstanced(1,1);
+    g_graphicsApi().removeGeometryShader();
+    g_graphicsApi().setProgramShader(m_PSForward);
+
+    g_graphicsApi().setPrimitiveTopology(PRIMITIVE_TOPOLOGY_FORMAT::TRIANGLELIST);
+    g_graphicsApi().setInputLayout(m_inLayOut);
   }
 
   void 

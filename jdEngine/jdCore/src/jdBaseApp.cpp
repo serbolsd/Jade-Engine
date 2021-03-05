@@ -1,4 +1,7 @@
 #include "jdBaseApp.h"
+#include <jdTime.h>
+
+#include "jdCompute.h"
 
 namespace jdEngineSDK {
   
@@ -23,7 +26,10 @@ namespace jdEngineSDK {
     bool shoudClose = false;
     Event wndEvent;
     sf::Clock clock;
+
+    float deltaTime = g_time().getFrameDelta();
     while (m_window.isOpen()) {
+      deltaTime = g_time().getFrameDelta();
       sf::Time elapsed = clock.restart();
       MSG message;
       while (PeekMessageW(&message, m_window.getSystemHandle(), 0, 0, PM_REMOVE))
@@ -43,14 +49,17 @@ namespace jdEngineSDK {
       if (shoudClose) {
         break;
       }
-      handleWindownput(elapsed.asSeconds());
-      g_Profiler().toc("Inputs");
+      //handleWindownput(elapsed.asSeconds());
+      handleWindownput(deltaTime);
+      //g_Profiler().toc("Inputs");
 
-      update(elapsed.asSeconds());
-      g_Profiler().toc("Update fucntion");
+      //update(elapsed.asSeconds());
+      update(deltaTime);
+      //g_Profiler().toc("Update fucntion");
 
       render();
-      g_Profiler().toc("Render funtion");
+      //g_Profiler().toc("Render funtion");
+      g_time().update();
     }
 
     onDestroy();
@@ -87,6 +96,7 @@ namespace jdEngineSDK {
 
   void
   BaseApp::initSystems() {
+    Time::startUp();
     WindowHandle handle = m_window.getSystemHandle();
     HINSTANCE m_inputHInstance;
     //input api
@@ -114,6 +124,8 @@ namespace jdEngineSDK {
     //start input api module
     m_inputAPI = createInputApi();
     m_inputAPI->init(m_clientSize.x, m_clientSize.x, handle);
+
+    Compute::startUp();
 
     HINSTANCE hin;
 #ifdef _DEBUG
@@ -187,6 +199,7 @@ namespace jdEngineSDK {
     CameraManager::shutDown();
     g_graphicsApi().shutDown();
     delete m_inputAPI;
+    Time::shutDown();
   }
   
   void 
