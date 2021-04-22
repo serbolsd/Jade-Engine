@@ -1119,12 +1119,23 @@ namespace jdEngineSDK {
       }
     }
 
-    int width, height, channels;
+    int32 width, height, channels;
     unsigned char* img = stbi_load(filePath, &width, &height, &channels, 4);
+    unsigned char* toCopy = stbi_load(filePath, &width, &height, &channels, 4);
     if (img == NULL) {
       printf("Error in loading the image\n");
       return nullptr;
     }
+    auto lenght = width * height * 4;
+    tex->m_data = new unsigned char[lenght];
+    memcpy(tex->m_data, toCopy, lenght);
+    tex->m_channels = channels;
+    tex->m_width = width;
+    tex->m_height = height;
+    tex->m_mipLevel = desc.MipLevels;
+    
+
+
     // Create texture
     desc.Width = width;
     desc.Height = height;
@@ -1171,7 +1182,7 @@ namespace jdEngineSDK {
       //coudn't create texture
       return nullptr;
     }
-
+    //memcpy(tex->m_data, img, width * height * channels);
     return SPtr<Texture2D>(tex);
   }
 
@@ -1194,6 +1205,13 @@ namespace jdEngineSDK {
 
     desc.Width = width;
     desc.Height = height;
+    auto lenght = width * height * 4;
+    tex->m_data = new unsigned char[lenght];
+    memcpy((char*)tex->m_data, (char*)data, lenght);
+    tex->m_channels = chanels;
+    tex->m_width = width;
+    tex->m_height = height;
+    tex->m_mipLevel = desc.MipLevels;
 
     D3D11_SUBRESOURCE_DATA initData;
     initData.pSysMem = data;
@@ -1222,8 +1240,6 @@ namespace jdEngineSDK {
     }
 
     return SPtr<Texture2D>(tex);
-
-    return SPtr<Texture2D>();
   }
 
   void

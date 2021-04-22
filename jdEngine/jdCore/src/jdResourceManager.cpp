@@ -1,15 +1,16 @@
 #include "jdResource.h"
 #include "jdResourceManager.h"
 #include "jdGraphicApi.h"
+#include "jdSaveData.h"
 namespace jdEngineSDK {
   ResourceManager&
-  g_ResourceMan() {
+    g_ResourceMan() {
     return ResourceManager::instance();
   }
 
-  SPtr<Resource> 
-  ResourceManager::loadResourceFromFile(const char* path, 
-                                        const RESOURCE_TYPE::E& type) {
+  SPtr<Resource>
+    ResourceManager::loadResourceFromFile(const char* path,
+      const RESOURCE_TYPE::E& type) {
     uint32 newId = createHash(path);
     if (isLoadedResources(path))
     {
@@ -18,18 +19,18 @@ namespace jdEngineSDK {
     SPtr<Resource> newResource;
     switch (type)
     {
-     case RESOURCE_TYPE::MODEL:
-       newResource = loadModel(path);
+    case RESOURCE_TYPE::MODEL:
+      newResource = loadModel(path);
       break;
-     case RESOURCE_TYPE::TEXTURE:
-       newResource = loadTexture(path);
-       break;
-     case RESOURCE_TYPE::AUDIO:
-       break;
-     case RESOURCE_TYPE::VIDEO:
-       break;
-     case RESOURCE_TYPE::FILE:
-       break;
+    case RESOURCE_TYPE::TEXTURE:
+      newResource = loadTexture(path);
+      break;
+    case RESOURCE_TYPE::AUDIO:
+      break;
+    case RESOURCE_TYPE::VIDEO:
+      break;
+    case RESOURCE_TYPE::FILE:
+      break;
     default:
       break;
     }
@@ -39,12 +40,12 @@ namespace jdEngineSDK {
     }
     newResource->setName(getFileName(path));
     newResource.get()->setID(newId);
-    m_resources.insert(std::pair <uint32, SPtr<Resource>>(newId, newResource));
+    m_resources.insert(std::pair <uint32, SPtr<Resource>>(newId, newResource));/////////////////EY LO VAS A OCUPAR
     return newResource;
   }
 
-  bool 
-  ResourceManager::isLoadedResources(const char* path) {
+  bool
+    ResourceManager::isLoadedResources(const char* path) {
     uint32 id = createHash(path);
     auto found = m_resources.find(id);
     if (found != m_resources.end())
@@ -55,9 +56,14 @@ namespace jdEngineSDK {
   }
 
   SPtr<Model>
-  ResourceManager::getModel(const char* modelName){
+    ResourceManager::getModel(const char* modelName) {
     uint32 id = createHash(modelName);
-    auto found = m_resources.find(id);
+    return getModel(id);
+  }
+
+  SPtr<Model>
+  ResourceManager::getModel(uint32 modelID) {
+    auto found = m_resources.find(modelID);
     if (found != m_resources.end())
     {
       auto mod = found->second;
@@ -69,7 +75,12 @@ namespace jdEngineSDK {
   SPtr<Texture2D>
   ResourceManager::getTexture(const char* textureName){
     uint32 id = createHash(textureName);
-    auto found = m_resources.find(id);
+    return getTexture(id);
+  }
+
+  SPtr<Texture2D> 
+  ResourceManager::getTexture(uint32 textureID) {
+    auto found = m_resources.find(textureID);
     if (found != m_resources.end())
     {
       auto mod = found->second;
@@ -145,6 +156,413 @@ namespace jdEngineSDK {
     m_modelsNames.push_back((char*)"None");
     m_texturesNames.push_back((char*)"None");
     createSAQ();
+  }
+
+  bool 
+  ResourceManager::saveProject(String projectName) {
+    std::ofstream projectFile(projectName, std::ios::binary);
+    if (!projectFile)
+    {
+      return false;
+    }
+
+
+
+    uint32 numModels= m_models.size();
+    uint32 numResources= m_resources.size();
+    projectFile.write((char*)&numResources, sizeof(uint32));
+
+    uint32 numTextures = m_textures.size();
+    for (uint32 i = 0; i < numTextures; ++i) {
+      auto cTexture = m_textures[i];
+      FILE_BASE_INFO binfo;
+      binfo.NameSize = cTexture->getName().size();
+      binfo.DirectionSize = 0;
+      binfo.id = cTexture->getID();
+      binfo.type = TYPESAVED::TEXTURE;
+
+      projectFile.write((char*)&binfo, sizeof(FILE_BASE_INFO));
+      projectFile.write((char*)cTexture->getName().data(), sizeof(char) * binfo.NameSize);
+
+      TEXTURE_INFO tData;
+      tData.height = cTexture->getHeight();
+      tData.width = cTexture->getWidth();
+      tData.channels = cTexture->getChannels();
+      unsigned char* data = cTexture->getData();
+      tData.textureSize = tData.height * tData.width * 4;
+
+      projectFile.write((char*)&tData, sizeof(TEXTURE_INFO));
+
+      projectFile.write((char*)data, sizeof(unsigned char) * tData.textureSize);
+    }
+
+
+    for (uint32 i = 0; i < numModels; ++i) {
+      auto cModel = m_models[i];
+      FILE_BASE_INFO binfo;
+      binfo.NameSize = cModel->getName().size();
+      binfo.DirectionSize = 0;
+      binfo.id = cModel->getID();
+      binfo.type = TYPESAVED::MODEL;
+
+      projectFile.write((char*)&binfo, sizeof(FILE_BASE_INFO));
+      projectFile.write((char*)cModel->getName().data(), sizeof(char) * binfo.NameSize);
+      
+      MODEL_INFO modelinfo;
+      modelinfo.numMeshes = cModel->m_meshes.size();
+      modelinfo.numAnimations = cModel->m_animations.size();
+      modelinfo.globalInverseTransform = cModel->m_global_inverse_transform;
+      if (nullptr != cModel->m_animationNodes) {
+        modelinfo.animationNodes = true;
+      }
+      else {
+        modelinfo.animationNodes = false;
+      }
+
+      projectFile.write((char*)&modelinfo, sizeof(MODEL_INFO));
+
+      for (uint32 m = 0; m < modelinfo.numMeshes; ++m) {
+        auto cMesh = cModel->m_meshes[m];
+        MESH_INFO meshInfo;
+        meshInfo.nameSize = cMesh->getName().size();
+
+        meshInfo.numVertex= cMesh->m_numVertex;
+        meshInfo.numIndex = cMesh->m_numIndex;
+        meshInfo.numBonesTransform = cMesh->m_bonesTransforms.size();
+        if (nullptr == cMesh->m_skeletalSData) {
+          meshInfo.numBones = 0;
+          meshInfo.num_bonesMap = 0;
+          meshInfo.numBonesInfo = 0;
+        }
+        else {
+          meshInfo.numBones = cMesh->m_skeletalSData->m_numBones;
+          meshInfo.num_bonesMap = cMesh->m_skeletalSData->m_bonesMap.size();
+          meshInfo.numBonesInfo = cMesh->m_skeletalSData->m_bonesInfo.size();
+        }
+        meshInfo.albedoID = cMesh->getAlbedoTexture()->getID();
+        meshInfo.normalID = cMesh->getNormalTexture()->getID();
+        meshInfo.specID = cMesh->getSpecularTexture()->getID();
+        meshInfo.roughnessID = cMesh->getRoughnessTexture()->getID();
+
+        projectFile.write((char*)&meshInfo, sizeof(MESH_INFO));
+        projectFile.write((char*)cMesh->getName().data(),
+                          sizeof(char) * meshInfo.nameSize);
+
+        //write vertexData
+        projectFile.write((char*)cMesh->m_vertexData.get(), 
+                          sizeof(DefaultVertexData) * meshInfo.numVertex);
+        //write index
+        projectFile.write((char*)cMesh->m_index.get(), sizeof(uint32) * meshInfo.numIndex);
+        //write bone transform
+        projectFile.write((char*)cMesh->m_bonesTransforms.data(), 
+                          sizeof(JDMatrix4) * meshInfo.numBonesTransform);
+        if (nullptr != cMesh->m_skeletalSData && meshInfo.numBonesInfo > 0) {
+          //write bones Iinfo
+          projectFile.write((char*)cMesh->m_skeletalSData->m_bonesInfo.data(),
+                            sizeof(Bone) * meshInfo.numBonesInfo);
+
+          auto bMap = cMesh->m_skeletalSData->m_bonesMap;
+          //write boneMap
+          for (auto b = bMap.begin(); b != bMap.end(); ++b) {
+            uint32 size = b->first.size();
+            projectFile.write((char*)&size, sizeof(uint32));
+            projectFile.write((char*)b->first.data(), sizeof(char) * size);
+            projectFile.write((char*)&b->second, sizeof(uint32));
+          }
+        }
+
+      }
+
+      for (uint32 a = 0; a < modelinfo.numAnimations; ++a) {
+        auto anim = cModel->m_animations[a];
+        ANIMATION_INFO aInfo;
+        aInfo.nameSize = anim->m_name.size();
+        aInfo.duration = anim->m_duration;
+        aInfo.ticks_per_second = anim->m_ticks_per_second;
+        aInfo.numChannels = anim->m_numChannels;
+        aInfo.numNodes = anim->m_channels.size();
+        projectFile.write((char*)&aInfo, sizeof(ANIMATION_INFO));
+        projectFile.write((char*)anim->m_name.data(), sizeof(char) * aInfo.nameSize);
+
+        auto animNode = anim->m_channels;
+        for (uint32 n = 0; n < aInfo.numNodes; ++n) {
+          ANIMATION_NODE_INFO aNodeInfo;
+          aNodeInfo.nameSize = animNode[n]->m_nodeName.size();
+          aNodeInfo.numPositionKeys = animNode[n]->m_numPositionKeys;
+          aNodeInfo.numScalingKeys = animNode[n]->m_numScalingKeys;
+          aNodeInfo.numRotationKeys = animNode[n]->m_numRotationKeys;
+          projectFile.write((char*)&aNodeInfo, sizeof(ANIMATION_NODE_INFO));
+          projectFile.write((char*)animNode[n]->m_nodeName.data(),
+                            sizeof(char) * aNodeInfo.nameSize);
+
+          projectFile.write((char*)animNode[n]->m_positionKeys.data(),
+                            sizeof(PositionKey) * aNodeInfo.numPositionKeys);
+          projectFile.write((char*)animNode[n]->m_scalingKeys.data(),
+                            sizeof(ScalingKey) * aNodeInfo.numScalingKeys);
+          projectFile.write((char*)animNode[n]->m_rotationKeys.data(),
+                            sizeof(RotationKey) * aNodeInfo.numRotationKeys);
+
+        }
+      }
+      saveModelNodes(projectFile, cModel->m_animationNodes);
+    }
+
+  
+    projectFile.close();
+    return true;
+  }
+
+  void 
+  ResourceManager::saveModelNodes(std::ofstream& file, SPtr<ModelNodes> Node) {
+    ANIMATION_MODEL_NODES mNodeInfo;
+    mNodeInfo.nameSize = Node->m_name.size();
+    mNodeInfo.numChildren = Node->m_numChildren;
+    mNodeInfo.numMeshes = Node->m_numMeshes;
+    mNodeInfo.transform = Node->m_transform;
+    file.write((char*)&mNodeInfo, sizeof(ANIMATION_MODEL_NODES));
+    file.write((char*)Node->m_name.data(), sizeof(char) * mNodeInfo.nameSize);
+    
+    for (uint32 i = 0; i < mNodeInfo.numChildren; ++i) {
+      saveModelNodes(file, Node->m_children[i]);
+    }
+  }
+
+  bool
+  ResourceManager::loadProject(String projectName) {
+    std::ifstream projectFile(projectName, std::ios::binary);
+    if (!projectFile) {
+      return false;
+    }
+    
+    uint32 numResources = 0;
+    projectFile.read((char*)&numResources, sizeof(uint32));
+    for (uint32 i = numResources; i > 0; --i) {
+      SPtr<Resource> newResource;
+
+      FILE_BASE_INFO binfo;
+      projectFile.read((char*)&binfo, sizeof(FILE_BASE_INFO));
+      String name;
+      name.resize(binfo.NameSize);
+      projectFile.read((char*)name.data(), sizeof(char) * binfo.NameSize);
+
+      if (binfo.type == TYPESAVED::MODEL) {
+
+        Model* newModel = new Model;
+        newModel->setID(binfo.id);
+        newModel->m_name = name;
+        newModel->m_AnimationsList.push_back((char*)"None");
+
+        MODEL_INFO modelinfo;
+        projectFile.read((char*)&modelinfo, sizeof(MODEL_INFO));
+
+        for (uint32 m = modelinfo.numMeshes; m > 0; --m) {
+          Mesh* newMesh = new Mesh;
+          MESH_INFO meshInfo;
+          projectFile.read((char*)&meshInfo, sizeof(MESH_INFO));
+          
+          newMesh->m_name.resize(meshInfo.nameSize);
+          projectFile.read((char*)newMesh->m_name.data(), sizeof(char) * meshInfo.nameSize);
+          //read vertexData
+          newMesh->m_numVertex = meshInfo.numVertex;
+          auto vData = new DefaultVertexData[meshInfo.numVertex];
+          projectFile.read((char*)vData,
+                           sizeof(DefaultVertexData) * meshInfo.numVertex);
+          newMesh->m_vertexData.reset(vData);
+          //creata vertex buffer
+          newMesh->setVertexBuffer(g_graphicsApi().createVertexBuffer(meshInfo.numVertex,
+                                                                      sizeof(DefaultVertexData), 
+                                                                      vData));
+
+          //read index
+          newMesh->m_numIndex = meshInfo.numIndex;
+          auto index = new uint32[meshInfo.numIndex];
+          projectFile.read((char*)index, sizeof(uint32) * meshInfo.numIndex);
+          newMesh->m_index.reset(index);
+          //create index buffer
+          newMesh->setIndexBuffer(g_graphicsApi().createIndexBuffer(meshInfo.numIndex, index));
+
+
+          //read bone transform
+          newMesh->m_bonesTransforms.resize(meshInfo.numBonesTransform);
+          projectFile.read((char*)newMesh->m_bonesTransforms.data(),
+                           sizeof(JDMatrix4) * meshInfo.numBonesTransform);
+          SkeletalMesh* skeletal = new SkeletalMesh;
+          if (meshInfo.num_bonesMap > 0) {
+            skeletal->m_numBones = meshInfo.numBones;
+            //write bones Iinfo
+            skeletal->m_bonesInfo.resize(meshInfo.numBonesInfo);
+            projectFile.read((char*)skeletal->m_bonesInfo.data(),
+                             sizeof(Bone) * meshInfo.numBonesInfo);
+          
+            auto bMap = &skeletal->m_bonesMap;
+            //write boneMap
+            for (auto b = 0; b < meshInfo.num_bonesMap; ++b) {
+              uint32 size = 0;
+              String key;
+              uint32 value = 0;
+              projectFile.read((char*)&size, sizeof(uint32));
+              key.resize(size);
+              projectFile.read((char*)key.data(), sizeof(char) * size);
+              projectFile.read((char*)&value, sizeof(uint32));
+              bMap->insert(std::pair<String, uint32>(key, value));
+            }
+          }
+          newMesh->m_skeletalSData.reset(skeletal);
+
+          newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_WHITE);
+          newMesh->setNormalTexture(g_ResourceMan().DEFAULT_TEXTURE_NORMAL);
+          newMesh->setSpecularTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+          newMesh->setMetalnessTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+          newMesh->setRoughnessTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+
+          if (meshInfo.albedoID != 0) {
+            auto texture = getTexture(meshInfo.albedoID);
+            for (uint32 i = 0; i < m_texturesNames.size(); ++i) {
+              String name = g_ResourceMan().m_texturesNames[i];
+              if (name == texture->getName()) {
+                newMesh->m_albedoOption = i;
+                newMesh->setAlbedoTexture(texture);
+                break;
+              }
+            }
+          }
+          if (meshInfo.normalID != 0) {
+            auto texture = getTexture(meshInfo.normalID);
+            for (uint32 i = 0; i < m_texturesNames.size(); ++i) {
+              String name = g_ResourceMan().m_texturesNames[i];
+              if (name == texture->getName()) {
+                newMesh->m_NormalOption = i;
+                newMesh->setNormalTexture(texture);
+                break;
+              }
+            }
+          }
+          if (meshInfo.specID != 0) {
+            auto texture = getTexture(meshInfo.specID);
+            for (uint32 i = 0; i < m_texturesNames.size(); ++i) {
+              String name = g_ResourceMan().m_texturesNames[i];
+              if (name == texture->getName()) {
+                newMesh->m_specularOption = i;
+                newMesh->setSpecularTexture(texture);
+                break;
+              }
+            }
+          }
+          if (meshInfo.roughnessID != 0) {
+            auto texture = getTexture(meshInfo.roughnessID);
+            for (uint32 i = 0; i < m_texturesNames.size(); ++i) {
+              String name = g_ResourceMan().m_texturesNames[i];
+              if (name == texture->getName()) {
+                newMesh->m_albedoOption = i;
+                newMesh->setRoughnessTexture(texture);
+                break;
+              }
+            }
+          }
+
+          SPtr<Mesh> meshToAdd(newMesh);
+          newModel->addMesh(meshToAdd);
+        }
+        newModel->m_global_inverse_transform = modelinfo.globalInverseTransform;
+        newModel->m_animations.resize(modelinfo.numAnimations);
+
+        for (uint32 a = 0; a < modelinfo.numAnimations; ++a) {
+          newModel->m_animations[a].reset(new AnimationsData);
+          auto anim = newModel->m_animations[a];
+          ANIMATION_INFO aInfo;
+          projectFile.read((char*)&aInfo, sizeof(ANIMATION_INFO));
+          anim->m_name.resize(aInfo.nameSize);
+          projectFile.read((char*)anim->m_name.data(), sizeof(char) * aInfo.nameSize);
+          newModel->m_AnimationsList.push_back((char*)anim->m_name.c_str());
+          anim->m_duration = aInfo.duration;
+          anim->m_ticks_per_second = aInfo.ticks_per_second;
+          anim->m_numChannels = aInfo.numChannels;
+          anim->m_channels.resize(aInfo.numNodes);
+
+          for (uint32 n = 0; n < aInfo.numNodes; ++n) {
+
+            anim->m_channels[n].reset(new AnimationNode);
+            ANIMATION_NODE_INFO aNodeInfo;
+            projectFile.read((char*)&aNodeInfo, sizeof(ANIMATION_NODE_INFO));
+            anim->m_channels[n]->m_nodeName.resize(aNodeInfo.nameSize);
+            projectFile.read((char*)anim->m_channels[n]->m_nodeName.data(),
+                              sizeof(char) * aNodeInfo.nameSize);
+            anim->m_channels[n]->m_numPositionKeys = aNodeInfo.numPositionKeys;
+            anim->m_channels[n]->m_numScalingKeys = aNodeInfo.numScalingKeys;
+            anim->m_channels[n]->m_numRotationKeys = aNodeInfo.numRotationKeys;
+
+            anim->m_channels[n]->m_positionKeys.resize(aNodeInfo.numPositionKeys);
+            anim->m_channels[n]->m_scalingKeys.resize(aNodeInfo.numScalingKeys);
+            anim->m_channels[n]->m_rotationKeys.resize(aNodeInfo.numRotationKeys);
+
+            projectFile.read((char*)anim->m_channels[n]->m_positionKeys.data(),
+                             sizeof(PositionKey) * aNodeInfo.numPositionKeys);
+            projectFile.read((char*)anim->m_channels[n]->m_scalingKeys.data(),
+                             sizeof(ScalingKey) * aNodeInfo.numScalingKeys);
+            projectFile.read((char*)anim->m_channels[n]->m_rotationKeys.data(),
+                             sizeof(RotationKey) * aNodeInfo.numRotationKeys);
+
+          }
+        }
+        ModelNodes* rootNode = new ModelNodes();
+
+        newModel->m_animationNodes.reset(rootNode);
+        loadModelNodes(projectFile, newModel->m_animationNodes);
+
+        SPtr<Model> modelCreate(newModel);
+        m_models.push_back(modelCreate);
+        String n = name;
+        char* cname = new char[name.size() + 1];
+        strcpy(cname, name.c_str());
+        m_modelsNames.push_back(cname);
+
+        newResource = modelCreate;
+      }
+      else {
+        SPtr<Texture2D> newTex;
+        TEXTURE_INFO tData;
+        projectFile.read((char*)&tData, sizeof(TEXTURE_INFO));
+        unsigned char* data = new unsigned char[tData.textureSize];
+        projectFile.read((char*)data, sizeof(unsigned char)* tData.textureSize);
+        tData.textureSize = tData.height * tData.width * 4;
+        
+        newTex = g_graphicsApi().CreatTextureFromArray(data, tData.width, tData.height, 4);
+        if (NULL == newTex.get()) {
+          continue;
+        }
+        m_textures.push_back(newTex);
+        char* cname = new char[name.size() + 1];
+        strcpy(cname, name.c_str());
+        m_texturesNames.push_back(cname);
+        newTex->setName(name);
+        newResource = newTex;
+      }
+      newResource->setName(name);
+      newResource.get()->setID(binfo.id);
+      m_resources.insert(std::pair <uint32, SPtr<Resource>>(binfo.id, newResource));/////////////////EY LO VAS A OCUPAR
+    }
+    projectFile.close();
+    return true;
+  }
+
+  void 
+  ResourceManager::loadModelNodes(std::ifstream& file, SPtr<ModelNodes> Node) {
+    ANIMATION_MODEL_NODES mNodeInfo;
+    file.read((char*)&mNodeInfo, sizeof(ANIMATION_MODEL_NODES));
+    Node->m_name.resize(mNodeInfo.nameSize) ;
+    file.read((char*)Node->m_name.data(), sizeof(char) * mNodeInfo.nameSize);
+    Node->m_numChildren = mNodeInfo.numChildren;
+    Node->m_numMeshes = mNodeInfo.numMeshes;
+    Node->m_transform = mNodeInfo.transform;
+
+    Node->m_children.resize(mNodeInfo.numChildren);
+      
+    for (uint32 i = 0; i < mNodeInfo.numChildren; ++i) {
+      ModelNodes* newNode = new ModelNodes;
+      newNode->m_parent = Node;
+      Node->m_children[i].reset(newNode);
+      loadModelNodes(file, Node->m_children[i]);
+    }
   }
 
   SPtr<Resource> ResourceManager::loadModel(const char* path)
@@ -322,6 +740,7 @@ namespace jdEngineSDK {
       SPtr<uint32> spIndex(meshIndex);
       newMesh->setIndex(spIndex);
       newMesh->setIndexNum(numIndex);
+      newMesh->m_numVertex = numVertex;
 
       newMesh->setIndexBuffer(g_graphicsApi().createIndexBuffer(numIndex, meshIndex));
 
@@ -518,6 +937,7 @@ namespace jdEngineSDK {
     char* cname = new char[name.size() + 1];
     strcpy(cname, name.c_str());
     m_texturesNames.push_back(cname);
+    newTex->setName(name);
     return newTex;
   }
 

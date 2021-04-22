@@ -166,6 +166,31 @@ namespace jdEngineSDK {
 						return m_far;
 				}
 
+				float 
+				getAspectRatio() {
+						return m_aspecRatio;
+				}
+
+				Radian
+				getFovAngle() {
+						return m_fovAngle;
+				}
+
+				float 
+				getWidth() {
+						return m_width;
+				}
+
+				float 
+				getHeight() {
+						return m_height;
+				}
+
+				CAMERA_PROJECTION_TYPE::E 
+				gerProjectionType() {
+						return m_projType;
+				};
+
 		private:
 
 				/**

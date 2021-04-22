@@ -75,8 +75,14 @@ namespace jdEngineSDK {
     SPtr<Model>
     getModel(const char* modelName);
 
+    SPtr<Model>
+    getModel(uint32 modelID);
+
     SPtr<Texture2D>
     getTexture(const char* textureName);
+
+    SPtr<Texture2D>
+    getTexture(uint32 textureID);
 
     void
     createSAQ();
@@ -86,6 +92,35 @@ namespace jdEngineSDK {
 
     void
     onStartUp();
+
+    bool
+    saveProject(String projectName);
+
+    void
+    saveModelNodes(std::ofstream& file, SPtr<ModelNodes> Node);
+
+    void
+    loadModelNodes(std::ifstream& file, SPtr<ModelNodes> Node);
+
+    bool
+    loadProject(String projectName);
+
+    void
+    resetResources() {
+      m_models.clear();
+      m_textures.clear();
+      uint32 size = m_modelsNames.size();
+      for (uint32 i = 1; i < size; ++i) {
+        delete m_modelsNames[i];
+      }
+      m_modelsNames.resize(1);
+      size = m_texturesNames.size();
+      for (uint32 i = 1; i < size; ++i) {
+        delete m_texturesNames[i];
+      }
+      m_texturesNames.resize(1);
+      m_resources.clear();
+    }
 
     SPtr<Model> m_SAQ = nullptr;
     Vector<SPtr<Model>> m_models;

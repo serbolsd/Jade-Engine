@@ -270,6 +270,7 @@ namespace jdEngineSDK {
 
     SPtr<uint32> m_index = nullptr;
     uint32 m_numIndex = 0;
+    uint32 m_numVertex = 0;
     SPtr<void> m_vertex = nullptr;
     SPtr<void> m_normals = nullptr;
     SPtr<void> m_tangets = nullptr;

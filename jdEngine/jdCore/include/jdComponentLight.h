@@ -61,16 +61,16 @@ namespace jdEngineSDK {
      * @note 0 is directional, 1 is point, 2 is spot
      */
     void
-    setType(uint32 type) {
-      m_type = type;
+    setTypeLight(uint32 type) {
+      m_typeLight = type;
     };
 
     /**
      * @brief to get the type of light
      */
     uint32
-    getType() {
-      return m_type;
+    getTypeLight() {
+      return m_typeLight;
     };
 
     /**
@@ -114,6 +114,6 @@ namespace jdEngineSDK {
      * @brief the light type
      * @note 0 is directional, 1 is point, 2 is spot
      */
-    uint32 m_type = 0;
+    uint32 m_typeLight = 0;
 		};
 }

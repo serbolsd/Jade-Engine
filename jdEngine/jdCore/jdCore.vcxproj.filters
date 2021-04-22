@@ -218,6 +218,9 @@
     <ClInclude Include="include\jdGeometryShader.h">
       <Filter>Archivos de encabezado\Classes%27 Api</Filter>
     </ClInclude>
+    <ClInclude Include="include\jdSaveData.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="jdCore.rc">

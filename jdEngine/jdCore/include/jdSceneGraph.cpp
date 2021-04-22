@@ -49,4 +49,17 @@ namespace jdEngineSDK {
     m_GObjects.insert(NObj);
     return NObj;
   }
+
+  void SceneGraph::resetSceneGraph() {
+    m_GObjects.clear();
+    GameObject* root = new GameObject;
+    root->m_layer = 0;
+    root->setName("Root");
+    root->addComponent(COMPONENT_TYPE::TRANSFORM);
+    root->selected = true;
+    SPtr<GameObject> ROOT(root);
+    m_root = ROOT;
+    m_GObjects.insert(ROOT);
+    selectedObjet = m_root;
+  }
 }

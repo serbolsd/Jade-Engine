@@ -648,7 +648,6 @@ namespace jdEngineSDK {
   createGraphicAPI() {
     DirectX11Api* pDX = new DirectX11Api();
     return pDX;
-
   }
   
 }

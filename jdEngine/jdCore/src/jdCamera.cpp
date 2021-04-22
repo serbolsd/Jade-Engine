@@ -74,26 +74,26 @@ namespace jdEngineSDK {
     JDVector3 tras;
     if (x!=0) {
       if (x>0) {
-        tras = m_right;
+        tras = m_right*x;
       }
       else {
-        tras = -m_right;
+        tras = m_right*x;
       }
     }
     if (y != 0) {
       if (y > 0) {
-        tras = m_up;
+        tras = m_up*y;
       }
       else {
-        tras = -m_up;
+        tras = m_up*y;
       }
     }
     if (z != 0) {
       if (z > 0) {
-        tras = m_front;
+        tras = m_front*z;
       }
       else {
-        tras = -m_front;
+        tras = m_front*z;
       }
     }
     m_position += tras;

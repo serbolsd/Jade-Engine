@@ -238,6 +238,24 @@ namespace jdEngineSDK {
     onCreate();
 
     /**
+     * @brief to function release all resources and clear the sceneGraph
+     */
+    void
+    clearProject();
+
+    /**
+     * @brief to function release all resources and clear the sceneGraph
+     */
+    void
+    loadProject();
+
+    /**
+     * @brief function toclear the sceneGraph
+     */
+    void
+    clearScene();
+
+    /**
      * @brief function to Init imgui
      */
     void
@@ -396,6 +414,12 @@ namespace jdEngineSDK {
     void
     imGuiLoadResourceFile();
 
+    /**
+     * @brief function to createFile
+     */
+    void
+    imGuiCreateFile();
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Passes
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -495,6 +519,22 @@ namespace jdEngineSDK {
 
     void
     showGizmoSelectedObject();
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Save and Load scene functions
+//////////////////////////////////////////////////////////////////////////////////////////////
+    bool
+    saveScene(String scenetName);
+
+    void 
+    saveObject(std::ofstream& file, SPtr<GameObject> object);
+
+    bool
+    loadScene(String scenetName);
+
+    void 
+    loadObject(std::ifstream& file, SPtr<GameObject> object);
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Render Targets
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -882,7 +922,22 @@ namespace jdEngineSDK {
     /**
      * @brief To open the load file imgui window
      */
-    bool m_loadingFile = false;
+    bool m_importResource = false;
+
+    /**
+     * @brief To open to create files
+     */
+    bool m_creatingFile = false;
+
+    /**
+     * @brief To open to create files
+     */
+    bool m_bFileProject = false;
+
+    /**
+     * @brief To open to create files
+     */
+    bool m_LoadingFile = false;
 
     /**
      * @brief To add camera
@@ -958,6 +1013,16 @@ namespace jdEngineSDK {
      * @brief the window data to load files
      */
     SPtr<ImGui::FileBrowser> m_fileDialog;
+
+    /**
+     * @brief the window data to create files
+     */
+    SPtr<ImGui::FileBrowser> m_createFileDialog;
+
+    /**
+     * @brief the window data to load files
+     */
+    SPtr<ImGui::FileBrowser> m_loadFileDialog;
 
     /**
      * @brief To imgui dock menu

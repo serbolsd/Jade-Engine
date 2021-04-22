@@ -3,6 +3,7 @@
 #include <jdComponentRenderModel.h>
 #include <jdComponentLight.h>
 #include <InputAPI.h>
+#include <jdSaveData.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -56,10 +57,17 @@ namespace jdEngineSDK {
     showCameraInterpolateMenu();
     showHistorgramOption();
 
-    if (m_loadingFile)
-    {
+    if (m_importResource) {
       imGuiLoadResourceFile();
     }
+    if (m_creatingFile) {
+      imGuiCreateFile();
+    }
+    if (m_LoadingFile) {
+      loadProject();
+    }
+
+    g_graphicsApi().updateSubresource(m_CBlights, &m_DLights);
 
     changeCameraDataBuffer(m_debugCam);
     renderForward(m_RTForward);
@@ -86,7 +94,7 @@ namespace jdEngineSDK {
     }
     ImGui::Image(m_RTForward.get()->getRenderTexture(), wsize);
    
-    showGizmoSelectedObject();
+    //showGizmoSelectedObject();
 
     ImGui::End();
     
@@ -462,7 +470,15 @@ namespace jdEngineSDK {
     m_DLights.light[0].m_lightDirection = { -1,0,1 };
     m_DLights.light[0].m_lightPosition = { 0,0,0 };
     m_DLights.light[0].m_type = 0;
-    m_DLights.light[0].m_numberOfLights = 1;//This is only for the first sctruc
+    m_DLights.light[0].m_numberOfLights = 0;//This is only for the first sctruc
+
+    //SPtr<GameObject> light = SceneGraph::instance().createGameObject();
+    //m_slight = light;
+    //light->setName("mainLight");
+    //SPtr<Component> mainLight = light->addComponent(COMPONENT_TYPE::LIGHT);
+    //CLight* ml = reinterpret_cast<CLight*>(mainLight.get());
+    //ml->setIdArray(m_lightCreated);
+    //++m_lightCreated;
 
     //Update buffers
     g_graphicsApi().updateSubresource(m_CBneverChange, &m_DNeverChanges);
@@ -499,16 +515,16 @@ namespace jdEngineSDK {
 
     //Load Resources
       //Load defaultTextures
-    g_ResourceMan().loadResourceFromFile("data/textures/black.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/white.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    SPtr<Resource> cubeResource =
-      g_ResourceMan().loadResourceFromFile("data/textures/LightCube.dds",
-                                           RESOURCE_TYPE::TEXTURE);
-    SPtr<Texture2D> cubeMap(cubeResource, reinterpret_cast<Texture2D*>(cubeResource.get()));
-    m_ambientCubeMap = cubeMap;
-    m_ambientCubeMapOption = 3;
+    //g_ResourceMan().loadResourceFromFile("data/textures/black.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/white.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //SPtr<Resource> cubeResource =
+    //  g_ResourceMan().loadResourceFromFile("data/textures/LightCube.dds",
+    //                                       RESOURCE_TYPE::TEXTURE);
+    //SPtr<Texture2D> cubeMap(cubeResource, reinterpret_cast<Texture2D*>(cubeResource.get()));
+    //m_ambientCubeMap = cubeMap;
+    //m_ambientCubeMapOption = 3;
 
     //Load Models with it´s textures
     //load spidergwen
@@ -528,55 +544,55 @@ namespace jdEngineSDK {
 
 
     //load noivern
-    g_ResourceMan().loadResourceFromFile("data/models/Noivern.fbx",
-                                         RESOURCE_TYPE::MODEL);
-    g_ResourceMan().loadResourceFromFile("data/textures/noivern_albedo.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/noivern_normals.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/noivern_roughness.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/pedestal_albedo.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/pedestal_normals.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/pedestal_metallic.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/pedestal_roughness.png",
-                                         RESOURCE_TYPE::TEXTURE);
-    SPtr<GameObject> tmp = SceneGraph::instance().createGameObject();
-    tmp->addComponent(COMPONENT_TYPE::RENDERMODEL);
-    auto rModel =
-      reinterpret_cast<CRenderModel*>(tmp->getComponent(COMPONENT_TYPE::RENDERMODEL).get());
-    rModel->setModel(g_ResourceMan().getModel("data/models/Noivern.fbx"));
-    rModel->m_model->m_meshes[0]->setAlbedoTexture(g_ResourceMan().getTexture("data/textures/noivern_albedo.png"));
-    rModel->m_model->m_meshes[0]->setNormalTexture(g_ResourceMan().getTexture("data/textures/noivern_normals.png"));
-    rModel->m_model->m_meshes[0]->setSpecularTexture(g_ResourceMan().getTexture("data/textures/black.png"));
-    rModel->m_model->m_meshes[0]->setRoughnessTexture(g_ResourceMan().getTexture("data/textures/noivern_roughness.png"));
-    rModel->m_model->m_meshes[1]->setAlbedoTexture(g_ResourceMan().getTexture("data/textures/pedestal_albedo.png"));
-    rModel->m_model->m_meshes[1]->setNormalTexture(g_ResourceMan().getTexture("data/textures/pedestal_normals.png"));
-    rModel->m_model->m_meshes[1]->setSpecularTexture(g_ResourceMan().getTexture("data/textures/pedestal_metallic.png"));
-    rModel->m_model->m_meshes[1]->setRoughnessTexture(g_ResourceMan().getTexture("data/textures/pedestal_roughness.png"));
+    //g_ResourceMan().loadResourceFromFile("data/models/Noivern.fbx",
+    //                                     RESOURCE_TYPE::MODEL);
+    //g_ResourceMan().loadResourceFromFile("data/textures/noivern_albedo.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/noivern_normals.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/noivern_roughness.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_albedo.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_normals.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_metallic.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/pedestal_roughness.png",
+    //                                     RESOURCE_TYPE::TEXTURE);
+    //SPtr<GameObject> tmp = SceneGraph::instance().createGameObject();
+    //tmp->addComponent(COMPONENT_TYPE::RENDERMODEL);
+    //auto rModel =
+    //  reinterpret_cast<CRenderModel*>(tmp->getComponent(COMPONENT_TYPE::RENDERMODEL).get());
+    //rModel->setModel(g_ResourceMan().getModel("data/models/Noivern.fbx"));
+    //rModel->m_model->m_meshes[0]->setAlbedoTexture(g_ResourceMan().getTexture("data/textures/noivern_albedo.png"));
+    //rModel->m_model->m_meshes[0]->setNormalTexture(g_ResourceMan().getTexture("data/textures/noivern_normals.png"));
+    //rModel->m_model->m_meshes[0]->setSpecularTexture(g_ResourceMan().getTexture("data/textures/black.png"));
+    //rModel->m_model->m_meshes[0]->setRoughnessTexture(g_ResourceMan().getTexture("data/textures/noivern_roughness.png"));
+    //rModel->m_model->m_meshes[1]->setAlbedoTexture(g_ResourceMan().getTexture("data/textures/pedestal_albedo.png"));
+    //rModel->m_model->m_meshes[1]->setNormalTexture(g_ResourceMan().getTexture("data/textures/pedestal_normals.png"));
+    //rModel->m_model->m_meshes[1]->setSpecularTexture(g_ResourceMan().getTexture("data/textures/pedestal_metallic.png"));
+    //rModel->m_model->m_meshes[1]->setRoughnessTexture(g_ResourceMan().getTexture("data/textures/pedestal_roughness.png"));
 
     //load cyberWarrior
-    g_ResourceMan().loadResourceFromFile("data/models/cyberWarrior.fbx",
-      RESOURCE_TYPE::MODEL);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/TM.png",
-      RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/NM.png",
-      RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/Metal.png",
-      RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/Rough.png",
-      RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Base_Color.png",
-      RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Normal_DirectX.png",
-      RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Metallic.png",
-      RESOURCE_TYPE::TEXTURE);
-    g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Roughness.png",
-      RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/models/cyberWarrior.fbx",
+    //  RESOURCE_TYPE::MODEL);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/TM.png",
+    //  RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/NM.png",
+    //  RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/Metal.png",
+    //  RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/Rough.png",
+    //  RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Base_Color.png",
+    //  RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Normal_DirectX.png",
+    //  RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Metallic.png",
+    //  RESOURCE_TYPE::TEXTURE);
+    //g_ResourceMan().loadResourceFromFile("data/textures/soldier/material0_Roughness.png",
+    //  RESOURCE_TYPE::TEXTURE);
 
     //Load Trooper
     //g_ResourceMan().loadResourceFromFile("data/models/trooper.fbx",
@@ -612,20 +628,14 @@ namespace jdEngineSDK {
     //Rasterize states
     m_defaultRasState = g_graphicsApi().createRasterizeState();
     m_wireframeRasState =
-      g_graphicsApi().createRasterizeState(RASTERIZER_FILL_MODE::D3D11_FILL_WIREFRAME);
+             g_graphicsApi().createRasterizeState(RASTERIZER_FILL_MODE::D3D11_FILL_WIREFRAME);
 
-    SPtr<GameObject> light = SceneGraph::instance().createGameObject();
-    m_slight = light;
-    light->setName("mainLight");
-    SPtr<Component> mainLight = light->addComponent(COMPONENT_TYPE::LIGHT);
-    CLight* ml = reinterpret_cast<CLight*>(mainLight.get());
-    ml->setIdArray(m_lightCreated);
-    ++m_lightCreated;
 
-    SPtr<GameObject> mainCam = SceneGraph::instance().createGameObject();
-    mainCam->setName("mainCamera");
-    SPtr<Component> cam = g_CameraMan().getMainCamera();
-    mainCam->addComponent(COMPONENT_TYPE::CAMERA, cam);
+
+    //SPtr<GameObject> mainCam = SceneGraph::instance().createGameObject();
+    //mainCam->setName("mainCamera");
+    //SPtr<Component> cam = g_CameraMan().getMainCamera();
+    //mainCam->addComponent(COMPONENT_TYPE::CAMERA, cam);
 
     m_tempParticle.m_pos = { 0,0,0,0 };
     m_tempParticle.m_size = { 1000,1000 };
@@ -634,9 +644,46 @@ namespace jdEngineSDK {
                                                       &m_tempParticle);
 
     initImGui();
+    //g_ResourceMan().saveProject("theproject.jdf");
+    //g_ResourceMan().loadProject("theproject.jdf");
   }
 
   void 
+  RenderFNDApi::clearProject() {
+    clearScene();
+    m_ambientCubeMapOption = 0;
+    g_ResourceMan().resetResources();
+  }
+
+  void RenderFNDApi::loadProject() {
+    m_loadFileDialog->Display();
+    if (m_loadFileDialog->HasSelected()) {
+      String file = m_loadFileDialog->GetSelected().string();
+      //std::cout << "Selected filename" << m_fileDialog->GetSelected().string() << std::endl;
+      
+      if (m_bFileProject) {
+        clearProject();
+        g_ResourceMan().loadProject(file);
+      }
+      else {
+
+        clearScene();
+        loadScene(file);
+      }
+      m_fileDialog->ClearSelected();
+      m_LoadingFile = false;
+    }
+  }
+
+  void 
+  RenderFNDApi::clearScene() {
+    m_DLights.light[0].m_numberOfLights = 0;
+    m_lightCreated = 0;
+    g_graphicsApi().updateSubresource(m_CBlights, &m_DLights);
+    SceneGraph::instance().resetSceneGraph();
+  }
+
+  void
   RenderFNDApi::initImGui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -667,6 +714,13 @@ namespace jdEngineSDK {
                                               ImGuiFileBrowserFlags_MultipleSelection));
     m_fileDialog->SetTitle("LoadResource");
 
+    m_createFileDialog.reset(new ImGui::FileBrowser(ImGuiFileBrowserFlags_CloseOnEsc | 
+                                                    ImGuiFileBrowserFlags_EnterNewFilename | 
+                                                    ImGuiFileBrowserFlags_CreateNewDir));
+    m_createFileDialog->SetTitle("Create File");
+
+    m_loadFileDialog.reset(new ImGui::FileBrowser(ImGuiFileBrowserFlags_CloseOnEsc));
+    m_loadFileDialog->SetTitle("Load File");
   }
 
 #define errOut(x) if (0 != x) {std::cout<<"Error de salida: "<< x << std::endl; return x; }
@@ -1159,34 +1213,80 @@ namespace jdEngineSDK {
       ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     }
     static bool open = false;
-    if (ImGui::BeginMenuBar())
-    {
-
-      if (ImGui::BeginMenu("File"))
-      {
-        if (ImGui::BeginMenu("Import"))
-        {
+    if (ImGui::BeginMenuBar()) {
+      if (ImGui::BeginMenu("File")) {
+        if (ImGui::BeginMenu("Import")) {
           if (ImGui::MenuItem("Model")) {
             m_typeResourceToLoad = RESOURCE_TYPE::MODEL;
             //m_fileDialog->SetTypeFilters({ ".fbx.FBX.obj",".fbx",".FBX", ".obj" });
             m_fileDialog->SetTypeFilters({ ".fbx",".FBX", ".obj" });
             m_fileDialog->Open();
-            m_loadingFile = true;
+            m_importResource = true;
           }
           if (ImGui::MenuItem("Image")) {
             m_typeResourceToLoad = RESOURCE_TYPE::TEXTURE;
             //m_fileDialog->SetTypeFilters({ ".jpg.png.dds",".jpg", ".png", ".dds" });
             m_fileDialog->SetTypeFilters({ ".jpg", ".png", ".dds" });
             m_fileDialog->Open();
-            m_loadingFile = true;
+            m_importResource = true;
           }
           ImGui::EndMenu();
         }
-
         ImGui::EndMenu();
       }
-      if (ImGui::BeginMenu("Options"))
+      if (ImGui::BeginMenu("New")) {
+        if (ImGui::MenuItem("Project")) {
+          clearProject();
+        }
+        if (ImGui::MenuItem("Scene")) {
+          clearScene();
+        }
+        ImGui::EndMenu();
+      }
+      if (ImGui::BeginMenu("Save"))
       {
+        if (ImGui::MenuItem("Project")) {
+          //clearProject();
+
+          m_createFileDialog->SetTypeFilters({ ".jdp" });
+          m_loadFileDialog->SetTitle("Save Project");
+          m_createFileDialog->Open();
+          m_creatingFile = true;
+          m_bFileProject = true;
+        }
+        if (ImGui::MenuItem("Scene")) {
+          m_createFileDialog->SetTypeFilters({ ".jds" });
+          m_loadFileDialog->SetTitle("save Scene");
+          //saveScene("test.jds");
+          m_createFileDialog->Open();
+          m_creatingFile = true;
+          m_bFileProject = false;
+          //clearScene();
+        }
+        ImGui::EndMenu();
+      }
+      if (ImGui::BeginMenu("Load"))
+      {
+        if (ImGui::MenuItem("Project")) {
+          //clearProject();
+          m_loadFileDialog->SetTypeFilters({ ".jdp" });
+          m_loadFileDialog->SetTitle("Load Project");
+          m_loadFileDialog->Open();
+          m_LoadingFile = true;
+          m_bFileProject = true;
+        }
+        if (ImGui::MenuItem("Scene")) {
+          //clearScene();
+          //loadScene("test.jds");
+          m_loadFileDialog->SetTypeFilters({ ".jds" });
+          m_loadFileDialog->SetTitle("Load Scene");
+          m_loadFileDialog->Open();
+          m_LoadingFile = true;
+          m_bFileProject = false;
+        }
+        ImGui::EndMenu();
+      }
+      if (ImGui::BeginMenu("Options")) {
         //ImGui::Checkbox("SceneWindowNativeSize", &m_bSceneWindowNativeSize);
         ImGui::Checkbox("ShowAmbientOptions", &m_AmbientOptionsMenu);
         ImGui::Checkbox("Wireframe", &m_bWireframe);
@@ -1196,13 +1296,11 @@ namespace jdEngineSDK {
         ImGui::Checkbox("Bright options", &m_showBrightOptions);
         ImGui::Checkbox("Blur options", &m_showBlurOptions);
         ImGui::Checkbox("Histogram", &m_showHistogram);
-        if (m_bWireframe)
-        {
+        if (m_bWireframe) {
           g_graphicsApi().setRasterizeState(m_wireframeRasState);
           g_graphicsApi().setProgramShader(m_PSWireFrame);
         }
-        else
-        {
+        else {
           g_graphicsApi().setRasterizeState(m_defaultRasState);
           g_graphicsApi().setProgramShader(m_PSForward);
         }
@@ -1567,11 +1665,10 @@ namespace jdEngineSDK {
   void 
   RenderFNDApi::showLightComponent() {
     ImGui::Separator();
-    auto Model = SceneGraph::instance().selectedObjet.get();
+    auto object = SceneGraph::instance().selectedObjet.get();
     auto clight =
-      reinterpret_cast<CLight*>(Model->getComponent(COMPONENT_TYPE::LIGHT).get());
+      reinterpret_cast<CLight*>(object->getComponent(COMPONENT_TYPE::LIGHT).get());
     uint32 id = clight->getIdArray();
-    String g_OptionPreviw = ResourceManager::instance().m_modelsNames[Model->m_modelOption];
     JDVector4 dir = clight->getDirection();
     if (ImGui::TreeNode("Light")) {
       ImGui::DragFloat3("LightDirection",
@@ -1588,7 +1685,7 @@ namespace jdEngineSDK {
     }
     m_DLights.light[id].m_lightDirection = dir;
     m_DLights.light[id].m_lightColor = clight->m_color;
-    g_graphicsApi().updateSubresource(m_CBlights, &m_DLights);
+    
   }
 
   void 
@@ -1959,7 +2056,28 @@ namespace jdEngineSDK {
       }
       //std::cout << "Selected filename" << m_fileDialog->GetSelected().string() << std::endl;
       m_fileDialog->ClearSelected();
-      m_loadingFile = false;
+      m_importResource = false;
+    }
+  }
+
+  void 
+  RenderFNDApi::imGuiCreateFile() {
+      m_createFileDialog->Display();
+    if (m_createFileDialog->HasSelected()) {
+      uint32 files = (uint32)m_createFileDialog->GetMultiSelected().size();
+
+      String name = m_createFileDialog->GetSelected().string().c_str();
+      //std::cout << "Selected filename" << m_fileDialog->GetSelected().string() << std::endl;
+      if (m_bFileProject) {
+        name += ".jdp";
+        g_ResourceMan().saveProject(name);
+      }
+      else {
+        name += ".jds";
+        saveScene(name);
+      }
+
+      m_creatingFile = false;
     }
   }
 
@@ -2444,5 +2562,308 @@ namespace jdEngineSDK {
     //                         viewManipulateTop), 
     //                         ImVec2(128, 128), 
     //                         0x10101010);
+  }
+
+  bool 
+  RenderFNDApi::saveScene(String scenetName) {
+    std::ofstream sceneFile(scenetName, std::ios::binary);
+    if (!sceneFile)
+    {
+      return false;
+    }
+    auto root = SceneGraph::instance().m_root;
+    uint32 numChildrenRoot = root->m_children.size();
+
+    sceneFile.write((char*)&numChildrenRoot, sizeof(uint32));
+
+    saveObject(sceneFile, root);
+    sceneFile.close();
+    return true;
+  }
+
+  void 
+  RenderFNDApi::saveObject(std::ofstream& file, SPtr<GameObject> object) {
+    
+    if (object != SceneGraph::instance().m_root) {
+      OBJECT_BASE_INFO oInfo;
+      oInfo.numChildren = object->m_children.size();
+      auto component = object->getComponent(COMPONENT_TYPE::TRANSFORM);
+      CTransform* trans;
+      CRenderModel* cRModel;
+      CLight* cLight;
+      Camera* cCam;
+      if (nullptr != component) {
+        oInfo.hasTransform = true;
+        trans = reinterpret_cast<CTransform*>(component.get());
+      }
+      component = object->getComponent(COMPONENT_TYPE::RENDERMODEL);
+      if (nullptr != component) {
+        oInfo.hasRenderModel = true;
+        cRModel = reinterpret_cast<CRenderModel*>(component.get());
+      }
+      component = object->getComponent(COMPONENT_TYPE::LIGHT);
+      if (nullptr != component) {
+        oInfo.hasLight = true;
+        cLight = reinterpret_cast<CLight*>(component.get());
+      }
+
+      component = object->getComponent(COMPONENT_TYPE::CAMERA);
+      if (nullptr != component) {
+        oInfo.hasCamera = true;
+        cCam = reinterpret_cast<Camera*>(component.get());
+      }
+      oInfo.nameSize = object->getName().size();
+      file.write((char*)&oInfo, sizeof(OBJECT_BASE_INFO));
+      file.write((char*)object->getName().data(), sizeof(char) * oInfo.nameSize);
+      if (oInfo.hasTransform) {
+        OBJECT_TRANSFORM_INFO oTrans;
+        oTrans.position = trans->position;
+        oTrans.worldPosition = trans->worldPosition;
+        oTrans.rotation = trans->rotation;
+        oTrans.euler = trans->euler;
+        oTrans.scale = trans->scale;
+        oTrans.matTransform = trans->matTransform;
+        oTrans.matLocalTransform = trans->matLocalTransform;
+        oTrans.forward = trans->forward;
+        oTrans.right = trans->right;
+        oTrans.up = trans->up;
+        oTrans.worldForward = trans->worldForward;
+        oTrans.worldRight = trans->worldRight;
+        oTrans.worldUp = trans->worldUp;
+        file.write((char*)&oTrans, sizeof(OBJECT_TRANSFORM_INFO));
+      }
+      if (oInfo.hasRenderModel) {
+        OBJECT_RENDERMODEL_INFO rmInfo;
+        if (nullptr!= cRModel->m_model) {
+          rmInfo.modelID = cRModel->m_model->getID();
+          rmInfo.numMeshes = cRModel->m_model->m_meshes.size();
+        }
+        else {
+          rmInfo.modelID = 0;
+          rmInfo.numMeshes = 0;
+        }
+        rmInfo.m_playAnimation = cRModel->m_playAnimation;
+        rmInfo.currentAnimationID = cRModel->m_animationOption;
+        file.write((char*)&rmInfo, sizeof(OBJECT_RENDERMODEL_INFO));
+        //for (uint32 i = 0; i < rmInfo.numMeshes; ++i) {
+        //  OBJECT_RENDERMODEL_TEXTURE_INFO rmtInfo;
+        //  rmtInfo.albedoID = cRModel->m_model->m_meshes[i]->getAlbedoTexture()->getID();
+        //  rmtInfo.normalID = cRModel->m_model->m_meshes[i]->getNormalTexture()->getID();
+        //  rmtInfo.specID = cRModel->m_model->m_meshes[i]->getSpecularTexture()->getID();
+        //  rmtInfo.roughnessID = cRModel->m_model->m_meshes[i]->getRoughnessTexture()->getID();
+        //  file.write((char*)&rmtInfo, sizeof(OBJECT_RENDERMODEL_TEXTURE_INFO));
+        //}
+      }
+      if (oInfo.hasCamera) {
+        OBJECT_CAMERA_INFO cInfo;
+        cInfo.nameSize = cCam->getName().size();
+        cInfo.id = cCam->getID();
+        cInfo._near = cCam->getNear();
+        cInfo._far = cCam->getFar();
+        cInfo.fovAngle = cCam->getFovAngle();
+        cInfo.aspecRatio = cCam->getAspectRatio();
+        cInfo.width = cCam->getWidth();
+        cInfo.height = cCam->getHeight();
+        cInfo.up = cCam->getUpVector();
+        cInfo.right = cCam->getRightVector();
+        cInfo.position = cCam->getPositionVector();
+        cInfo.front = cCam->getFrontVector();
+        cInfo.projType = cCam->gerProjectionType();
+        file.write((char*)&cInfo, sizeof(OBJECT_CAMERA_INFO));
+        file.write((char*)cCam->getName().data(), sizeof(char) * cInfo.nameSize);
+      }
+      if (oInfo.hasLight) {
+        OBJECT_LIGHT_INFO lInfo;
+        lInfo.color= cLight->m_color;
+        lInfo.idArray = cLight->getIdArray();
+        lInfo.type = cLight->getTypeLight();
+        file.write((char*)&lInfo, sizeof(OBJECT_LIGHT_INFO));
+      }
+
+    }
+
+    for (auto son : object->m_children) {
+      saveObject(file, son);
+    }
+  }
+
+  bool 
+  RenderFNDApi::loadScene(String scenetName) {
+    std::ifstream sceneFile(scenetName, std::ios::binary);
+    if (!sceneFile)
+    {
+      return false;
+    }
+    auto root = SceneGraph::instance().m_root;
+    uint32 numChildrenRoot = root->m_children.size();
+
+    sceneFile.read((char*)&numChildrenRoot, sizeof(uint32));
+
+    for (uint32 i = 0; i < numChildrenRoot; ++i) {
+      SceneGraph::instance().selectedObjet = root;
+      auto newObject = SceneGraph::instance().createGameObject();
+      loadObject(sceneFile, newObject);
+
+    }
+    sceneFile.close();
+    return true;
+  }
+
+  void 
+  RenderFNDApi::loadObject(std::ifstream& file, SPtr<GameObject> object) {
+
+    OBJECT_BASE_INFO oInfo;
+
+    file.read((char*)&oInfo, sizeof(OBJECT_BASE_INFO));
+    String objectName;
+    objectName.resize(oInfo.nameSize);
+    file.read((char*)objectName.data(), sizeof(char) * oInfo.nameSize);
+    object->setName(objectName);
+    //oInfo.numChildren = object->m_children.size();
+    //auto component =
+    //  SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
+    //CTransform* trans;
+    //CRenderModel* cRModel;
+    //CLight* cLight;
+    //Camera* cCam;
+    //if (nullptr != component) {
+    //  oInfo.hasTransform = true;
+    //  trans = reinterpret_cast<CTransform*>(component.get());
+    //}
+    //component =
+    //  SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::RENDERMODEL);
+    //if (nullptr != component) {
+    //  oInfo.hasRenderModel = true;
+    //  cRModel = reinterpret_cast<CRenderModel*>(component.get());
+    //}
+    //component = SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::LIGHT);
+    //if (nullptr != component) {
+    //  oInfo.hasLight = true;
+    //  cLight = reinterpret_cast<CLight*>(component.get());
+    //}
+    //
+    //component = SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::CAMERA);
+    //if (nullptr != component) {
+    //  oInfo.hasCamera = true;
+    //  cCam = reinterpret_cast<Camera*>(component.get());
+    //}
+    if (oInfo.hasTransform) {
+      OBJECT_TRANSFORM_INFO oTrans;
+      file.read((char*)&oTrans, sizeof(OBJECT_TRANSFORM_INFO));
+      auto component = object->getComponent(COMPONENT_TYPE::TRANSFORM);
+      CTransform* trans;
+      trans = reinterpret_cast<CTransform*>(component.get());
+
+      trans->position = oTrans.position;
+      trans->worldPosition = oTrans.worldPosition;
+      trans->rotation = oTrans.rotation;
+      trans->euler = oTrans.euler;
+      trans->scale = oTrans.scale;
+      trans->matTransform = oTrans.matTransform;
+      trans->matLocalTransform = oTrans.matLocalTransform;
+      trans->forward = oTrans.forward;
+      trans->right = oTrans.right;
+      trans->up = oTrans.up;
+      trans->worldForward = oTrans.worldForward;
+      trans->worldRight = oTrans.worldRight;
+      trans->worldUp = oTrans.worldUp;
+      trans->Update(0.0f);
+    }
+    if (oInfo.hasRenderModel) {
+      auto component = object->addComponent(COMPONENT_TYPE::RENDERMODEL);
+      CRenderModel* cRModel;
+      cRModel = reinterpret_cast<CRenderModel*>(component.get());
+
+      OBJECT_RENDERMODEL_INFO rmInfo;
+      file.read((char*)&rmInfo, sizeof(OBJECT_RENDERMODEL_INFO));
+      cRModel->m_playAnimation = rmInfo.m_playAnimation;
+      auto model = g_ResourceMan().getModel(rmInfo.modelID);
+      if (nullptr != model) {
+        if (model->m_AnimationsList.size() < rmInfo.currentAnimationID)
+        {
+          rmInfo.currentAnimationID = 0;
+        }
+        cRModel->m_animationOption = rmInfo.currentAnimationID;
+
+        for (uint32 i = 0; i < g_ResourceMan().m_modelsNames.size(); ++i) {
+          String name = g_ResourceMan().m_modelsNames[i];
+          if (name == model->getName()) {
+            object->m_modelOption = i;
+            cRModel->setModel(model);
+            if (rmInfo.currentAnimationID > 0) {
+              cRModel->m_currentAnimation = cRModel->m_model->m_animations[rmInfo.currentAnimationID - 1];
+            }
+            else {
+              cRModel->m_currentAnimation = nullptr;
+              cRModel->noneAnimation();
+            }
+            break;
+          }
+        }
+
+      }
+      //mover al proyecto
+      //for (uint32 i = 0; i < rmInfo.numMeshes; ++i) {
+      //  OBJECT_RENDERMODEL_TEXTURE_INFO rmtInfo;
+      //  file.read((char*)&rmtInfo, sizeof(OBJECT_RENDERMODEL_TEXTURE_INFO));
+      //  rmtInfo.albedoID = cRModel->m_model->m_meshes[i]->getAlbedoTexture()->getID();
+      //  rmtInfo.normalID = cRModel->m_model->m_meshes[i]->getNormalTexture()->getID();
+      //  rmtInfo.specID = cRModel->m_model->m_meshes[i]->getSpecularTexture()->getID();
+      //  rmtInfo.roughnessID = cRModel->m_model->m_meshes[i]->getRoughnessTexture()->getID();
+      //}
+    }
+    if (oInfo.hasCamera) {
+
+      OBJECT_CAMERA_INFO cInfo;
+      file.read((char*)&cInfo, sizeof(OBJECT_CAMERA_INFO));
+
+      String cameraName;
+      cameraName.resize(cInfo.nameSize);
+      file.read((char*)cameraName.data(), sizeof(char) * cInfo.nameSize);
+
+      JDVector3 eye = { cInfo.position.x, cInfo.position.y, cInfo.position.z };
+      JDVector3 at = eye + cInfo.front;
+
+      SPtr<Camera> newC = g_CameraMan().createCamera(cameraName,
+                                                     eye,
+                                                     cInfo.up,
+                                                     at,
+                                                     cInfo._near,
+                                                     cInfo._far,
+                                                     cInfo.fovAngle,
+                                                     cInfo.aspecRatio,
+                                                     cInfo.projType);
+
+      object->addComponent(COMPONENT_TYPE::CAMERA, newC);
+    }
+    if (oInfo.hasLight) {
+      OBJECT_LIGHT_INFO lInfo;
+      file.read((char*)&lInfo, sizeof(OBJECT_LIGHT_INFO));
+
+      if (m_lightCreated < 20) {
+        SPtr<Component> newLight = object->addComponent(COMPONENT_TYPE::LIGHT);
+        if (nullptr != newLight) {
+          CLight* ml = reinterpret_cast<CLight*>(newLight.get());
+          ml->setIdArray(lInfo.idArray);
+          ++m_lightCreated;
+          m_DLights.light[0].m_numberOfLights = m_lightCreated;
+          ml->m_color = lInfo.color;
+          ml->setTypeLight(lInfo.type);
+          ml->Update(0.0f);
+          m_DLights.light[lInfo.type].m_type = ml->getType();
+          m_DLights.light[lInfo.type].m_lightColor = ml->m_color;
+          m_DLights.light[lInfo.type].m_lightDirection = ml->getDirection();
+          m_DLights.light[lInfo.type].m_lightPosition = ml->getPosition();
+          g_graphicsApi().updateSubresource(m_CBlights, &m_DLights);
+
+        }
+      }
+    }
+    for (uint32 i = 0; i < oInfo.numChildren; ++i) {
+      SceneGraph::instance().selectedObjet = object;
+      auto newObject = SceneGraph::instance().createGameObject();
+      loadObject(file, newObject);
+
+    }
   }
 }

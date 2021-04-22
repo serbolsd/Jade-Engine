@@ -5,6 +5,9 @@
 #include <imfilebrowser.h>
 
 testApp::testApp() {
+  int32 size = sizeof(JDMatrix4);
+  int32 size2 = sizeof(JDVector4);
+  JDVector4 vec;
   m_wndPosition = { -1, -1 };
   m_clientSize= {1000, 800};
   m_wndTitle = "jdEngine App";
@@ -983,34 +986,36 @@ testApp::handleWindownput(const float& deltaTime) {
   //  m_debugCam->rotate(Degree(-25 * deltaTime), 0);
   //  changeCameraDataBuffer(m_debugCam);
   //}
+
+  float camSpeed = 15;
   if (m_inputAPI->getKey(KEYBOARD::kKeyW) || 
       m_inputAPI->getGamepadAxis(GAMEPAD_AXIS::kPadButtonLeftStickY) > 0) {
-    m_debugCam->traslate(0, 0, 1 * deltaTime);
+    m_debugCam->traslate(0, 0, camSpeed * deltaTime);
     changeCameraDataBuffer(m_debugCam);
   }
   if (m_inputAPI->getKey(KEYBOARD::kKeyS))
   {
-    m_debugCam->traslate(0, 0, -1 * deltaTime);
+    m_debugCam->traslate(0, 0, -camSpeed * deltaTime);
     changeCameraDataBuffer(m_debugCam);
   }
   if (m_inputAPI->getKey(KEYBOARD::kKeyA))
   {
-    m_debugCam->traslate(-1 * deltaTime, 0, 0);
+    m_debugCam->traslate(-camSpeed * deltaTime, 0, 0);
     changeCameraDataBuffer(m_debugCam);
   }
   if (m_inputAPI->getKey(KEYBOARD::kKeyD))
   {
-    m_debugCam->traslate(1, 0 * deltaTime, 0);
+    m_debugCam->traslate(camSpeed*deltaTime, 0 * deltaTime, 0);
     changeCameraDataBuffer(m_debugCam);
   }
   if (m_inputAPI->getKey(KEYBOARD::kKeyQ))
   {
-    m_debugCam->traslate(0, -1 * deltaTime, 0);
+    m_debugCam->traslate(0, -camSpeed * deltaTime, 0);
     changeCameraDataBuffer(m_debugCam);
   }
   if (m_inputAPI->getKey(KEYBOARD::kKeyE))
   {
-    m_debugCam->traslate(0, 1 * deltaTime, 0);
+    m_debugCam->traslate(0, camSpeed * deltaTime, 0);
     changeCameraDataBuffer(m_debugCam);
   }
   if (m_inputAPI->getKey(KEYBOARD::kKeyLeft))

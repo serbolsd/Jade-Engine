@@ -250,6 +250,7 @@
     <ClInclude Include="include\jdResource.h" />
     <ClInclude Include="include\jdResourceManager.h" />
     <ClInclude Include="include\jdSampler.h" />
+    <ClInclude Include="include\jdSaveData.h" />
     <ClInclude Include="include\jdSceneGraph.h" />
     <ClInclude Include="include\jdSwapChain.h" />
     <ClInclude Include="include\jdTexture2D.h" />

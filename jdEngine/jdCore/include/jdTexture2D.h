@@ -52,9 +52,39 @@ namespace jdEngineSDK {
       return m_name;
     };
 
+    uint32
+    getWidth(){
+      return m_width;
+    }
+
+    uint32
+    getHeight(){
+      return m_width;
+    }
+
+    uint32
+    getChannels(){
+      return m_channels;
+    }
+
+    uint32
+    getMipLevels(){
+      return m_mipLevel;
+    }
+
+    unsigned char*
+    getData(){
+      return m_data;
+    }
+
     virtual void
     release() {};
    protected:
     String m_name = "defaultName";
+    uint32 m_width;
+    uint32 m_height; 
+    uint32 m_channels;
+    uint32 m_mipLevel;
+    unsigned char* m_data = nullptr;
   };
 }

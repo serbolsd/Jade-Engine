@@ -125,7 +125,10 @@ namespace jdEngineSDK {
 		{
 		 public:
 				Model() = default;
-				~Model() {};
+				~Model() {
+
+      //checar el node model
+    };
 
     void
     addMesh(WeakSptr<Mesh> mesh){

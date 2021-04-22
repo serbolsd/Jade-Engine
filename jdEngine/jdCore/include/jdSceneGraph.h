@@ -46,6 +46,9 @@ namespace jdEngineSDK {
     void 
     release() {};
 
+    void
+    resetSceneGraph();
+
     MultiSet<SPtr<GameObject>, CLayer> m_GObjects;
 
     SPtr<GameObject> selectedObjet = nullptr;
