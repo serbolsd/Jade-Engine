@@ -218,6 +218,14 @@ namespace jdEngineSDK {
      * @note the debug camera is the camera how you can see the scene all time
      */
     SPtr<Camera> m_debugCam = nullptr;
+
+    Vector<JDPoint> m_pixelOrder;
+    int32 m_pixelCount = 0;
+    int32 m_currentPixelCount = 0;
+    int32 m_maxPixelCount = 0;
+    int32 m_pixelPerFrame=1000;
+    
+
     unsigned char* m_image;
     JDVector3* m_pixels;
     uint32 m_imgWidth = 640;
