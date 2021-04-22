@@ -14,14 +14,14 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="ImGui">
-      <UniqueIdentifier>{4c502315-d3f3-4fd7-8221-0b7b5e7097f7}</UniqueIdentifier>
+      <UniqueIdentifier>{0524be87-3ddf-4c84-89c9-428c322e7f35}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\jdRenderFND.h">
+    <ClInclude Include="include\jdRenderShaderTests.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="include\jdRenderFNDPrerequisites.h">
+    <ClInclude Include="include\jdRenderShaderTestsPrerequisites.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="..\dependencies\imgui-sfml\include\imconfig.h">
@@ -57,24 +57,9 @@
     <ClInclude Include="..\dependencies\stb_image\stb_image.h">
       <Filter>Archivos de recursos</Filter>
     </ClInclude>
-    <ClInclude Include="..\dependencies\imGuizmo\ImCurveEdit.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dependencies\imGuizmo\ImGradient.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dependencies\imGuizmo\ImGuizmo.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dependencies\imGuizmo\ImSequencer.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dependencies\imGuizmo\ImZoomSlider.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\jdRenderFND.cpp">
+    <ClCompile Include="src\jdRenderShaderTests.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="..\dependencies\imgui-sfml\include\imgui.cpp">
@@ -96,18 +81,6 @@
       <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\dependencies\imGuizmo\ImCurveEdit.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\dependencies\imGuizmo\ImGradient.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\dependencies\imGuizmo\ImGuizmo.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\dependencies\imGuizmo\ImSequencer.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
   </ItemGroup>

@@ -39,6 +39,7 @@ namespace PRIMITIVE_TOPOLOGY_FORMAT {
     LINESTRIP,
     TRIANGLELIST,
     TRIANGLESTRIP,
+    CONTROL_POINT_PATCHLIST_16,
     NUMOFTOPLOGYS
   };
 }
@@ -305,13 +306,29 @@ namespace jdEngineSDK {
     reflectInputLayout(WeakSptr<VertexShader> /*vs*/) {return nullptr;};
 
     /**
-     * @brief virtual function to reflect input layout
+     * @brief virtual function to load textur from file
      * @param filePath is the path with the file
      * @return a shared pointer with the Texture
      */
     virtual SPtr<Texture2D>
     LoadShaderResourceFromFile(const char* /*filePath*/, bool /*isCubeMap*/) { 
       return nullptr; 
+    };
+
+    /**
+     * @brief virtual function to creat texture 2D from an array of unsigned char
+     * @param data is array with the data
+     * @param width is width of the imagen
+     * @param height is height of the imagen
+     * @param chanels are chanels of the imagen
+     * @return a shared pointer with the Texture
+     */
+    virtual SPtr<Texture2D>
+    CreatTextureFromArray(unsigned char* data, 
+                          unsigned int width, 
+                          unsigned int height, 
+                          unsigned int chanels = 4) {
+      return nullptr;
     };
 
     /**
@@ -545,6 +562,15 @@ namespace jdEngineSDK {
      */
     virtual void
     DrawIndex(uint32 /*numIdex*/) {};
+
+    /**
+     * @brief virtual function to draw the vertx buffer
+     * @param VertexCount is the number of vertex
+     * @param StartVertexLocation is the start vertec index
+     */
+    virtual void
+    Draw(uint32 /*VertexCount*/,
+         uint32 /*StartVertexLocation*/ = 0) {};
 
     /**
      * @brief virtual function to draw the vertx buffer per instance

@@ -468,7 +468,12 @@ namespace jdEngineSDK {
   
   FORCEINLINE float 
   JDVector3::squareMagnitude() const {
-   	return (x * x + y * y + z * z);
+    float result = x * x + y * y + z * z;
+    if (result < 0)
+    {
+      result = 0.000001f;
+    }
+   	return result;
   }
   
   FORCEINLINE float 

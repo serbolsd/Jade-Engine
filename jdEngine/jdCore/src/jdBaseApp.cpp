@@ -164,6 +164,8 @@ namespace jdEngineSDK {
     HINSTANCE ren;
 #ifdef _DEBUG
     ren = LoadLibraryExA("jdRenderForwardNDeferredd.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+    //ren = LoadLibraryExA("jdRenderShaderTestsd.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+    //ren = LoadLibraryExA("jdRenderRayTracingd.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 #else
     ren = LoadLibraryExA("jdRenderForwardNDeferred.dll", nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 #endif

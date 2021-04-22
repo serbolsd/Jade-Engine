@@ -2,6 +2,8 @@
 
 #include "jdPlatformDefines.h"
 #include "jdPlatformTypes.h"
+#include "jdStdHeaders.h"
+
 
 #include <cmath>
 
@@ -111,6 +113,10 @@ namespace jdEngineSDK {
     template<>
     static float atan(float val, float val2) {
       return std::atan2f(val, val2);
+    }
+
+    static float Min(float maxValue, float value) {
+      return std::min(maxValue, value);
     }
 
     static const float PI;

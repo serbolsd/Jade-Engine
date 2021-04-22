@@ -1175,6 +1175,57 @@ namespace jdEngineSDK {
     return SPtr<Texture2D>(tex);
   }
 
+  SPtr<Texture2D> 
+  DirectX11Api::CreatTextureFromArray(unsigned char* data, 
+                                      unsigned int width, 
+                                      unsigned int height, 
+                                      unsigned int chanels) {
+    D3D11Texture2D* tex = new D3D11Texture2D;
+    CD3D11_TEXTURE2D_DESC desc;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags = 0;
+    desc.MiscFlags = 0;
+
+    desc.Width = width;
+    desc.Height = height;
+
+    D3D11_SUBRESOURCE_DATA initData;
+    initData.pSysMem = data;
+    initData.SysMemPitch = width * chanels;
+    initData.SysMemSlicePitch = width * height * chanels;
+
+    HRESULT hr = m_device.m_pd3dDevice->CreateTexture2D(&desc, &initData, &tex->m_texture);
+    if (FAILED(hr))
+    {
+      //coudn't create texture
+      return nullptr;
+    }
+    CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = desc.MipLevels;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    tex->m_ppSRV.resize(desc.MipLevels);
+
+    hr = m_device.m_pd3dDevice->CreateShaderResourceView(tex->m_texture, &srvDesc, &tex->m_ppSRV[0]);
+
+    if (FAILED(hr))
+    {
+      //coudn't create texture
+      return nullptr;
+    }
+
+    return SPtr<Texture2D>(tex);
+
+    return SPtr<Texture2D>();
+  }
+
   void
   DirectX11Api::setRenderTarget(WeakSptr<RenderTarget> rt) {
     D3D11RenderTarget* ret = reinterpret_cast<D3D11RenderTarget*>(rt.lock().get());
@@ -1262,6 +1313,9 @@ namespace jdEngineSDK {
       break;
     case PRIMITIVE_TOPOLOGY_FORMAT::TRIANGLESTRIP:
       m_deviceContext.m_pd3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+      break;
+    case PRIMITIVE_TOPOLOGY_FORMAT::CONTROL_POINT_PATCHLIST_16:
+      m_deviceContext.m_pd3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST);
       break;
     default:
       break;  
@@ -1442,15 +1496,21 @@ namespace jdEngineSDK {
   }
 
   void 
+  DirectX11Api::Draw(uint32 VertexCount, uint32 StartVertexLocation){
+    m_deviceContext.m_pd3dDeviceContext->Draw(VertexCount, StartVertexLocation);
+  }
+
+
+
+  void 
   DirectX11Api::DrawInstanced(uint32 VertexCountPerInstance, 
                               uint32 InstanceCount, 
                               uint32 StartVertexLocation, 
                               uint32 StartInstanceLocation) {
-    //m_deviceContext.m_pd3dDeviceContext->DrawInstanced(VertexCountPerInstance, 
-    //                                                   InstanceCount, 
-    //                                                   StartVertexLocation, 
-    //                                                   StartInstanceLocation);
-    m_deviceContext.m_pd3dDeviceContext->Draw(1,0);
+    m_deviceContext.m_pd3dDeviceContext->DrawInstanced(VertexCountPerInstance, 
+                                                       InstanceCount, 
+                                                       StartVertexLocation, 
+                                                       StartInstanceLocation);
   }
 
   void

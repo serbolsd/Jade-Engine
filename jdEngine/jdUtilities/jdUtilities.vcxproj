@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\jdBox.h" />
     <ClInclude Include="include\jdDegree.h" />
+    <ClInclude Include="include\jdFile.h" />
     <ClInclude Include="include\jdFrustum.h" />
     <ClInclude Include="include\jdHeap.h" />
     <ClInclude Include="include\jdMath.h" />
@@ -53,6 +54,7 @@
     <ClCompile Include="include\jdFrustum.cpp" />
     <ClCompile Include="src\jdBox.cpp" />
     <ClCompile Include="src\jdDegree.cpp" />
+    <ClCompile Include="src\jdFile.cpp" />
     <ClCompile Include="src\jdHeap.cpp" />
     <ClCompile Include="src\jdPlatformMath.cpp" />
     <ClCompile Include="src\jdMatrix3.cpp" />

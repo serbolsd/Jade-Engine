@@ -19,6 +19,9 @@
 #include <jdPoint.h>
 #include <SFML/Window.hpp>
 #include <imgui.h>
+#include <ImGuizmo.h>
+#include <ImSequencer.h>
+//#include <ImZoomSlider.h>
 #include <imfilebrowser.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
@@ -157,6 +160,12 @@ namespace jdEngineSDK {
      */
     void
     onDestroy() override;
+
+    /**
+     * @brief funtion to call back, check the inputs of window
+     */
+    void
+    handleWindownput(const float& deltaTime) override;
 
     /**
      * @brief function to call on resize
@@ -481,7 +490,11 @@ namespace jdEngineSDK {
     void
     onResizeSceneWindow(uint32 width, uint32 height);
     
+    void
+    EditTransform();
 
+    void
+    showGizmoSelectedObject();
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Render Targets
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -970,6 +983,10 @@ namespace jdEngineSDK {
 
     ParticleData m_tempParticle;
     SPtr<VertexBuffer> m_particleVB;
+
+
+    int32 m_lastIdGizmo = 0;
+    ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 
   };
   

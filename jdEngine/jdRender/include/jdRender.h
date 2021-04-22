@@ -79,6 +79,12 @@ namespace jdEngineSDK {
     onResize(int32 width, int32 height) {};
 
     /**
+     * @brief funtion to call back, check the inputs of window
+     */
+    virtual void
+    handleWindownput(const float& deltaTime) {};
+
+    /**
      * @brief function to call when a mouse button pressed
      * @param button is the button code
      * @param x is the position of the mouse pointer, relative to the left of the window.

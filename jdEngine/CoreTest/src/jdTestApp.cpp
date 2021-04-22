@@ -1033,6 +1033,7 @@ testApp::handleWindownput(const float& deltaTime) {
     m_debugCam->rotate(Degree(-25 * deltaTime), 0);
     changeCameraDataBuffer(m_debugCam);
   }
+  g_Render().handleWindownput(deltaTime);
    /* m_neverChanges.m_view = m_debugCam->getMatrixView();
     m_neverChanges.m_viewInv = m_neverChanges.m_view;
     m_neverChanges.m_viewInv.invert();

@@ -260,12 +260,26 @@ namespace jdEngineSDK {
     reflectInputLayout(WeakSptr<VertexShader> vs) override;
 
     /**
-     * @brief virtual function to reflect input layout
+     * @brief function to load textur from file
      * @param filePath is the path with the file
      * @return a shared pointer with the Texture
      */
     SPtr<Texture2D>
     LoadShaderResourceFromFile(const char* filePath, bool isDDS);
+
+    /**
+     * @brief virtual function to creat texture 2D from an array of unsigned char
+     * @param data is array with the data
+     * @param width is width of the imagen
+     * @param height is height of the imagen
+     * @param chanels are chanels of the imagen
+     * @return a shared pointer with the Texture
+     */
+    SPtr<Texture2D>
+    CreatTextureFromArray(unsigned char* data, 
+                          unsigned int width, 
+                          unsigned int height, 
+                          unsigned int chanels = 4) override;
 
     /**
      * @brief function to clear the render target
@@ -499,7 +513,16 @@ namespace jdEngineSDK {
     DrawIndex(uint32 numIdex) override;
 
     /**
-     * @brief virtual function to draw the vertx buffer per instance
+     * @brief function to draw the vertx buffer
+     * @param VertexCount is the number of vertex
+     * @param StartVertexLocation is the start vertec index
+     */
+    void
+    Draw(uint32 VertexCount,
+         uint32 StartVertexLocation = 0);
+
+    /**
+     * @brief function to draw the vertx buffer per instance
      * @param VertexCountPerInstance is the number of vertex per instance
      * @param InstanceCount is the number of instances
      * @param StartVertexLocation is the start vertec index

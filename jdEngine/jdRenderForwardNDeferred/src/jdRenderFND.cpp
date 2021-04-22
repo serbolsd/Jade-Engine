@@ -2,6 +2,7 @@
 #include <jdComponentTransform.h>
 #include <jdComponentRenderModel.h>
 #include <jdComponentLight.h>
+#include <InputAPI.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -38,6 +39,7 @@ namespace jdEngineSDK {
 
   void 
   RenderFNDApi::onRender() {
+    ImGuizmo::BeginFrame();
     imguiDockScreen();
     imguiSceneGraph();
     imGuiInspectorObject();
@@ -83,6 +85,9 @@ namespace jdEngineSDK {
       m_sceneSize = size;
     }
     ImGui::Image(m_RTForward.get()->getRenderTexture(), wsize);
+   
+    showGizmoSelectedObject();
+
     ImGui::End();
     
     ImGui::Render();
@@ -95,6 +100,10 @@ namespace jdEngineSDK {
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
+  }
+
+  void 
+  RenderFNDApi::handleWindownput(const float& deltaTime) {
   }
 
   void 
@@ -1294,6 +1303,7 @@ namespace jdEngineSDK {
     if (nullptr != component) {
       ImGui::Separator();
       ImGui::Text("Transform");
+      EditTransform();
       CTransform* trans = reinterpret_cast<CTransform*>(component.get());
       JDVector3 rot = trans->euler;
       ImGui::DragFloat3("Rotacion", &rot.x, 0.1f);
@@ -1303,6 +1313,7 @@ namespace jdEngineSDK {
         trans->rotation = { Degree(rot.x), Degree(rot.y), Degree(rot.z) };
         trans->euler = rot;
       }
+      trans->Update(0.0f);
     }
     component =
       SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::RENDERMODEL);
@@ -1954,10 +1965,13 @@ namespace jdEngineSDK {
 
   void 
   RenderFNDApi::renderForward(SPtr<RenderTarget> rt) {
+
     g_graphicsApi().setRenderTarget(rt);
     g_graphicsApi().setViewPort(m_viewPortScene);
     g_graphicsApi().Clear(rt, 0.2f, 0.2f, 0.2f, 1);
     g_graphicsApi().ClearDepthStencil(rt);
+
+
     g_graphicsApi().setProgramShader(m_PSForward);
     g_graphicsApi().PixelShaderSetShaderResources(m_ambientCubeMap, 4);
     for (auto object : SceneGraph::instance().m_GObjects) {
@@ -1965,7 +1979,6 @@ namespace jdEngineSDK {
         object->getComponent(COMPONENT_TYPE::TRANSFORM);
       CTransform* trans = reinterpret_cast<CTransform*>(component.get());
       m_DChangeEveryFrame.m_world = trans->getMatrixTransform();
-
       g_graphicsApi().updateSubresource(m_CBchangeEveryFrame, &m_DChangeEveryFrame);
 
       object->draw();
@@ -1982,7 +1995,7 @@ namespace jdEngineSDK {
     //g_graphicsApi().updateSubresource(m_CBchangeEveryFrame, &m_DChangeEveryFrame);
 
     g_graphicsApi().setVertexBuffer(m_particleVB);
-    g_graphicsApi().DrawInstanced(1,1);
+    //g_graphicsApi().Draw(1);
     g_graphicsApi().removeGeometryShader();
     g_graphicsApi().setProgramShader(m_PSForward);
 
@@ -2297,5 +2310,139 @@ namespace jdEngineSDK {
     m_DChangeOnResize.m_projectionInv = m_DChangeOnResize.m_projection;
     m_DChangeOnResize.m_projectionInv.invert();
     g_graphicsApi().updateSubresource(m_CBchangeOnResize, &m_DChangeOnResize);
+  }
+
+  void 
+  RenderFNDApi::EditTransform()
+  {
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+    static bool useSnap = false;
+    static float snap[3] = { 1.f, 1.f, 1.f };
+    static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+    static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+    static bool boundSizing = false;
+    static bool boundSizingSnap = false;
+
+    if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+      mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+      mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+      mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+    //if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+    //{
+    //  if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+    //    mCurrentGizmoMode = ImGuizmo::LOCAL;
+    //  ImGui::SameLine();
+    //  if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+    //    mCurrentGizmoMode = ImGuizmo::WORLD;
+    //}
+    //if (ImGui::IsKeyPressed(83))
+    //  useSnap = !useSnap;
+    //ImGui::Checkbox("", &useSnap);
+    //ImGui::SameLine();
+    //
+    //switch (mCurrentGizmoOperation)
+    //{
+    //case ImGuizmo::TRANSLATE:
+    //  ImGui::InputFloat3("Snap", &snap[0]);
+    //  break;
+    //case ImGuizmo::ROTATE:
+    //  ImGui::InputFloat("Angle Snap", &snap[0]);
+    //  break;
+    //case ImGuizmo::SCALE:
+    //  ImGui::InputFloat("Scale Snap", &snap[0]);
+    //  break;
+    //}
+    //ImGui::Checkbox("Bound Sizing", &boundSizing);
+    //if (boundSizing)
+    //{
+    //  ImGui::PushID(3);
+    //  ImGui::Checkbox("", &boundSizingSnap);
+    //  ImGui::SameLine();
+    //  ImGui::InputFloat3("Snap", boundsSnap);
+    //  ImGui::PopID();
+    //}
+  }
+
+  void 
+  RenderFNDApi::showGizmoSelectedObject() {
+    if (nullptr == SceneGraph::instance().selectedObjet) {
+      return;
+    }
+    static JDMatrix4 identity = identity.identity();
+    auto view = m_debugCam->getMatrixView();
+    view.transpose();
+    auto proj = m_debugCam->getMatrixProjection();
+    //proj.transpose();
+
+    ImGuiIO& io = ImGui::GetIO();
+    float viewManipulateRight = io.DisplaySize.x;
+    float viewManipulateTop = 0;
+    ImGuizmo::SetDrawlist();
+    float windowWidth = (float)ImGui::GetWindowWidth();
+    float windowHeight = (float)ImGui::GetWindowHeight();
+    ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+    viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
+    viewManipulateTop = ImGui::GetWindowPos().y;
+
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+    static bool useSnap = false;
+    static float snap[3] = { 1.f, 1.f, 1.f };
+    static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+    static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+    static bool boundSizing = false;
+    static bool boundSizingSnap = false;
+    switch (mCurrentGizmoOperation)
+    {
+    case ImGuizmo::TRANSLATE:
+      ImGui::InputFloat3("Snap", &snap[0]);
+      break;
+    case ImGuizmo::ROTATE:
+      ImGui::InputFloat("Angle Snap", &snap[0]);
+      break;
+    case ImGuizmo::SCALE:
+      ImGui::InputFloat("Scale Snap", &snap[0]);
+      break;
+    }
+
+    auto component = SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
+    CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+
+    ImGuizmo::SetID(0);
+
+    auto mat = trans->matTransform;
+    auto matin = mat.getTranspose();
+
+    ImGuizmo::Manipulate(&view.m[0], 
+                         &proj.m[0], 
+                         mCurrentGizmoOperation, 
+                         mCurrentGizmoMode, 
+                         &matin.m[0], 
+                         NULL, 
+                         useSnap ? &snap[0] : NULL, 
+                         boundSizing ? bounds : NULL, 
+                         boundSizingSnap ? boundsSnap : NULL);
+    //mat = matin.getTranspose();
+    JDVector3 rot = trans->euler;
+    JDVector3 scale = trans->euler;
+    ImGuizmo::DecomposeMatrixToComponents(&matin.m[0], &trans->position.x, &rot.x, &trans->scale.x);
+    if (rot != trans->euler) {
+      trans->rotation = { Degree(rot.x), Degree(rot.y), Degree(rot.z) };
+      trans->euler = rot;
+    }
+
+    auto distance = m_debugCam->getPositionVector().magnitude();
+
+    //To maipule view, need update, there is not call here, need it
+    //ImGuizmo::ViewManipulate(&view.m[0], 
+    //                         distance, 
+    //                         ImVec2(viewManipulateRight - 128, 
+    //                         viewManipulateTop), 
+    //                         ImVec2(128, 128), 
+    //                         0x10101010);
   }
 }

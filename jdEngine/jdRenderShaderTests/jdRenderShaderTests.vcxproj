@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d2649652-e88d-402d-b2fa-d2617ced1b3a}</ProjectGuid>
-    <RootNamespace>jdRenderForwardNDeferred</RootNamespace>
+    <ProjectGuid>{b000f658-24ad-47bb-98b3-49de0e946322}</ProjectGuid>
+    <RootNamespace>jdRenderShaderTests</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -30,27 +30,27 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
     <IntDir>$(SolutionDir)intermediate/$(ProjectName)/$(PlatformShortName)/$(Configuration)/</IntDir>
+    <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,8 +83,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
     <IntDir>$(SolutionDir)intermediate/$(ProjectName)/$(PlatformShortName)/$(Configuration)/</IntDir>
+    <OutDir>$(SolutionDir)bin/$(PlatformShortName)/</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -99,7 +99,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -109,7 +109,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilitiesd.lib;jdCored.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;ImGuid.lib;OpenCL.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jdUtilitiesd.lib;jdCored.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;ImGuid.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -122,7 +122,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -134,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilities.lib;jdCore.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;ImGui.lib;OpenCL.lib;jdSysInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jdUtilities.lib;jdCore.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;ImGui.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -145,7 +145,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -155,7 +155,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilitiesd.lib;jdCored.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;ImGuid.lib;OpenCL.lib;jdSysInputd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jdUtilitiesd.lib;jdCored.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;ImGuid.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -168,7 +168,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -180,7 +180,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilities.lib;jdCore.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;ImGui.lib;OpenCL.lib;jdSysInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jdUtilities.lib;jdCore.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;ImGui.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -195,14 +195,9 @@
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_rectpack.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_textedit.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h" />
-    <ClInclude Include="..\dependencies\imGuizmo\ImCurveEdit.h" />
-    <ClInclude Include="..\dependencies\imGuizmo\ImGradient.h" />
-    <ClInclude Include="..\dependencies\imGuizmo\ImGuizmo.h" />
-    <ClInclude Include="..\dependencies\imGuizmo\ImSequencer.h" />
-    <ClInclude Include="..\dependencies\imGuizmo\ImZoomSlider.h" />
     <ClInclude Include="..\dependencies\stb_image\stb_image.h" />
-    <ClInclude Include="include\jdRenderFND.h" />
-    <ClInclude Include="include\jdRenderFNDPrerequisites.h" />
+    <ClInclude Include="include\jdRenderShaderTests.h" />
+    <ClInclude Include="include\jdRenderShaderTestsPrerequisites.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\dependencies\imgui-sfml\include\imgui.cpp" />
@@ -212,11 +207,7 @@
     <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_dx11.cpp" />
     <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_impl_win32.cpp" />
     <ClCompile Include="..\dependencies\imgui-sfml\include\imgui_widgets.cpp" />
-    <ClCompile Include="..\dependencies\imGuizmo\ImCurveEdit.cpp" />
-    <ClCompile Include="..\dependencies\imGuizmo\ImGradient.cpp" />
-    <ClCompile Include="..\dependencies\imGuizmo\ImGuizmo.cpp" />
-    <ClCompile Include="..\dependencies\imGuizmo\ImSequencer.cpp" />
-    <ClCompile Include="src\jdRenderFND.cpp" />
+    <ClCompile Include="src\jdRenderShaderTests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
