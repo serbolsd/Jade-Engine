@@ -17,7 +17,7 @@
 #include "jdModel.h"
 
 namespace jdEngineSDK {
-		class CRenderModel : public Component
+		class JD_CORE_EXPORT CRenderModel : public Component
 		{
     friend class SceneGraph;
     friend class GameObject;

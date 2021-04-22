@@ -94,7 +94,7 @@ namespace jdEngineSDK {
     }
     ImGui::Image(m_RTForward.get()->getRenderTexture(), wsize);
    
-    //showGizmoSelectedObject();
+    showGizmoSelectedObject();
 
     ImGui::End();
     
@@ -2507,52 +2507,63 @@ namespace jdEngineSDK {
     viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
     viewManipulateTop = ImGui::GetWindowPos().y;
 
-    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
     static bool useSnap = false;
     static float snap[3] = { 1.f, 1.f, 1.f };
     static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
     static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
     static bool boundSizing = false;
     static bool boundSizingSnap = false;
-    switch (mCurrentGizmoOperation)
-    {
-    case ImGuizmo::TRANSLATE:
-      ImGui::InputFloat3("Snap", &snap[0]);
-      break;
-    case ImGuizmo::ROTATE:
-      ImGui::InputFloat("Angle Snap", &snap[0]);
-      break;
-    case ImGuizmo::SCALE:
-      ImGui::InputFloat("Scale Snap", &snap[0]);
-      break;
-    }
+    //switch (mCurrentGizmoOperation)
+    //{
+    //case ImGuizmo::TRANSLATE:
+    //  ImGui::InputFloat3("Snap", &snap[0]);
+    //  break;
+    //case ImGuizmo::ROTATE:
+    //  ImGui::InputFloat("Angle Snap", &snap[0]);
+    //  break;
+    //case ImGuizmo::SCALE:
+    //  ImGui::InputFloat("Scale Snap", &snap[0]);
+    //  break;
+    //}
 
     auto component = SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
     CTransform* trans = reinterpret_cast<CTransform*>(component.get());
 
     ImGuizmo::SetID(0);
 
-    auto mat = trans->matTransform;
-    auto matin = mat.getTranspose();
-
+    //auto mat = trans->ma;
+    //auto matin = mat.getTranspose();
+    JDVector3 rot = trans->euler;
+    JDVector3 rot2;
+    JDVector3 rot3;
+    JDVector3 pos2;
+    JDVector3 pos3;
+    JDVector3 scale2;
+    JDVector3 scale3;
+    JDMatrix4 mat;
+    JDMatrix4 mat2 = trans->matTransform;
+    mat2.transpose();
+    JDMatrix4 mat3 = trans->matLocalTransform;
+    //mat3.transpose();
+    ImGuizmo::RecomposeMatrixFromComponents(&trans->position.x, &rot.x, &trans->scale.x, &mat.m[0]);
+    ImGuizmo::DecomposeMatrixToComponents(&mat2.m[0], &pos2.x, &rot2.x, &scale2.x);
+    ImGuizmo::DecomposeMatrixToComponents(&mat3.m[0], &pos3.x, &rot3.x, &scale3.x);
     ImGuizmo::Manipulate(&view.m[0], 
                          &proj.m[0], 
                          mCurrentGizmoOperation, 
                          mCurrentGizmoMode, 
-                         &matin.m[0], 
+                         &mat.m[0],
                          NULL, 
                          useSnap ? &snap[0] : NULL, 
                          boundSizing ? bounds : NULL, 
                          boundSizingSnap ? boundsSnap : NULL);
-    //mat = matin.getTranspose();
-    JDVector3 rot = trans->euler;
-    JDVector3 scale = trans->euler;
-    ImGuizmo::DecomposeMatrixToComponents(&matin.m[0], &trans->position.x, &rot.x, &trans->scale.x);
+    ImGuizmo::DecomposeMatrixToComponents(&mat.m[0], &trans->position.x, &rot.x, &trans->scale.x);
     if (rot != trans->euler) {
       trans->rotation = { Degree(rot.x), Degree(rot.y), Degree(rot.z) };
       trans->euler = rot;
     }
-
+    trans->Update(0);
     auto distance = m_debugCam->getPositionVector().magnitude();
 
     //To maipule view, need update, there is not call here, need it
@@ -2645,14 +2656,6 @@ namespace jdEngineSDK {
         rmInfo.m_playAnimation = cRModel->m_playAnimation;
         rmInfo.currentAnimationID = cRModel->m_animationOption;
         file.write((char*)&rmInfo, sizeof(OBJECT_RENDERMODEL_INFO));
-        //for (uint32 i = 0; i < rmInfo.numMeshes; ++i) {
-        //  OBJECT_RENDERMODEL_TEXTURE_INFO rmtInfo;
-        //  rmtInfo.albedoID = cRModel->m_model->m_meshes[i]->getAlbedoTexture()->getID();
-        //  rmtInfo.normalID = cRModel->m_model->m_meshes[i]->getNormalTexture()->getID();
-        //  rmtInfo.specID = cRModel->m_model->m_meshes[i]->getSpecularTexture()->getID();
-        //  rmtInfo.roughnessID = cRModel->m_model->m_meshes[i]->getRoughnessTexture()->getID();
-        //  file.write((char*)&rmtInfo, sizeof(OBJECT_RENDERMODEL_TEXTURE_INFO));
-        //}
       }
       if (oInfo.hasCamera) {
         OBJECT_CAMERA_INFO cInfo;
@@ -2679,7 +2682,6 @@ namespace jdEngineSDK {
         lInfo.type = cLight->getTypeLight();
         file.write((char*)&lInfo, sizeof(OBJECT_LIGHT_INFO));
       }
-
     }
 
     for (auto son : object->m_children) {
@@ -2719,34 +2721,6 @@ namespace jdEngineSDK {
     objectName.resize(oInfo.nameSize);
     file.read((char*)objectName.data(), sizeof(char) * oInfo.nameSize);
     object->setName(objectName);
-    //oInfo.numChildren = object->m_children.size();
-    //auto component =
-    //  SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
-    //CTransform* trans;
-    //CRenderModel* cRModel;
-    //CLight* cLight;
-    //Camera* cCam;
-    //if (nullptr != component) {
-    //  oInfo.hasTransform = true;
-    //  trans = reinterpret_cast<CTransform*>(component.get());
-    //}
-    //component =
-    //  SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::RENDERMODEL);
-    //if (nullptr != component) {
-    //  oInfo.hasRenderModel = true;
-    //  cRModel = reinterpret_cast<CRenderModel*>(component.get());
-    //}
-    //component = SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::LIGHT);
-    //if (nullptr != component) {
-    //  oInfo.hasLight = true;
-    //  cLight = reinterpret_cast<CLight*>(component.get());
-    //}
-    //
-    //component = SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::CAMERA);
-    //if (nullptr != component) {
-    //  oInfo.hasCamera = true;
-    //  cCam = reinterpret_cast<Camera*>(component.get());
-    //}
     if (oInfo.hasTransform) {
       OBJECT_TRANSFORM_INFO oTrans;
       file.read((char*)&oTrans, sizeof(OBJECT_TRANSFORM_INFO));
@@ -2770,9 +2744,9 @@ namespace jdEngineSDK {
       trans->Update(0.0f);
     }
     if (oInfo.hasRenderModel) {
-      auto component = object->addComponent(COMPONENT_TYPE::RENDERMODEL);
-      CRenderModel* cRModel;
-      cRModel = reinterpret_cast<CRenderModel*>(component.get());
+      //object->addComponent(COMPONENT_TYPE::RENDERMODEL);
+      SPtr<CRenderModel> cRModel(new CRenderModel);
+      //cRModel = reinterpret_cast<CRenderModel*>(component.get());
 
       OBJECT_RENDERMODEL_INFO rmInfo;
       file.read((char*)&rmInfo, sizeof(OBJECT_RENDERMODEL_INFO));
@@ -2783,7 +2757,6 @@ namespace jdEngineSDK {
         {
           rmInfo.currentAnimationID = 0;
         }
-        cRModel->m_animationOption = rmInfo.currentAnimationID;
 
         for (uint32 i = 0; i < g_ResourceMan().m_modelsNames.size(); ++i) {
           String name = g_ResourceMan().m_modelsNames[i];
@@ -2792,6 +2765,7 @@ namespace jdEngineSDK {
             cRModel->setModel(model);
             if (rmInfo.currentAnimationID > 0) {
               cRModel->m_currentAnimation = cRModel->m_model->m_animations[rmInfo.currentAnimationID - 1];
+              cRModel->m_animationOption = rmInfo.currentAnimationID;
             }
             else {
               cRModel->m_currentAnimation = nullptr;
@@ -2802,15 +2776,7 @@ namespace jdEngineSDK {
         }
 
       }
-      //mover al proyecto
-      //for (uint32 i = 0; i < rmInfo.numMeshes; ++i) {
-      //  OBJECT_RENDERMODEL_TEXTURE_INFO rmtInfo;
-      //  file.read((char*)&rmtInfo, sizeof(OBJECT_RENDERMODEL_TEXTURE_INFO));
-      //  rmtInfo.albedoID = cRModel->m_model->m_meshes[i]->getAlbedoTexture()->getID();
-      //  rmtInfo.normalID = cRModel->m_model->m_meshes[i]->getNormalTexture()->getID();
-      //  rmtInfo.specID = cRModel->m_model->m_meshes[i]->getSpecularTexture()->getID();
-      //  rmtInfo.roughnessID = cRModel->m_model->m_meshes[i]->getRoughnessTexture()->getID();
-      //}
+      object->addComponent(COMPONENT_TYPE::RENDERMODEL, cRModel);
     }
     if (oInfo.hasCamera) {
 

@@ -107,7 +107,7 @@ namespace jdEngineSDK {
                                       LOAD_WITH_ALTERED_SEARCH_PATH);
 #else
     //m_inputHInstance = LoadLibraryExA("sysInput_Gainput.dll",
-    m_inputHInstance = LoadLibraryExA("SysInput_OIS.dll",
+    m_inputHInstance = LoadLibraryExA("sysInput_Gainputd.dll",
                                       nullptr,
                                       LOAD_WITH_ALTERED_SEARCH_PATH);
 #endif
@@ -125,7 +125,7 @@ namespace jdEngineSDK {
     m_inputAPI = createInputApi();
     m_inputAPI->init(m_clientSize.x, m_clientSize.x, handle);
 
-    Compute::startUp();
+    //Compute::startUp();
 
     HINSTANCE hin;
 #ifdef _DEBUG

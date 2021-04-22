@@ -17,6 +17,15 @@ namespace jdEngineSDK {
       realMatT = trans->getMatrixTransform();
     
     }
+    if (scale.x==0) {
+      scale.x = 0.00001f;
+    }
+    if (scale.y == 0) {
+      scale.y = 0.00001f;
+    }
+    if (scale.z == 0) {
+      scale.z = 0.00001f;
+    }
     JDMatrix4 matT = { scale.x, 0, 0, 0,
                        0,scale.y,0,0,
                        0,0,scale.z,0,
@@ -45,10 +54,10 @@ namespace jdEngineSDK {
     //  matT.rotateYstayPos(Degree(rotation.y));
     //  matT.rotateZstayPos(Degree(rotation.z));
     //}
-    matT *= traslate;
+    matT = traslate* matT;
     Quaternion rotaNormalize = rotation;
     matT *= rotaNormalize.getMatrix();
-
+    //matT = matLocalTransform;
     //matT.rotateX(Degree(rotation.x));
     //matT.rotateY(Degree(rotation.y));
     //matT.rotateZ(Degree(rotation.z));
