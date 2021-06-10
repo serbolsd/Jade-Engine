@@ -84,15 +84,15 @@
     <ClCompile Include="src\jdCompute.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="src\jdPhysical.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\jdPrerequisitesCore.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="include\jdGraphicApi.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jdTexture2D.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="include\jdIndexBuffer.h">
@@ -219,6 +219,15 @@
       <Filter>Archivos de encabezado\Classes%27 Api</Filter>
     </ClInclude>
     <ClInclude Include="include\jdSaveData.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdTexture2D.h">
+      <Filter>Archivos de encabezado\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jdPhysical.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jdRigidBody.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

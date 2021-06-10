@@ -139,6 +139,9 @@ namespace jdEngineSDK {
     SPtr<Resource>
     loadModel(const char* path);
 
+    SPtr<Resource>
+    loadJDModel(const char* path);
+
     void
     loadModelNodes(WeakSptr<ModelNodes> myNode, const aiNode* ainode);
 

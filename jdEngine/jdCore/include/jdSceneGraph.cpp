@@ -19,10 +19,8 @@ namespace jdEngineSDK {
   void
   SceneGraph::onUpdate(const float& deltaTime) {
     selectedObjet = nullptr;
-    for (auto obj : m_GObjects)
-    {
-      if (obj->selected)
-      {
+    for (auto obj : m_GObjects) {
+      if (obj->selected) {
         selectedObjet = obj;
       }
       obj->Update(deltaTime);
@@ -36,13 +34,11 @@ namespace jdEngineSDK {
     newObject->setName("GameObject##");
     newObject->addComponent(COMPONENT_TYPE::TRANSFORM);
     SPtr<GameObject> NObj(newObject);
-    if (nullptr == selectedObjet)
-    {
+    if (nullptr == selectedObjet) {
       newObject->setParent(m_root);
       m_root->m_children.insert(NObj);
     }
-    else
-    {
+    else {
       newObject->setParent(selectedObjet);
       selectedObjet->m_children.insert(NObj);
     }

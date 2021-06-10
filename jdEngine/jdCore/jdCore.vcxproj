@@ -98,7 +98,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -110,8 +110,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilitiesd.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;assimp-vc142-mtd.lib;jdSysInputd.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(DEVLIBS)physx/lib/$(PlatformShortName)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jdUtilitiesd.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;assimp-vc142-mtd.lib;jdSysInputd.lib;OpenCL.lib;PhysXd.lib;PhysXFoundationd.lib;PhysXExtensions_staticd.lib;PhysXPvdSDK_staticd.lib;PhysXCookingd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -122,7 +122,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -134,8 +134,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilitiesd.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;assimp-vc142-mtd.lib;jdSysInputd.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(DEVLIBS)physx/lib/$(PlatformShortName)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jdUtilitiesd.lib;jdRenderd.lib;sfml-window-d.lib;sfml-system-d.lib;assimp-vc142-mtd.lib;jdSysInputd.lib;OpenCL.lib;PhysXd.lib;PhysXFoundationd.lib;PhysXExtensions_staticd.lib;PhysXPvdSDK_staticd.lib;PhysXCookingd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -160,7 +160,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(DEVLIBS)physx/lib/$(PlatformShortName)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
       <AdditionalDependencies>jdUtilities.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;assimp-vc142-mt.lib;jdSysInput.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
@@ -174,7 +174,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -186,8 +186,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jdUtilities.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;assimp-vc142-mt.lib;jdSysInput.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/assimp/lib/$(PlatformShortName)/;$(SolutionDir)dependencies/imgui-sfml/lib/;$(SolutionDir)/lib/$(PlatformShortName)/;$(DEVLIBS)SFML/lib/$(PlatformTarget)/;%(AdditionalLibraryDirectories);$(CUDA_PATH)/lib/$(PlatformTarget)/;$(DEVLIBS)physx/lib/$(PlatformShortName)/;$(CUDA_PATH)/lib/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jdUtilities.lib;jdRender.lib;sfml-window.lib;sfml-system.lib;assimp-vc142-mt.lib;jdSysInput.lib;OpenCL.lib;PhysX.lib;PhysXFoundation.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib/$(PlatformShortName)/$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -208,6 +208,7 @@
     <ClCompile Include="src\jdGameObject.cpp" />
     <ClCompile Include="src\jdGraphicApi.cpp" />
     <ClCompile Include="src\jdLogger.cpp" />
+    <ClCompile Include="src\jdPhysical.cpp" />
     <ClCompile Include="src\jdProfiler.cpp" />
     <ClCompile Include="src\jdResourceManager.cpp" />
     <ClCompile Include="src\jdComponentTransform.cpp" />
@@ -240,6 +241,7 @@
     <ClInclude Include="include\jdLogger.h" />
     <ClInclude Include="include\jdMesh.h" />
     <ClInclude Include="include\jdModel.h" />
+    <ClInclude Include="include\jdPhysical.h" />
     <ClInclude Include="include\jdPixelShader.h" />
     <ClInclude Include="include\jdPrerequisitesCore.h" />
     <ClInclude Include="include\jdProfiler.h" />
@@ -258,6 +260,7 @@
     <ClInclude Include="include\jdVertexShader.h" />
     <ClInclude Include="include\jdViewPort.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="src\jdRigidBody.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="jdCore.rc" />

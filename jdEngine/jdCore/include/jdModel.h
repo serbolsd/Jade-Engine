@@ -52,29 +52,44 @@ namespace jdEngineSDK {
   };
 
   struct ScalingKey {
+    /** 
+     * @brief scaling value. 
+     */
     JDVector3 m_value;
+
+    /**
+     * @brief time to do.
+     */
     float m_time;
   };
 
   struct RotationKey {
-    /** The value of this key */
+    /**
+     * @brief rotation value.
+     */
     Quaternion m_value;
 
-    /** The time of this key */
+    /**
+     * @brief time to do.
+     */
     float m_time;
   };
 
   struct PositionKey {
-    /** The time of this key */
-    float m_time;
-
-    /** The value of this key */
+    /**
+     * @brief position value.
+     */
     JDVector3 m_value;
+
+    /**
+     * @brief time to do.
+     */
+    float m_time;
   };
 
   struct AnimationNode {
     /** The name of the node affected by this animation. The node
-   *  must exist and it must be unique.*/
+     * must exist and it must be unique.*/
     String m_nodeName = "";
 
     /** The number of scaling keys */

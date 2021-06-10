@@ -94,7 +94,7 @@ namespace jdEngineSDK {
     }
     ImGui::Image(m_RTForward.get()->getRenderTexture(), wsize);
    
-    showGizmoSelectedObject();
+    //showGizmoSelectedObject();
 
     ImGui::End();
     
@@ -173,6 +173,12 @@ namespace jdEngineSDK {
   RenderFNDApi::onCreate() {
     //Get render target view created when start up the graphic api
     m_rtv = g_graphicsApi().getRenderTargetView();
+    g_graphicsApi().loadShaderFromFile("DX_animation.fx",
+                                       "VS",
+                                       "vs_5_0",
+                                       "DX_animation.fx",
+                                       "PS",
+                                       "ps_5_0");
 
     //Create RenderTargets
     //Create forward render target
@@ -1227,6 +1233,13 @@ namespace jdEngineSDK {
             m_typeResourceToLoad = RESOURCE_TYPE::TEXTURE;
             //m_fileDialog->SetTypeFilters({ ".jpg.png.dds",".jpg", ".png", ".dds" });
             m_fileDialog->SetTypeFilters({ ".jpg", ".png", ".dds" });
+            m_fileDialog->Open();
+            m_importResource = true;
+          }
+          if (ImGui::MenuItem("JDModel")) {
+            m_typeResourceToLoad = RESOURCE_TYPE::JDMODEL;
+            //m_fileDialog->SetTypeFilters({ ".jpg.png.dds",".jpg", ".png", ".dds" });
+            m_fileDialog->SetTypeFilters({ ".jdm" });
             m_fileDialog->Open();
             m_importResource = true;
           }

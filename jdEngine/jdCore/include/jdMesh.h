@@ -26,11 +26,13 @@
 namespace jdEngineSDK {
 
   class Model;
+  class Texture2D;
+
   struct ModelNodes;
   struct AnimationsData;
   struct AnimationNode;
-  struct cbBonesTranform
-  {
+
+  struct cbBonesTranform {
     JDMatrix4 boneTransform[200];
   };
 
@@ -60,7 +62,6 @@ namespace jdEngineSDK {
     JDMatrix4 final_world_transform;
   };
 
-  class Texture2D;
 		class Mesh
 		{
 		 public:
@@ -298,7 +299,6 @@ namespace jdEngineSDK {
 
     Model* m_myModel;
     Vector<JDMatrix4> m_bonesTransforms;
-    Vector<BoneMatrix> m_bone_matrices;
 
     friend class ResourceManager;
     friend class CRenderModel;

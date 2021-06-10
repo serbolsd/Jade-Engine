@@ -19,8 +19,7 @@ namespace jdEngineSDK {
   class JD_CORE_EXPORT GameObject
   {
    private:
-    class CLayer 
-    {
+    class CLayer {
      public:
       bool 
       operator()(SPtr<GameObject> gA, SPtr<GameObject> gB) const {
@@ -84,7 +83,7 @@ namespace jdEngineSDK {
 
     MultiSet<SPtr<GameObject>, CLayer> m_children;
 
-    uint32 m_modelOption=0;
+    uint32 m_modelOption = 0;
    protected:
     SPtr<GameObject> m_parent = nullptr;
     Map<COMPONENT_TYPE::E, SPtr<Component>> m_components;

@@ -16,8 +16,7 @@
 
 namespace jdEngineSDK {
 
-  class Texture2D : public Resource
-  {
+  class Texture2D : public Resource {
    public:
     /**
      * @brief default constructor
@@ -77,8 +76,8 @@ namespace jdEngineSDK {
       return m_data;
     }
 
-    virtual void
-    release() {};
+    //virtual void
+    //release() override {};
    protected:
     String m_name = "defaultName";
     uint32 m_width;

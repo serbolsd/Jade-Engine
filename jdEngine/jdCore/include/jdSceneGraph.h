@@ -19,11 +19,9 @@
 
 namespace jdEngineSDK {
 
-		class JD_CORE_EXPORT SceneGraph : public Module<SceneGraph>
-		{
+		class JD_CORE_EXPORT SceneGraph : public Module<SceneGraph>	{
    private:
-    class CLayer 
-    {
+    class CLayer {
      public:
       bool 
       operator()(SPtr<GameObject> gA, SPtr<GameObject> gB) const {
