@@ -15,7 +15,6 @@
 
 #include <jdVector4.h>
 #include <jdMatrix4.h>
-#include <assimp/scene.h>
 
 #include "jdComponent.h"
 #include "jdResource.h"

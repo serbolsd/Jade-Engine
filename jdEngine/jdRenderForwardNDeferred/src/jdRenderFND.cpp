@@ -2,8 +2,11 @@
 #include <jdComponentTransform.h>
 #include <jdComponentRenderModel.h>
 #include <jdComponentLight.h>
+#include <jdRigidBody.h>
+#include <jdPhysical.h>
 #include <InputAPI.h>
 #include <jdSaveData.h>
+#include <jdProfiler.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -48,12 +51,14 @@ namespace jdEngineSDK {
     {
       addCameraComponent();
     }
+    addRgidBodyComponent();
     showTexturesResources();
     showModels();
     showAmbientOption();
     showAmbientOclusionOption();
     showBrightOption();
     showBlurOption();
+    showPhysicsOption();
     showCameraInterpolateMenu();
     showHistorgramOption();
 
@@ -173,12 +178,12 @@ namespace jdEngineSDK {
   RenderFNDApi::onCreate() {
     //Get render target view created when start up the graphic api
     m_rtv = g_graphicsApi().getRenderTargetView();
-    g_graphicsApi().loadShaderFromFile("DX_animation.fx",
-                                       "VS",
-                                       "vs_5_0",
-                                       "DX_animation.fx",
-                                       "PS",
-                                       "ps_5_0");
+
+
+
+
+
+
 
     //Create RenderTargets
     //Create forward render target
@@ -1232,7 +1237,7 @@ namespace jdEngineSDK {
           if (ImGui::MenuItem("Image")) {
             m_typeResourceToLoad = RESOURCE_TYPE::TEXTURE;
             //m_fileDialog->SetTypeFilters({ ".jpg.png.dds",".jpg", ".png", ".dds" });
-            m_fileDialog->SetTypeFilters({ ".jpg", ".png", ".dds" });
+            m_fileDialog->SetTypeFilters({ ".jpg", ".png", ".dds", ".jdt" });
             m_fileDialog->Open();
             m_importResource = true;
           }
@@ -1308,6 +1313,7 @@ namespace jdEngineSDK {
         ImGui::Checkbox("AO options", &m_showAOOptions);
         ImGui::Checkbox("Bright options", &m_showBrightOptions);
         ImGui::Checkbox("Blur options", &m_showBlurOptions);
+        ImGui::Checkbox("Physics options", &m_showPhysicsOptions);
         ImGui::Checkbox("Histogram", &m_showHistogram);
         if (m_bWireframe) {
           g_graphicsApi().setRasterizeState(m_wireframeRasState);
@@ -1417,13 +1423,37 @@ namespace jdEngineSDK {
       EditTransform();
       CTransform* trans = reinterpret_cast<CTransform*>(component.get());
       JDVector3 rot = trans->euler;
+      JDVector3 pos = trans->position;
       ImGui::DragFloat3("Rotacion", &rot.x, 0.1f);
-      ImGui::DragFloat3("Position", &trans->position.x, 0.1f);
+      ImGui::DragFloat3("Position", &pos.x, 0.1f);
       ImGui::DragFloat3("Scale", &trans->scale.x, 0.1f);
       if (rot != trans->euler) {
         trans->rotation = { Degree(rot.x), Degree(rot.y), Degree(rot.z) };
         trans->euler = rot;
+        auto component =
+          SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::RIGIDBODY);
+        if (nullptr != component)
+        {
+          RigidBody* rig = reinterpret_cast<RigidBody*>(component.get());
+          //PxVec3 quar = rig->m_pRigid->getGlobalPose().;
+          PxQuat quar = { trans->rotation.x,trans->rotation.y,trans->rotation.z,trans->rotation.w };
+          rig->m_pRigid->setGlobalPose(PxTransform(trans->position.x, trans->position.y, trans->position.z, quar));
+        }
       }
+      if (pos!= trans->position)
+      {
+        trans->position = pos;
+        auto component =
+          SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::RIGIDBODY);
+        if (nullptr != component)
+        {
+          RigidBody* rig = reinterpret_cast<RigidBody*>(component.get());
+          //PxQuat quar = rig->m_pRigid->getGlobalPose().q;
+          PxQuat quar = { trans->rotation.x,trans->rotation.y,trans->rotation.z,trans->rotation.w };
+          rig->m_pRigid->setGlobalPose(PxTransform(trans->position.x, trans->position.y, trans->position.z, quar));
+        }
+      }
+      
       trans->Update(0.0f);
     }
     component =
@@ -1764,7 +1794,7 @@ namespace jdEngineSDK {
     ImGui::Begin("Components", &m_showComponentImGui);
     static ImGuiTextFilter filter;
     filter.Draw("Filter");
-    const char* lines[] = { "Transform", "RenderModel","Light","Camera" };
+    const char* lines[] = { "Transform", "RenderModel","Light","Camera", "RigidBody" };
     for (int i = 0; i < IM_ARRAYSIZE(lines); i++) {
       if (filter.PassFilter(lines[i])) {
         if (ImGui::Button(lines[i])) {
@@ -1783,6 +1813,10 @@ namespace jdEngineSDK {
             m_newCameraName += std::to_string(CameraManager::instance().getNumberOfCameras());
             m_addigCamera = true;
             break;
+           case 4:
+            //addRgidBodyComponent();
+            m_showRigidComponentImGui = true;
+            break;
            default:
             break;
           }
@@ -1791,6 +1825,36 @@ namespace jdEngineSDK {
       }
     }
     ImGui::End();
+  }
+
+  void 
+  RenderFNDApi::addRgidBodyComponent() {
+    if (!m_showRigidComponentImGui)
+      return;
+    ImGui::Begin("Rigid Options", &m_showRigidComponentImGui);
+
+    if (ImGui::Button("Dynamic")) {
+      SPtr<RigidBody> rigid;
+      auto component =
+        SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
+      CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+      rigid = g_Physics().createRigidDynamicSphere(10, trans->position, 1.0f);
+      SceneGraph::instance().selectedObjet->addComponent(COMPONENT_TYPE::RIGIDBODY, rigid);
+      m_showRigidComponentImGui = false;
+    }
+    else if (ImGui::Button("Static"))
+    {
+      SPtr<RigidBody> rigid;
+      auto component =
+        SceneGraph::instance().selectedObjet->getComponent(COMPONENT_TYPE::TRANSFORM);
+      CTransform* trans = reinterpret_cast<CTransform*>(component.get());
+      rigid = g_Physics().createRigidStaticSphere(100, trans->position);
+      SceneGraph::instance().selectedObjet->addComponent(COMPONENT_TYPE::RIGIDBODY, rigid);
+      m_showRigidComponentImGui = false;
+    }
+
+    ImGui::End();
+
   }
 
   void 
@@ -1958,7 +2022,59 @@ namespace jdEngineSDK {
     }
   }
 
-  void 
+  void RenderFNDApi::showPhysicsOption() {
+    if (!m_showPhysicsOptions) {
+      return;
+    }
+    if (ImGui::Begin("Blur Options", &m_showPhysicsOptions)) {
+      auto gravity = g_Physics().getGravity();
+      auto temp = gravity;
+      ImGui::DragFloat3("Gravity;", &temp.x);
+      if (temp != gravity) {
+        g_Physics().setGravity(temp);
+      }
+      if (!*m_simulate) {
+        if (ImGui::Button("Play")) {
+          for (auto object : SceneGraph::instance().m_GObjects) {
+            auto component = object->getComponent(COMPONENT_TYPE::RIGIDBODY);
+            if (nullptr != component) {
+              RigidBody* rb = reinterpret_cast<RigidBody*>(component.get());
+              rb->saveOriginalData();
+            }
+          }
+          *m_simulate = true;
+        }
+      }
+      else {
+        if (ImGui::Button("Stop")) {
+          g_Physics().setTime(0.0f);
+          for (auto object : SceneGraph::instance().m_GObjects) {
+            auto component = object->getComponent(COMPONENT_TYPE::RIGIDBODY);
+            if (nullptr != component) {
+              RigidBody* rb = reinterpret_cast<RigidBody*>(component.get());
+              rb->LoadOriginalData();
+            }
+          }
+          *m_simulate = false;
+        }
+        if (!*m_simulatePause)
+        {
+          if (ImGui::Button("Pause")) {
+            *m_simulatePause = true;
+          }
+        }
+        else
+        {
+          if (ImGui::Button("Continue")) {
+            *m_simulatePause = false;
+          }
+        }
+      }
+      ImGui::End();
+    }
+  }
+
+  void
   RenderFNDApi::showCameraInterpolateMenu() {
     if (!m_cameraInterpolateMenu)
     {
@@ -2064,8 +2180,12 @@ namespace jdEngineSDK {
     if (m_fileDialog->HasSelected()) {
       uint32 files = (uint32)m_fileDialog->GetMultiSelected().size();
       for (uint32 i = 0; i < files; ++i) {
+        g_Profiler().start();
         g_ResourceMan().loadResourceFromFile(m_fileDialog->GetMultiSelected()[i].string().c_str(),
-          m_typeResourceToLoad);
+                                             m_typeResourceToLoad);
+        String std = "Load Resource: ";
+          std += m_fileDialog->GetMultiSelected()[i].string().c_str();
+        g_Profiler().toc(std.c_str());
       }
       //std::cout << "Selected filename" << m_fileDialog->GetSelected().string() << std::endl;
       m_fileDialog->ClearSelected();

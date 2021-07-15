@@ -14,6 +14,7 @@
 #include "jdPrerequisitesCore.h"
 #include "jdComponent.h"
 #include "jdCamera.h"
+#include <jdQuaternion.h>
 
 namespace jdEngineSDK {
   namespace TYPESAVED {

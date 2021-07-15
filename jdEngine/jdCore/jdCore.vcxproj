@@ -98,7 +98,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -122,7 +122,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -174,7 +174,7 @@
       <PreprocessorDefinitions>JD_CORE_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/assimp/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)jdSysInput/include/;$(CUDA_PATH)/include/;$(DEVLIBS)physx/include/;$(SolutionDir)dependencies/stb_image/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -212,6 +212,7 @@
     <ClCompile Include="src\jdProfiler.cpp" />
     <ClCompile Include="src\jdResourceManager.cpp" />
     <ClCompile Include="src\jdComponentTransform.cpp" />
+    <ClCompile Include="src\jdRigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui-sfml\include\imconfig.h" />
@@ -222,6 +223,7 @@
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_rectpack.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_textedit.h" />
     <ClInclude Include="..\dependencies\imgui-sfml\include\imstb_truetype.h" />
+    <ClInclude Include="..\dependencies\stb_image\stb_image.h" />
     <ClInclude Include="include\jdBaseApp.h" />
     <ClInclude Include="include\jdCamera.h" />
     <ClInclude Include="include\jdCameraManager.h" />
@@ -251,6 +253,7 @@
     <ClInclude Include="include\jdRenderTargetView.h" />
     <ClInclude Include="include\jdResource.h" />
     <ClInclude Include="include\jdResourceManager.h" />
+    <ClInclude Include="include\jdRigidBody.h" />
     <ClInclude Include="include\jdSampler.h" />
     <ClInclude Include="include\jdSaveData.h" />
     <ClInclude Include="include\jdSceneGraph.h" />
@@ -260,7 +263,6 @@
     <ClInclude Include="include\jdVertexShader.h" />
     <ClInclude Include="include\jdViewPort.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\jdRigidBody.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="jdCore.rc" />

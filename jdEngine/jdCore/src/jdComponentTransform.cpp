@@ -3,11 +3,13 @@
 #include <jdDegree.h>
 
 #include "jdGameObject.h"
+#include "jdRigidBody.h"
 
 namespace jdEngineSDK {
   void 
     CTransform::Update(const float& deltatime) {
     JDMatrix4 realMatT;
+
     if (nullptr != m_myObject->m_parent)
     {
       auto myparent = m_myObject->m_parent;

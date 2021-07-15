@@ -148,17 +148,25 @@ namespace jdEngineSDK {
     SPtr<Resource>
     loadTexture(const char* path);
 
+    SPtr<Resource>
+    loadMultipleTexture(const char* path);
+
     uint32
     createHash(const char* path) const;
 
     String
     getFileName(const char* path) const;
 
+    String
+    getFileNameWithoutExtention(const char* path) const;
+
     friend class GraphicApi;
     Map<uint32, SPtr<Resource>> m_resources;
 
     const aiScene* m_aiScene = new const aiScene;
     Assimp::Importer m_aiImporter;
+
+    String m_textureFolder = "data/Text/";
 		};
 
   JD_CORE_EXPORT ResourceManager&

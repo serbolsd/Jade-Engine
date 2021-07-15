@@ -156,8 +156,8 @@ namespace jdEngineSDK {
     CameraManager::startUp();
     ResourceManager::startUp();
     SceneGraph::startUp();
-
-
+    PhysicalManager::startUp();
+    g_Physics().onCreate();
     Logger::startUp();
     Profiler::startUp();
 
@@ -187,13 +187,16 @@ namespace jdEngineSDK {
 
     g_Render().init(m_window.getSystemHandle(), m_clientSize);
     g_Render().m_windowHasFocus = &m_windowHasFocus;
+    g_Render().m_simulate = &m_simulate;
+    g_Render().m_simulatePause = &m_simulatePause;
   }
 
   void 
   BaseApp::destroySystems() {
     Profiler::shutDown();
     Logger::shutDown();
-    RenderApi::shutDown;
+    PhysicalManager::shutDown();
+    RenderApi::shutDown();
     SceneGraph::instance().release();
     SceneGraph::shutDown();
     ResourceManager::instance().release();
@@ -338,6 +341,9 @@ namespace jdEngineSDK {
   void
   BaseApp::update(const float& deltaTime) {
     m_inputAPI->update();
+    if (m_simulate && !m_simulatePause) {
+      g_Physics().simulated(deltaTime);
+    }
     onUpdate(deltaTime);
   }
 

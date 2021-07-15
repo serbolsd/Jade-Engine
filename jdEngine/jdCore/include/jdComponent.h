@@ -25,6 +25,7 @@ namespace jdEngineSDK {
       SPRITE,
       CAMERA,
       LIGHT,
+      RIGIDBODY,
       KNUMCOMPONENTS
     };
   };

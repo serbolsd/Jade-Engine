@@ -360,6 +360,9 @@ namespace jdEngineSDK {
     void
     ImGuiAddComponent();
 
+    void
+    addRgidBodyComponent();
+
     /**
      * @brief function to show new ligth component data, create and set to object
      */
@@ -401,6 +404,13 @@ namespace jdEngineSDK {
      */
     void
     showBlurOption();
+
+
+    /**
+     * @brief function to show Physics option window
+     */
+    void
+    showPhysicsOption();
 
     /**
      * @brief function to show Camera Interpolate Menu window
@@ -981,6 +991,11 @@ namespace jdEngineSDK {
     /**
      * @brief To show the Bright Options
      */
+    bool m_showPhysicsOptions = false;
+
+    /**
+     * @brief To show the Bright Options
+     */
     bool m_showHistogram = false;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1035,6 +1050,7 @@ namespace jdEngineSDK {
      * @note only is false when the selected object is the root
      */
     bool m_showComponentImGui = false;
+    bool m_showRigidComponentImGui = false;
 
     /**
      * @brief size of the scene window

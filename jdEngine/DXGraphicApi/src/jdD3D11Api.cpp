@@ -1127,8 +1127,8 @@ namespace jdEngineSDK {
       return nullptr;
     }
     auto lenght = width * height * 4;
-    tex->m_data = new unsigned char[lenght];
-    memcpy(tex->m_data, toCopy, lenght);
+    //tex->m_data = new unsigned char[lenght];
+    //memcpy(tex->m_data, toCopy, lenght);
     tex->m_channels = channels;
     tex->m_width = width;
     tex->m_height = height;
@@ -1206,8 +1206,8 @@ namespace jdEngineSDK {
     desc.Width = width;
     desc.Height = height;
     auto lenght = width * height * 4;
-    tex->m_data = new unsigned char[lenght];
-    memcpy((char*)tex->m_data, (char*)data, lenght);
+    //tex->m_data = new unsigned char[lenght];
+    //memcpy((char*)tex->m_data, (char*)data, lenght);
     tex->m_channels = chanels;
     tex->m_width = width;
     tex->m_height = height;

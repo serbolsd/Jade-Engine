@@ -149,6 +149,12 @@ namespace jdEngineSDK {
     bool*
     m_windowHasFocus = nullptr;
 
+    bool*
+    m_simulate = nullptr;
+
+    bool*
+    m_simulatePause = nullptr;
+
    protected:
     /**
      * @brief handle to window
@@ -159,6 +165,7 @@ namespace jdEngineSDK {
      * @brief the window's client size
      */
     JDPoint m_clientSize = { 800,800 };
+
 
   };
 

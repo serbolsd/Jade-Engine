@@ -99,7 +99,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/;$(DEVLIBS)physx/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -122,7 +122,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/;$(DEVLIBS)physx/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -145,7 +145,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/;$(DEVLIBS)physx/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -168,7 +168,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include/;$(SolutionDir)jdRender/Include/;$(SolutionDir)jdCore/include/;$(SolutionDir)jdUtilities/Include/;$(DEVLIBS)SFML/include/;$(SolutionDir)dependencies/imgui-sfml/include/;$(SolutionDir)dependencies/assimp/include/;$(CUDA_PATH)/include/;$(SolutionDir)dependencies/stb_image/;$(SolutionDir)dependencies/imGuizmo/;$(SolutionDir)jdSysInput/include/;$(DEVLIBS)physx/include/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>

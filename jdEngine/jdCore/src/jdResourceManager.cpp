@@ -1,7 +1,11 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "jdResource.h"
 #include "jdResourceManager.h"
 #include "jdGraphicApi.h"
 #include "jdSaveData.h"
+
+#include <stb_image.h>
 namespace jdEngineSDK {
   ResourceManager&
     g_ResourceMan() {
@@ -16,6 +20,12 @@ namespace jdEngineSDK {
     {
       return m_resources.find(newId)->second;
     }
+    String p = path;
+    if (p.find(".jdt") != String::npos)
+    {
+      return loadMultipleTexture(path);
+    }
+
     SPtr<Resource> newResource;
     switch (type)
     {
@@ -638,10 +648,6 @@ namespace jdEngineSDK {
             meshVertex[v].Pos.x = mesh->mVertices[v].x;
             meshVertex[v].Pos.y = mesh->mVertices[v].y;
             meshVertex[v].Pos.z = mesh->mVertices[v].z;
-            if (meshVertex[v].Pos == JDVector4(0, 0, 0, 1))
-            {
-              std::cout << "algo anda mal\n";
-            }
             meshVertex[v].Pos.w = 1.0f;
           }
         }
@@ -760,7 +766,8 @@ namespace jdEngineSDK {
         aiString PathMat;
         if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &PathMat, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
         {
-          SPtr<Resource> albedo = loadResourceFromFile(PathMat.C_Str(), RESOURCE_TYPE::TEXTURE);
+          String dir = m_textureFolder + getFileNameWithoutExtention(PathMat.C_Str()) + ".png";
+          SPtr<Resource> albedo = loadResourceFromFile(dir.c_str(), RESOURCE_TYPE::TEXTURE);
           if (nullptr == albedo)
           {
             newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
@@ -784,22 +791,70 @@ namespace jdEngineSDK {
         aiString PathMat;
         if (pMaterial->GetTexture(aiTextureType_NORMALS, 0, &PathMat, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
         {
-          SPtr<Resource> normal = loadResourceFromFile(PathMat.C_Str(), RESOURCE_TYPE::TEXTURE);
+          String dir = m_textureFolder + getFileNameWithoutExtention(PathMat.C_Str()) + ".png";
+          SPtr<Resource> normal = loadResourceFromFile(dir.c_str(), RESOURCE_TYPE::TEXTURE);
           if (nullptr == normal)
           {
-            newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_NORMAL);
+            newMesh->setNormalTexture(g_ResourceMan().DEFAULT_TEXTURE_NORMAL);
           }
           else
           {
             SPtr<Texture2D> no(normal, reinterpret_cast<Texture2D*>(normal.get()));
-            newMesh->setAlbedoTexture(no);
+            newMesh->setNormalTexture(no);
           }
         }
       }
       else
       {
-        newMesh->setAlbedoTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+        newMesh->setNormalTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
       }
+
+      if (pMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
+      {
+        aiString PathMat;
+        if (pMaterial->GetTexture(aiTextureType_SPECULAR, 0, &PathMat, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
+        {
+          String dir = m_textureFolder + getFileNameWithoutExtention(PathMat.C_Str()) + ".png";
+          SPtr<Resource> spec = loadResourceFromFile(dir.c_str(), RESOURCE_TYPE::TEXTURE);
+          if (nullptr == spec)
+          {
+            newMesh->setSpecularTexture(g_ResourceMan().DEFAULT_TEXTURE_NORMAL);
+          }
+          else
+          {
+            SPtr<Texture2D> no(spec, reinterpret_cast<Texture2D*>(spec.get()));
+            newMesh->setSpecularTexture(no);
+          }
+        }
+      }
+      else
+      {
+        newMesh->setSpecularTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+      }
+
+      if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+      {
+        aiString PathMat;
+        if (pMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &PathMat, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
+        {
+          String dir = m_textureFolder + getFileNameWithoutExtention(PathMat.C_Str()) + ".png";
+          SPtr<Resource> roug = loadResourceFromFile(dir.c_str(), RESOURCE_TYPE::TEXTURE);
+          if (nullptr == roug)
+          {
+            newMesh->setRoughnessTexture(g_ResourceMan().DEFAULT_TEXTURE_NORMAL);
+          }
+          else
+          {
+            SPtr<Texture2D> no(roug, reinterpret_cast<Texture2D*>(roug.get()));
+            newMesh->setRoughnessTexture(no);
+          }
+        }
+      }
+      else
+      {
+        newMesh->setRoughnessTexture(g_ResourceMan().DEFAULT_TEXTURE_ERROR);
+      }
+
       SPtr<Mesh> meshToAdd(newMesh);
       newModel->addMesh(meshToAdd);
     }
@@ -927,13 +982,12 @@ namespace jdEngineSDK {
       //read vertexData
       newMesh->m_numVertex = meshInfo.numVertex;
       auto vData = new DefaultVertexData[meshInfo.numVertex];
-      projectFile.read((char*)vData,
-        sizeof(DefaultVertexData) * meshInfo.numVertex);
+      projectFile.read((char*)vData, sizeof(DefaultVertexData) * meshInfo.numVertex);
       newMesh->m_vertexData.reset(vData);
       //creata vertex buffer
       newMesh->setVertexBuffer(g_graphicsApi().createVertexBuffer(meshInfo.numVertex,
-        sizeof(DefaultVertexData),
-        vData));
+                                                                  sizeof(DefaultVertexData),
+                                                                  vData));
 
       //read index
       newMesh->m_numIndex = meshInfo.numIndex;
@@ -1125,6 +1179,93 @@ namespace jdEngineSDK {
     return newTex;
   }
 
+  SPtr<Resource> 
+  ResourceManager::loadMultipleTexture(const char* path) {
+    String pa = path;
+    SPtr<Texture2D> newTex;
+
+    int32 width, height, channels;
+    unsigned char* img = stbi_load(path, &width, &height, &channels, 4);
+
+    int32 size = width * height;
+    int32 sizeWithChannels = size * 4;
+    unsigned char* AO = new unsigned char[sizeWithChannels];
+    unsigned char* Metal = new unsigned char[sizeWithChannels];
+    unsigned char* Roug = new unsigned char[sizeWithChannels];
+    int32 realIndex = 0;
+    for (int32 i = 0; i < size; ++i)
+    {
+      realIndex = i * 4;
+      AO[realIndex] = img[realIndex];
+      AO[realIndex + 1] = img[realIndex];
+      AO[realIndex + 2] = img[realIndex];
+      AO[realIndex + 3] = 255;
+
+      Metal[realIndex] = img[realIndex + 1];
+      Metal[realIndex + 1] = img[realIndex + 1];
+      Metal[realIndex + 2] = img[realIndex + 1];
+      Metal[realIndex + 3] = 255;
+
+      Roug[realIndex] = img[realIndex + 2];
+      Roug[realIndex + 1] = img[realIndex + 2];
+      Roug[realIndex + 2] = img[realIndex + 2];
+      Roug[realIndex + 3] = 255;
+    }
+
+    SPtr<Resource> newResource;
+    String filename = getFileName(path);
+    
+    String name = "AO";
+    String nameRe = "AO";
+    name += filename;
+    nameRe += filename;
+    uint32 newId = createHash(name.c_str());
+    newTex = g_graphicsApi().CreatTextureFromArray(AO, width, height, 4);
+    m_textures.push_back(newTex);
+    char* cname = new char[name.size() + 1];
+    strcpy(cname, name.c_str());
+    m_texturesNames.push_back(cname);
+    newTex->setName(name);
+    newResource = newTex;
+    newResource->setName(nameRe);
+    newResource.get()->setID(newId);
+    m_resources.insert(std::pair <uint32, SPtr<Resource>>(newId, newResource));
+
+    name = "METAL";
+    nameRe = "METAL";
+    name += filename;
+    nameRe += filename;
+    newId = createHash(name.c_str());
+    newTex = g_graphicsApi().CreatTextureFromArray(Metal, width, height, 4);
+    m_textures.push_back(newTex);
+    char* cname2 = new char[name.size() + 1];
+    strcpy(cname2, name.c_str());
+    m_texturesNames.push_back(cname2);
+    newTex->setName(name);
+    newResource = newTex;
+    newResource->setName(name);
+    newResource.get()->setID(newId);
+    m_resources.insert(std::pair <uint32, SPtr<Resource>>(newId, newResource));
+
+    name = "ROUG";
+    nameRe = "ROUG";
+    name += filename;
+    nameRe += filename;
+    newId = createHash(name.c_str());
+    newTex = g_graphicsApi().CreatTextureFromArray(Roug, width, height, 4);
+    m_textures.push_back(newTex);
+    char* cname3 = new char[name.size() + 1];
+    strcpy(cname3, name.c_str());
+    m_texturesNames.push_back(cname3);
+    newTex->setName(name);
+    newResource = newTex;
+    newResource->setName(name);
+    newResource.get()->setID(newId);
+    m_resources.insert(std::pair <uint32, SPtr<Resource>>(newId, newResource));
+
+    return newResource;
+  }
+
   uint32
   ResourceManager::createHash(const char* path) const {
     uint32 iterator = 0;
@@ -1149,6 +1290,22 @@ namespace jdEngineSDK {
       token = nextToken;
       token = strtok_s(token, "\\/", &nextToken);
     }
+    name = token;
+    return name;
+  }
+
+  String 
+  ResourceManager::getFileNameWithoutExtention(const char* path) const {
+    char* token = NULL;
+    char* nextToken = NULL;
+    String name = path;
+    token = strtok_s((char*)name.c_str(), "\\/", &nextToken);
+    while ('\0' != nextToken[0])
+    {
+      token = nextToken;
+      token = strtok_s(token, "\\/", &nextToken);
+    }
+    token = strtok_s(token, ".", &nextToken);
     name = token;
     return name;
   }

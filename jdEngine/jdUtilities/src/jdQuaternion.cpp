@@ -6,6 +6,9 @@ namespace jdEngineSDK {
   Quaternion::Quaternion(const float& _x, const float& _y, const float& _z) : 
     x(_x), y(_y), z(_z), w(0.0f) {}
 
+  Quaternion::Quaternion(const float& _x, const float& _y, const float& _z, const float& _w) :
+    x(_x), y(_y), z(_z), w(_w) {}
+
   Quaternion::Quaternion(const Radian& _x, const Radian& _y, const Radian& _z) {
     float fSinPitch = Math::taylorSin(_x.valueRadians() * 0.5f);
     float fCosPitch = Math::taylorCos(_x.valueRadians() * 0.5f);

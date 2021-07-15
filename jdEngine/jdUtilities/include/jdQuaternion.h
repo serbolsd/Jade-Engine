@@ -39,6 +39,7 @@ namespace jdEngineSDK {
      * @param w is the w component of the quaternion
      */
     Quaternion(const float& x, const float& y, const float& z);
+    Quaternion(const float& x, const float& y, const float& z, const float& w);
     Quaternion(const Radian& x, const Radian& y, const Radian& z);
     Quaternion(const Degree& x, const Degree& y, const Degree& z);
     

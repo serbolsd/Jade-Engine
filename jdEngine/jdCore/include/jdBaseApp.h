@@ -23,6 +23,7 @@
 #include "jdRender.h"
 #include "jdLogger.h"
 #include "jdProfiler.h"
+#include "jdPhysical.h"
 
 using sf::WindowBase;
 using sf::Event;
@@ -301,6 +302,16 @@ namespace jdEngineSDK {
      * @brief if the window has focus
      */
     bool m_windowHasFocus = false;
+
+    /**
+     * @brief if simulate physics
+     */
+    bool m_simulate = false;
+
+    /**
+     * @brief if simulate physics
+     */
+    bool m_simulatePause = false;
 
     /**
      * @brief the window
